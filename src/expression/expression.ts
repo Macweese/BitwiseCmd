@@ -4,6 +4,7 @@ import ListOfNumbers from './ListOfNumbers';
 import BitwiseOperation from './BitwiseOperation';
 import { Expression, ExpressionElement } from './expression-interfaces';
 import { numberParser } from './numberParser';
+import { PrattParser } from './PrattParser';
 
 export { default as Operand } from './Operand';
 export { default as Operator } from './Operator';
@@ -50,7 +51,7 @@ class ExpressionParser {
     };
 
     addFactory (factory: IExpressionParserFactory) {
-      this.factories.push(factory);
+        this.factories.push(factory);
     }
 }
 
@@ -78,52 +79,52 @@ class ListOfNumbersExpressionFactory implements IExpressionParserFactory
 
 class BitwiseOperationExpressionFactory implements IExpressionParserFactory {
     fullRegex: RegExp;
-    regex: RegExp;
 
     constructor() {
-        this.fullRegex = /^[-,~,<,>,&,^|,*,/,-,b,x,l,s,u,a-f,0-9,+\s]+$/i;
-        this.regex = /(<<|>>|>>>|\||&|\^|\+|\*|\/|(?<!^)-)?(~?-?(?:[b,x,l,s,u,,a-f,0-9]+))/gi;
+        // Updated regex to include parentheses
+        this.fullRegex = /^[-,~,<,>,&,^|,*,%,\/,\(,\),-,b,x,l,s,u,a-f,0-9,+\s]+$/i;
     }
 
-    canCreate (input: string) : boolean {
+    canCreate(input: string): boolean {
         this.fullRegex.lastIndex = 0;
         return this.fullRegex.test(this.normalizeString(input));
     };
 
-    create (input: string) : Expression {
-        var m : RegExpExecArray | null;
-        const operands : ExpressionElement[] = [];
+    create(input: string): Expression {
         const normalizedString = this.normalizeString(input);
 
-        this.regex.lastIndex = 0;
+        try {
+            // Try to use the Pratt parser (supports precedence and parentheses)
+            const prattParser = new PrattParser(normalizedString);
+            const { finalResult, steps } = prattParser.parse();
 
-        while ((m = this.regex.exec(normalizedString)) !== null) {
-            operands.push(this.parseMatch(m));
-        }
-                
-        return new BitwiseOperation(normalizedString, operands)
-    };
+            // Convert steps to ExpressionElement format for compatibility
+            const children = this.stepsToChildren(steps, finalResult);
 
-    parseMatch (m:RegExpExecArray): ExpressionElement {
-
-        var operator = m[1],
-            num = m[2];
-
-        var parsed = null;
-
-        if(num.indexOf('~') === 0) {
-            parsed = new Operator(parseScalarValue(num.substring(1)), '~');
-        }
-        else {
-            parsed = parseScalarValue(num);
-        }
-
-        if(operator === undefined || operator === null) {
-            return parsed as Operator;
-        } else {
-            return new Operator(parsed as Operand, operator);
+            return new BitwiseOperation(normalizedString, children, steps);
+        } catch (error) {
+            // If Pratt parser fails, this will bubble up the error
+            throw error;
         }
     };
+
+    private stepsToChildren(steps: any[], finalResult: Operand): ExpressionElement[] {
+        const children: ExpressionElement[] = [];
+
+        if (steps.length === 0) {
+            return [finalResult];
+        }
+
+        // Add first operand
+        children.push(steps[0].leftOperand);
+
+        // Add each operation
+        for (const step of steps) {
+            children.push(new Operator(step.rightOperand, step.operator));
+        }
+
+        return children;
+    }
 
     normalizeString (input : string): string {
         return input.replace(/\s+/g,'');

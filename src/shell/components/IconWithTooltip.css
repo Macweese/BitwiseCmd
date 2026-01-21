@@ -12,12 +12,14 @@
 .tooltip-holder .tooltip {
     display: none;
     font-size: 0.9em;
-    position: absolute;
-    margin-left: 5px;
+    position: fixed;
     width: 300px;
     padding: 10px;
     border-radius: 5px;
     z-index: 10;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(15px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .tooltip-holder .tooltip p {
@@ -29,10 +31,6 @@
     margin-bottom: 5px;
 }
 
-.tooltip:hover {
-    display: inline;
-}
-
 .tooltip-holder:hover .tooltip {
-    display: inline;
+    display: block;
 }
