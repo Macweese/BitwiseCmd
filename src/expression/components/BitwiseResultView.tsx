@@ -3,7 +3,7 @@ import formatter from '../../core/formatter';
 import BinaryStringView, { FlipBitEventArg as BitClickedEventArg } from '../../core/components/BinaryString';
 import BitwiseResultViewModel from './BitwiseResultViewModel';
 import { Expression, ExpressionElement } from '../expression-interfaces';
-import { Operator, Operand, ListOfNumbers } from '../expression';
+import {Operator, Operand, ListOfNumbers, BitwiseOperation} from '../expression';
 import calc from '../../core/calc';
 import { Integer } from '../../core/Integer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -64,8 +64,8 @@ export default class BitwiseResultView extends React.Component<BitwiseResultView
 
     getRows(model: BitwiseResultViewModel, allowSignChange: boolean): JSX.Element[] {
 
-        const maxAnnotatedSize = this.props.annotateTypes ? model.items.map(i => i.maxBitSize).sort().reverse()[0] :0;        
-        
+        const maxAnnotatedSize = this.props.annotateTypes ? model.items.map(i => i.maxBitSize).sort().reverse()[0] :0;
+
         this.maxSeenLengthNumberOfBits = Math.max(model.maxNumberOfBits, this.maxSeenLengthNumberOfBits);
 
         const finalMaxBits = Math.max(this.maxSeenLengthNumberOfBits, maxAnnotatedSize);
@@ -82,6 +82,7 @@ export default class BitwiseResultView extends React.Component<BitwiseResultView
                 emphasizeBytes={this.props.emphasizeBytes}
                 maxNumberOfBits={finalMaxBits}
                 annotateTypes={this.props.annotateTypes}
+                expression={this.props.expression}
                 onValueChanged={() => this.onValueChanged()} />);
     }
 
@@ -101,7 +102,8 @@ type ExpressionElementRowProps = {
     allowSignChange: boolean,
     expressionItem: ExpressionElement,
     onValueChanged: any,
-    annotateTypes: boolean
+    annotateTypes: boolean,
+    expression: Expression
 };
 
 class ExpressionElementTableRow extends React.Component<ExpressionElementRowProps> {
@@ -201,24 +203,29 @@ class ExpressionElementTableRow extends React.Component<ExpressionElementRowProp
     }
 
     onBitClicked(args: BitClickedEventArg) {
-
         const { bitIndex, binaryStringLength } = args;
-
         const maxBitSize = this.scalar.value.maxBitSize;
-
         const rightIndex = binaryStringLength - bitIndex;
 
         if (rightIndex <= maxBitSize) {
             const pad = this.scalar.value.maxBitSize - binaryStringLength;
             const newValue = calc.flipBit(this.scalar.value, pad + bitIndex);
-            this.changeValue(newValue);
+
+            // UPDATE: Use the tree's update mechanism
+            const expr = this.props.expression;
+            if (expr instanceof BitwiseOperation && expr.tree) {
+                expr.tree.updateOperand(this.scalar.id, newValue);
+                // Force complete re-render with fresh tree evaluation
+                this.props.onValueChanged();
+            } else {
+                // Fallback for ListOfNumbers
+                this.changeValue(newValue);
+            }
             return;
         }
 
-
         const space = (binaryStringLength - bitIndex - maxBitSize);
         this.changeValue(calc.addSpace(this.scalar.value, space));
-        loglevel.debug("Operand size changed");
     }
 
     onChangeSign() {
