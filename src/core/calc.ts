@@ -40,6 +40,7 @@ const calc = {
             case "-": return this.sub(op1, op2);
             case "*": return this.mul(op1, op2);
             case "/": return this.div(op1, op2);
+            case "%": return this.mod(op1, op2);
             default: throw new Error(operator + " operator is not supported");
         }
     },
@@ -122,6 +123,10 @@ const calc = {
 
     add(num1: Integer, num2: Integer) : Integer {
        return this._executeForTwoOperands(num1, num2, this.engine.add);
+    },
+
+    mod(num1: Integer, num2: Integer) : Integer {
+        return this._executeForTwoOperands(num1, num2, this.engine.mod);
     },
 
     _executeForSingleOperand(num: Integer, operation: (bin:string) => string) : Integer {
@@ -291,6 +296,33 @@ const calc = {
 
             const modulo = (BigInt(1) << BigInt(len));
             const wrapped = (((quotient % modulo) + modulo) % modulo);
+            return wrapped.toString(2).padStart(len, '0');
+        },
+        mod (bin1: string, bin2: string) : string {
+            checkSameLength(bin1, bin2);
+            const len = bin1.length;
+
+            const toSignedBigInt = (bin: string) => {
+                if (bin[0] === '1') {
+                    const mag = BigInt('0b' + calc.engine.applyTwosComplement(bin));
+                    return -mag;
+                }
+                return BigInt('0b' + bin);
+            };
+
+            const a = toSignedBigInt(bin1);
+            const b = toSignedBigInt(bin2);
+            if (b === BigInt(0))
+                throw new Error('Division by zero');
+
+            // JS/TS style modulus: sign of result matches dividend (a)
+            let remainder = a % b;
+            remainder = b < 0 ? -remainder : remainder;
+            console.log("remainder: " + remainder);
+
+            // Now wrap result within bitwidth, for two's complement, so sign is preserved
+            const modulo = (BigInt(1) << BigInt(len));
+            const wrapped = ((remainder % modulo) + modulo) % modulo;
             return wrapped.toString(2).padStart(len, '0');
         },
         flipBit(bin: string, bitIndex : number) : string {

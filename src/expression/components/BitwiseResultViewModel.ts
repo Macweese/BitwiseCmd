@@ -2,6 +2,7 @@ import { Operand, ListOfNumbers, BitwiseOperation, Operator } from '../expressio
 import { ExpressionElement, Expression } from '../expression-interfaces';
 import calc from '../../core/calc';
 import formatter from '../../core/formatter';
+import { Integer } from '../../core/Integer';
 
 type Config = {
     emphasizeBytes: boolean;
@@ -42,7 +43,62 @@ export default class BitwiseResultViewModel {
     }
 
     static buildBitwiseOperation (expr : BitwiseOperation, config : Config) {
+        const m = new BitwiseResultViewModel(config);
 
+        // If we have steps from the Pratt parser, use them
+        if (expr.steps && expr.steps.length > 0) {
+            return BitwiseResultViewModel.buildFromSteps(expr, config);
+        }
+
+        // Fallback to old logic for backward compatibility
+        return BitwiseResultViewModel.buildBitwiseOperationLegacy(expr, config);
+    };
+
+    static buildFromSteps(expr: BitwiseOperation, config: Config) {
+        const m = new BitwiseResultViewModel(config);
+
+        if (!expr.tree?.getEvaluationSteps()) {
+            m.maxNumberOfBits = BitwiseResultViewModel.applyEmphasizeBytes(m.maxNumberOfBits, m.emphasizeBytes);
+            return m;
+        }
+
+        // Get evaluation steps from the tree (which auto-recalculates)
+        const steps = expr.tree.getEvaluationSteps();
+
+        for (const step of steps) {
+            if (step.isLeaf) {
+                // This is a leaf operand
+                m.addScalarRow(step.result);
+            } else {
+                // This is an operation result
+                const operator = step.operator!;
+                const isUnary = step.leftOperand!.id === step.rightOperand!.id;
+                const isShift = operator === '<<' || operator === '>>' || operator === '>>>';
+
+                if (isUnary) {
+                    if (operator === '~') {
+                        m.addOperatorRow(new Operator(step.leftOperand!, '~'));
+                        m.addExpressionResultRow(step.result);
+                    } else if (operator === '-') {
+                        m.addOperatorRow(new Operator(step.leftOperand!, '-'));
+                        m.addExpressionResultRow(step.result);
+                    }
+                } else if (isShift) {
+                    m.addShiftExpressionResultRow(new Operator(step.rightOperand!, operator), step.result);
+                } else {
+                    m.addOperatorRow(new Operator(step.rightOperand!, operator));
+                    m.addExpressionResultRow(step.result);
+                }
+            }
+        }
+
+        m.maxNumberOfBits = BitwiseResultViewModel.applyEmphasizeBytes(m.maxNumberOfBits, m.emphasizeBytes);
+        return m;
+    }
+
+    // Remove the old recalculateSteps method - no longer needed!
+
+    static buildBitwiseOperationLegacy (expr : BitwiseOperation, config : Config) {
         const len = expr.children.length;
         const m = new BitwiseResultViewModel(config);
 
@@ -83,8 +139,8 @@ export default class BitwiseResultViewModel {
     addScalarRow(expr: Operand) {
         const bits = this.calcMaxNumberOfBits(expr);
         this.maxNumberOfBits = Math.max(bits, this.maxNumberOfBits);
-        this.items.push({ 
-            sign:'', 
+        this.items.push({
+            sign:'',
             css: '',
             expressionElement: expr,
             allowFlipBits: this.allowFlipBits,
@@ -94,14 +150,14 @@ export default class BitwiseResultViewModel {
     };
 
     addOperatorRow(expr: Operator) {
-        
+
         const resultNumber = expr.isNotExpression ? expr.evaluate() : expr.getUnderlyingOperand();
         const bits = this.calcMaxNumberOfBits(resultNumber);
-        
+
         this.maxNumberOfBits = Math.max(bits, this.maxNumberOfBits);
-        
-        this.items.push({ 
-            sign: expr.operator, 
+
+        this.items.push({
+            sign: expr.operator,
             css: '',
             label: this.getLabel(resultNumber),
             expressionElement: expr.operand,
@@ -109,7 +165,7 @@ export default class BitwiseResultViewModel {
             maxBitSize: resultNumber.value.maxBitSize
         });
     };
- 
+
     addShiftExpressionResultRow(expr : Operator, resultExpr : Operand) {
         const bits = this.calcMaxNumberOfBits(resultExpr);
         this.maxNumberOfBits = Math.max(bits, this.maxNumberOfBits);
@@ -125,14 +181,14 @@ export default class BitwiseResultViewModel {
     };
 
     addExpressionResultRow(expr : Operand) {
-        
+
         const bits = this.calcMaxNumberOfBits(expr);
         this.maxNumberOfBits = Math.max(bits, this.maxNumberOfBits);
 
-        this.items.push({ 
-            sign:'=', 
+        this.items.push({
+            sign:'=',
             css: 'expression-result',
-            expressionElement: expr, 
+            expressionElement: expr,
             allowFlipBits: false,
             label: '',
             maxBitSize: expr.value.maxBitSize
@@ -140,7 +196,7 @@ export default class BitwiseResultViewModel {
     };
 
     calcMaxNumberOfBits (op: Operand) {
-       return calc.numberOfBitsDisplayed(op.value);
+        return calc.numberOfBitsDisplayed(op.value);
     }
 
     getLabel (op: Operand) : string {
@@ -149,14 +205,14 @@ export default class BitwiseResultViewModel {
     }
 
     static applyEmphasizeBytes (bits : number, emphasizeBytes : boolean) : number {
-        
-        if(emphasizeBytes && bits % 8 !== 0) {
-             if(bits < 8) {
-                 return 8;
-             }
 
-             var n = bits - (bits % 8);
-             return n + 8;
+        if(emphasizeBytes && bits % 8 !== 0) {
+            if(bits < 8) {
+                return 8;
+            }
+
+            var n = bits - (bits % 8);
+            return n + 8;
         }
 
         return bits;
@@ -165,15 +221,15 @@ export default class BitwiseResultViewModel {
     static createModel(expr : Expression, emphasizeBytes: boolean, annotateDataTypes: boolean) : BitwiseResultViewModel {
 
         if(expr instanceof ListOfNumbers) {
-            return BitwiseResultViewModel.buildListOfNumbers(expr, { 
-                emphasizeBytes: emphasizeBytes, 
+            return BitwiseResultViewModel.buildListOfNumbers(expr, {
+                emphasizeBytes: emphasizeBytes,
                 allowFlipBits: true,
                 annotateDataTypes: annotateDataTypes
             });
         }
 
         if(expr instanceof BitwiseOperation) {
-            return BitwiseResultViewModel.buildBitwiseOperation(expr, { 
+            return BitwiseResultViewModel.buildBitwiseOperation(expr, {
                 emphasizeBytes: emphasizeBytes,
                 allowFlipBits: true,
                 annotateDataTypes: annotateDataTypes

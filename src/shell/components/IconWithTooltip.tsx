@@ -1,5 +1,6 @@
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useRef, useState } from "react";
 import "./IconWithTooltip.css";
 
 export type IconWithToolTipProps = {
@@ -7,10 +8,83 @@ export type IconWithToolTipProps = {
 }
 
 function IconWithToolTip (props: React.PropsWithChildren<IconWithToolTipProps>)  {
-    return <div className='tooltip-holder'>
-        <span className="tooltip-icon"><FontAwesomeIcon icon={props.icon} /></span>
+    const tooltipRef = useRef<HTMLDivElement>(null);
+    const iconRef = useRef<HTMLSpanElement>(null);
+    const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({ visibility: 'hidden' });
 
-        <div className='tooltip solid-border solid-background'>
+    const updateTooltipPosition = () => {
+        if (!tooltipRef.current || !iconRef.current) return;
+
+        const iconRect = iconRef.current.getBoundingClientRect();
+        const tooltipRect = tooltipRef.current.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+
+        let left = iconRect.right + 5;
+        let top = iconRect.top;
+
+        // Check if tooltip would overflow on the right
+        if (left + tooltipRect.width > viewportWidth) {
+            // Try positioning to the left of the icon
+            left = iconRect.left - tooltipRect.width - 5;
+
+            // If it still doesn't fit, position it aligned to the right edge
+            if (left < 0) {
+                left = viewportWidth - tooltipRect.width - 10;
+            }
+        }
+
+        // Check if tooltip would overflow on the bottom
+        if (top + tooltipRect.height > viewportHeight) {
+            // Position above the icon
+            top = iconRect.bottom - tooltipRect.height;
+
+            // If it still doesn't fit, align to bottom edge
+            if (top < 0) {
+                top = viewportHeight - tooltipRect.height - 10;
+            }
+        }
+
+        // Ensure it doesn't overflow on the left
+        if (left < 0) {
+            left = 10;
+        }
+
+        // Ensure it doesn't overflow on the top
+        if (top < 0) {
+            top = 10;
+        }
+
+        setTooltipStyle({
+            left: `${left}px`,
+            top: `${top}px`,
+            visibility: 'visible'
+        });
+    };
+
+    const handleMouseEnter = () => {
+        // First render hidden to measure, then position
+        // This is to avoid sporadic repositioning
+        setTooltipStyle({ visibility: 'hidden' });
+        requestAnimationFrame(() => {
+            updateTooltipPosition();
+        });
+    };
+
+    const handleMouseLeave = () => {
+        setTooltipStyle({ visibility: 'hidden' });
+    };
+
+    return <div className='tooltip-holder' onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <span className="tooltip-icon" ref={iconRef}>
+            <FontAwesomeIcon icon={props.icon} />
+        </span>
+
+        <div
+            className='tooltip solid-border solid-background'
+            ref={tooltipRef}
+            style={tooltipStyle}
+        >
             {props.children}
         </div>
     </div>;
