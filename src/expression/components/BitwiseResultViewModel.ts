@@ -57,34 +57,48 @@ export default class BitwiseResultViewModel {
     static buildFromSteps(expr: BitwiseOperation, config: Config) {
         const m = new BitwiseResultViewModel(config);
 
-        if (!expr.tree?.getEvaluationSteps()) {
-            m.maxNumberOfBits = BitwiseResultViewModel.applyEmphasizeBytes(m.maxNumberOfBits, m.emphasizeBytes);
+        if (!expr.tree) {
+            m.maxNumberOfBits = BitwiseResultViewModel.applyEmphasizeBytes(
+                m.maxNumberOfBits,
+                m.emphasizeBytes
+            );
             return m;
         }
 
-        // Get evaluation steps from the tree (which auto-recalculates)
         const steps = expr.tree.getEvaluationSteps();
 
+        // Track which operands are used as RIGHT operands in binary operations
+        const rightOperandIds = new Set<number>();
+
+        // First pass: identify all right operands in binary operations
+        for (const step of steps) {
+            if (!step.isLeaf && step.leftOperand!.id !== step.rightOperand!.id) {
+                rightOperandIds.add(step.rightOperand!.id);
+            }
+        }
+
+        // Second pass: build the display
         for (const step of steps) {
             if (step.isLeaf) {
-                // This is a leaf operand
-                m.addScalarRow(step.result);
+                const shouldDisplay = !rightOperandIds.has(step.result.id);
+                if (shouldDisplay) {
+                    m.addScalarRow(step.result);
+                }
             } else {
-                // This is an operation result
                 const operator = step.operator!;
                 const isUnary = step.leftOperand!.id === step.rightOperand!.id;
                 const isShift = operator === '<<' || operator === '>>' || operator === '>>>';
 
                 if (isUnary) {
-                    if (operator === '~') {
-                        m.addOperatorRow(new Operator(step.leftOperand!, '~'));
-                        m.addExpressionResultRow(step.result);
-                    } else if (operator === '-') {
-                        m.addOperatorRow(new Operator(step.leftOperand!, '-'));
+                    if (operator === '~' || operator === '-') {
+                        m.addOperatorRow(new Operator(step.leftOperand!, operator));
                         m.addExpressionResultRow(step.result);
                     }
                 } else if (isShift) {
-                    m.addShiftExpressionResultRow(new Operator(step.rightOperand!, operator), step.result);
+                    m.addShiftExpressionResultRow(
+                        new Operator(step.rightOperand!, operator),
+                        step.result
+                    );
                 } else {
                     m.addOperatorRow(new Operator(step.rightOperand!, operator));
                     m.addExpressionResultRow(step.result);
@@ -92,7 +106,10 @@ export default class BitwiseResultViewModel {
             }
         }
 
-        m.maxNumberOfBits = BitwiseResultViewModel.applyEmphasizeBytes(m.maxNumberOfBits, m.emphasizeBytes);
+        m.maxNumberOfBits = BitwiseResultViewModel.applyEmphasizeBytes(
+            m.maxNumberOfBits,
+            m.emphasizeBytes
+        );
         return m;
     }
 
