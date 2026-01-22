@@ -8,6 +8,10 @@
     background: var(--solid-bg-color);
 }
 
+.app-root .header {
+    width: 138px;
+}
+
 .app-root .header-cmd {
     color: var(--header-cmd-color);
 }
