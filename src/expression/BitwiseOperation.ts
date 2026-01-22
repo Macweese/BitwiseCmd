@@ -1,6 +1,6 @@
 import { Expression, ExpressionElement } from "./expression-interfaces";
 import { IntermediateStep } from "./PrattParser";
-import { ExpressionTree } from "./ExpressionTree";
+import {ExpressionNode, ExpressionTree} from "./ExpressionTree";
 
 export default class BitwiseOperation implements Expression {
     expressionString: string;
@@ -8,12 +8,12 @@ export default class BitwiseOperation implements Expression {
     steps: IntermediateStep[];
     tree: ExpressionTree | null;
 
-    constructor(expressionString: string, children: ExpressionElement[], steps?: IntermediateStep[]) {
+    constructor(expressionString: string, children: ExpressionElement[], steps?: IntermediateStep[], rootNode?: ExpressionNode) {
         this.expressionString = expressionString;
         this.children = children;
         this.steps = steps || [];
 
-        // Build expression tree if we have steps
-        this.tree = this.steps.length > 0 ? ExpressionTree.fromPrattSteps(this.steps) : null;
+        // Use provided root node or build from steps
+        this.tree = rootNode ? new ExpressionTree(rootNode) : null;
     }
 }

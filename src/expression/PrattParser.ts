@@ -2,13 +2,14 @@ import { Operand } from './expression';
 import { numberParser } from './numberParser';
 import calc from '../core/calc';
 import { Integer } from '../core/Integer';
+import { ExpressionNode } from './ExpressionTree';
 
 export interface IntermediateStep {
     operator: string;
     leftOperand: Operand;
     rightOperand: Operand;
     result: Operand;
-    expression: string; // The sub-expression that was evaluated
+    expression: string;
 }
 
 export class PrattParser {
@@ -16,7 +17,8 @@ export class PrattParser {
     private pos: number;
     private steps: IntermediateStep[];
     private originalInput: string;
-    private lastWasOperand: boolean; // Track whether we just parsed an operand
+    private lastWasOperand: boolean;
+    private nodeIdCounter: number;
 
     constructor(input: string) {
         this.originalInput = input;
@@ -24,21 +26,22 @@ export class PrattParser {
         this.pos = 0;
         this.steps = [];
         this.lastWasOperand = false;
+        this.nodeIdCounter = 10000;
     }
 
-    parse(): { finalResult: Operand; steps: IntermediateStep[] } {
-        const result = this.parseExpression(0);
+    parse(): { finalResult: Operand; steps: IntermediateStep[]; rootNode: ExpressionNode } {
+        const { result, node } = this.parseExpression(0);
 
         if (this.pos < this.input.length) {
             throw new Error(`Unexpected character at position ${this.pos}: '${this.input[this.pos]}'`);
         }
 
-        return { finalResult: result, steps: this.steps };
+        return { finalResult: result, steps: this.steps, rootNode: node };
     }
 
-    private parseExpression(minPrecedence: number): Operand {
-        let left = this.parsePrimary();
-        this.lastWasOperand = true; // We just parsed an operand
+    private parseExpression(minPrecedence: number): { result: Operand; node: ExpressionNode } {
+        let { result: left, node: leftNode } = this.parsePrimary();
+        this.lastWasOperand = true;
 
         while (true) {
             const op = this.peekOperator();
@@ -47,13 +50,24 @@ export class PrattParser {
             }
 
             this.consumeOperator();
-            this.lastWasOperand = false; // We just consumed an operator
+            this.lastWasOperand = false;
 
             const precedence = this.getPrecedence(op);
-            const right = this.parseExpression(precedence + (this.isLeftAssociative(op) ? 1 : 0));
+            const { result: right, node: rightNode } = this.parseExpression(
+                precedence + (this.isLeftAssociative(op) ? 1 : 0)
+            );
 
-            // Create intermediate step
+            // Apply operator and create tree node
             const result = this.applyOperator(left, op, right);
+
+            const opNode = new ExpressionNode(
+                result.id,
+                'operation',
+                result,
+                op,
+                leftNode,
+                rightNode
+            );
 
             this.steps.push({
                 operator: op,
@@ -62,78 +76,98 @@ export class PrattParser {
                 result: result,
                 expression: `${this.formatOperand(left)} ${op} ${this.formatOperand(right)}`
             });
+
             console.log(`Pushed step: ${op}  ${this.formatOperand(left)} ${op} ${this.formatOperand(right)}  →  ${this.formatOperand(result)}`);
 
             left = result;
-            this.lastWasOperand = true; // Result is now our left operand
+            leftNode = opNode;
+            this.lastWasOperand = true;
         }
 
-        return left;
+        return { result: left, node: leftNode };
     }
 
-    private parsePrimary(): Operand {
+    private parsePrimary(): { result: Operand; node: ExpressionNode } {
         this.skipWhitespace();
 
-        // Handle unary minus (negation)
+        // Handle unary minus
         if (this.peek() === '-') {
             this.pos++;
             this.lastWasOperand = false;
-            const operand = this.parsePrimary();
+            const { result: operand, node: operandNode } = this.parsePrimary();
 
-            // Negate the value by multiplying by -1
             const negatedValue = -operand.value.value;
             const result = new Operand(
                 new Integer(negatedValue, operand.value.maxBitSize, operand.value.signed),
                 operand.base
             );
 
-            // Add unary minus as a step
+            const unaryNode = new ExpressionNode(
+                result.id,
+                'unary',
+                result,
+                '-',
+                operandNode,
+                null
+            );
+
             this.steps.push({
                 operator: '-',
                 leftOperand: operand,
-                rightOperand: operand, // For unary minus, left and right are the same
+                rightOperand: operand,
                 result: result,
                 expression: `-${this.formatOperand(operand)}`
             });
 
-            return result;
+            return { result, node: unaryNode };
         }
 
-        // Handle unary NOT operator
+        // Handle unary NOT
         if (this.peek() === '~') {
             this.pos++;
             this.lastWasOperand = false;
-            const operand = this.parsePrimary();
+            const { result: operand, node: operandNode } = this.parsePrimary();
             const result = new Operand(calc.not(operand.value), operand.base);
 
-            // Add NOT as a step (special case - unary operator)
+            const unaryNode = new ExpressionNode(
+                result.id,
+                'unary',
+                result,
+                '~',
+                operandNode,
+                null
+            );
+
             this.steps.push({
                 operator: '~',
                 leftOperand: operand,
-                rightOperand: operand, // For NOT, left and right are the same
+                rightOperand: operand,
                 result: result,
                 expression: `~${this.formatOperand(operand)}`
             });
 
-            return result;
+            return { result, node: unaryNode };
         }
 
         // Handle parentheses
         if (this.peek() === '(') {
             this.pos++;
             this.lastWasOperand = false;
-            const result = this.parseExpression(0);
+            const { result, node } = this.parseExpression(0);
             this.skipWhitespace();
 
             if (this.peek() !== ')') {
                 throw new Error(`Expected closing parenthesis at position ${this.pos}`);
             }
             this.pos++;
-            return result;
+            return { result, node };
         }
 
-        // Parse number
-        return this.parseNumber();
+        // Parse number - create leaf node
+        const operand = this.parseNumber();
+        const leafNode = new ExpressionNode(operand.id, 'operand', operand);
+
+        return { result: operand, node: leafNode };
     }
 
     private parseNumber(): Operand {

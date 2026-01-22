@@ -94,16 +94,13 @@ class BitwiseOperationExpressionFactory implements IExpressionParserFactory {
         const normalizedString = this.normalizeString(input);
 
         try {
-            // Try to use the Pratt parser (supports precedence and parentheses)
             const prattParser = new PrattParser(normalizedString);
-            const { finalResult, steps } = prattParser.parse();
+            const { finalResult, steps, rootNode } = prattParser.parse();
 
-            // Convert steps to ExpressionElement format for compatibility
             const children = this.stepsToChildren(steps, finalResult);
 
-            return new BitwiseOperation(normalizedString, children, steps);
+            return new BitwiseOperation(normalizedString, children, steps, rootNode);
         } catch (error) {
-            // If Pratt parser fails, this will bubble up the error
             throw error;
         }
     };
