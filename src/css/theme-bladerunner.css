@@ -135,6 +135,6 @@
 .bladerunner .top-links a:focus svg,
 .bladerunner .top-links button:hover svg,
 .bladerunner .top-links button:focus svg {
-    color: amber !important;
+    color: orange !important;
     filter: drop-shadow(0 0 2px rgba(255, 127, 176, 0.5));
 }
