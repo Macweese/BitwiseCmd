@@ -221,56 +221,61 @@ export class ExpressionTree {
             throw new Error('Cannot build tree from empty steps');
         }
 
-        // Map to track which operands have been used to create nodes
-        const operandNodes = new Map<number, ExpressionNode>();
+        const nodeMap = new Map<number, ExpressionNode>();
 
-        // Helper to get or create operand node
-        const getOperandNode = (operand: Operand): ExpressionNode => {
-            if (operandNodes.has(operand.id)) {
-                return operandNodes.get(operand.id)!;
+        const getOrCreateLeafNode = (operand: Operand): ExpressionNode => {
+            if (nodeMap.has(operand.id)) {
+                return nodeMap.get(operand.id)!;
             }
             const node = new ExpressionNode(operand.id, 'operand', operand);
-            operandNodes.set(operand.id, node);
+            nodeMap.set(operand.id, node);
             return node;
         };
 
-        let nodeIdCounter = 10000; // Start high to avoid conflicts with operand IDs
-        let previousResult: ExpressionNode | null = null;
+        let previousResultNode: ExpressionNode | null = null;
 
         for (let i = 0; i < steps.length; i++) {
             const step = steps[i];
 
-            // Determine left child
             const leftChild: ExpressionNode = i === 0
-                ? getOperandNode(step.leftOperand)
-                : previousResult!;
+                ? getOrCreateLeafNode(step.leftOperand)
+                : previousResultNode!;
 
-            // Handle unary operators
             if (step.leftOperand.id === step.rightOperand.id) {
+                // Unary operator
                 const node: ExpressionNode = new ExpressionNode(
-                    nodeIdCounter++,
+                    step.result.id,  // ← Use result's ID, not a counter
                     'unary',
                     step.result,
                     step.operator,
                     leftChild,
                     null
                 );
-                previousResult = node;
+                nodeMap.set(step.result.id, node);
+                previousResultNode = node;
             } else {
                 // Binary operator
-                const rightChild = getOperandNode(step.rightOperand);
+                let rightChild: ExpressionNode;
+
+                if (nodeMap.has(step.rightOperand.id)) {
+                    rightChild = nodeMap.get(step.rightOperand.id)!;
+                } else {
+                    rightChild = getOrCreateLeafNode(step.rightOperand);
+                }
+
                 const node: ExpressionNode = new ExpressionNode(
-                    nodeIdCounter++,
+                    step.result.id,  // ← Use result's ID, not a counter
                     'operation',
                     step.result,
                     step.operator,
                     leftChild,
                     rightChild
                 );
-                previousResult = node;
+                nodeMap.set(step.result.id, node);
+                previousResultNode = node;
             }
         }
 
-        return new ExpressionTree(previousResult!);
+        return new ExpressionTree(previousResultNode!);
     }
 }
