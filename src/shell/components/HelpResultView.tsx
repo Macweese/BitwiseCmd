@@ -72,8 +72,10 @@ function HelpResultView() {
                         * “Truncates toward zero” means the fractional part is discarded and the quotient is rounded toward 0.
                         For example: <code>7/2 = 3</code>, <code>-7/2 = -3</code>.
                         Learn more:
-                        <a target='_blank' rel='noreferrer' href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Division#bigint_division'> JS BigInt division</a>,
-                        <a target='_blank' rel='noreferrer' href='https://en.cppreference.com/w/c/language/operator_arithmetic#Integer_arithmetic'> C integer division</a>.
+                        {' '}
+                        <a target='_blank' rel='noreferrer' href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Division#bigint_division'>JS BigInt division</a>,
+                        {' '}
+                        <a target='_blank' rel='noreferrer' href='https://en.cppreference.com/w/c/language/operator_arithmetic#Integer_arithmetic'>C integer division</a>.
                     </p>
                 </div>
                 <div className="section soft-border">
