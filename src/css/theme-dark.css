@@ -26,4 +26,5 @@
     --button-hover-bg: rgba(255, 255, 255, 0.2);
     --command-link-color: seagreen;
     --command-link-color-hover: mediumspringgreen;
+    --placeholder-color: rgba(255, 255, 255, 0.5);
 }
