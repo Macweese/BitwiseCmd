@@ -233,6 +233,9 @@ export class PrattParser {
         }
     }
 
+    // https://en.cppreference.com/w/c/language/operator_precedence.html
+    // https://en.cppreference.com/w/cpp/language/operator_precedence.html
+    // https://docs.oracle.com/javase/tutorial/java/nutsandbolts/operators.html
     private getPrecedence(op: string): number {
         const precedence: { [key: string]: number } = {
             '|': 1,
