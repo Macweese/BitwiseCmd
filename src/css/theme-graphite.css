@@ -30,7 +30,6 @@
     --cur-color: #5f9ea0;
     --panel-bg-color: #1f2324;
     --label-color: #b4c6c9;
-    --command-link-color: #5f9ea0;
     --top-links-color: #ececec;
     --top-links-hover-color: #5f9ea0;
     --soft-color: #9aa0a3;
@@ -39,4 +38,5 @@
     --settings-button-color: #b4c6c9;
     --settings-accent-color: #5f9ea0;
     --lights-on-header-color: #5f9ea0;
+    --command-link-color-hover: #6ffaff;
 }

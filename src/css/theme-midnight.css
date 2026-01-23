@@ -26,4 +26,6 @@
     --expression-color: white;
     --button-hover-bg: rgba(255, 255, 255, 0.2);
     --lights-on-header-color: #7ea3b5;
+    --command-link-color: #85a0ad;
+    --command-link-color-hover: #c9e7fb;
 }

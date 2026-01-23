@@ -28,6 +28,10 @@
     color: var(--anchor-color);
 }
 
+.app-root a:not(.button-large):not(.top-links a):not(.hashLink):hover {
+    color: var(--command-link-color-hover, var(--command-link-color));
+}
+
 .app-root .indicator { color: var(--indicator-color); }
 .app-root .on { color: var(--on-color); }
 .app-root .prefix { color: var(--prefix-color); }
@@ -91,6 +95,10 @@
 
 .app-root .command-link {
     color: var(--command-link-color, var(--anchor-color));
+}
+
+.app-root .command-link:hover {
+    color: var(--command-link-color-hover, var(--anchor-color));
 }
 
 .app-root .expressionInput::placeholder {
