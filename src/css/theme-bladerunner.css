@@ -26,7 +26,7 @@
     --input-border-color: #1f3b4a;
     --input-text-color: white;
     --expression-color: #e6f0ff;
-    --button-hover-bg: var(--top-links-li-hover-bg);
+    --button-hover-bg: var(--btn-hover-bg);
     --cur-color: #6c8497;
     --panel-bg-color: #0e161d;
     --label-color: #7ac9d6;
