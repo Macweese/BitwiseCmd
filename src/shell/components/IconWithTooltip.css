@@ -1,6 +1,7 @@
 .tooltip-holder {
     position: relative;
-    display: inline
+    display: inline;
+    user-select: none;
 }
 
 .tooltip-holder .tooltip-icon {
