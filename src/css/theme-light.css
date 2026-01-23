@@ -28,4 +28,5 @@
     --expression-color: var(--text-color);
     --button-hover-bg: rgba(255, 255, 255, 0.2);
     --cur-color: lightgray;
+    --lights-on-header-color: #919191;
 }
