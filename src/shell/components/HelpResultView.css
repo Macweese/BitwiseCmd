@@ -8,6 +8,7 @@
 .help .right-panel {float:left; }
 .help .section-title {font-weight: bold; font-size: 1.1em;}
 .help .important-note {padding: 5px; display: inline-block; margin-top: 5px;}
+.help a { white-space: nowrap; }
 @media (min-width: 1024px) {
     .left-panel, .right-panel {
         width: 45%;
