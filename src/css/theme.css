@@ -10,6 +10,7 @@
 
 .app-root .header {
     width: 138px;
+    user-select: none;
 }
 
 .app-root .header-cmd {
