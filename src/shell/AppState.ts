@@ -13,6 +13,7 @@ export type PersistedAppData = {
     settingsDimExtraBits: boolean;
     settingsCenteredLayout?: boolean
     cookieDisclaimerHidden: boolean,
+    analyticsTracking?: boolean
 }
 
 export type CommandResultView = {
@@ -44,6 +45,7 @@ export default class AppState {
     settingsDimExtraBits: boolean = false;
     settingsCenteredLayout: boolean = true;
     cookieDisclaimerHidden: boolean = false;
+    analyticsTracking: boolean = false;
 
     constructor(persistData: PersistedAppData, env: string) {
 
@@ -60,6 +62,7 @@ export default class AppState {
         this.settingsDimExtraBits = !!persistData.settingsDimExtraBits;
         this.cookieDisclaimerHidden = !!persistData.cookieDisclaimerHidden;
         this.settingsCenteredLayout = (persistData.settingsCenteredLayout === undefined) ? true : !!persistData.settingsCenteredLayout;
+        this.analyticsTracking = persistData.analyticsTracking? false : true;
     }
 
     addCommandResult(input: string, view: ViewFactory) {
@@ -109,6 +112,11 @@ export default class AppState {
     toggleDebugMode() {
         this.debugMode = !this.debugMode;
         this.triggerChanged('debugMode');
+    }
+
+    toggleAnalyticsTracking(value?: boolean) {
+        this.analyticsTracking = !this.analyticsTracking;
+        this.triggerChanged('analyticsTracking');
     }
 
     toggleShowSettings() {
@@ -161,6 +169,7 @@ export default class AppState {
             settingsDimExtraBits: this.settingsDimExtraBits,
             settingsCenteredLayout: this.settingsCenteredLayout,
             cookieDisclaimerHidden: this.cookieDisclaimerHidden,
+            analyticsTracking: this.analyticsTracking,
         }
     }
 };

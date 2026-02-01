@@ -36,11 +36,22 @@ const shellModule = {
         cmd.command("about", (c: CommandInput) => appState.addCommandResult(c.input, () => <AboutResultView />));
         cmd.command("whatsnew", (c: CommandInput) => appState.addCommandResult(c.input, () => <WhatsnewResultView />));
         cmd.command("guid", (c: CommandInput) => appState.addCommandResult(c.input, () => <TextResultView text={uuid()} />));
-        cmd.command("-notrack", () => {});
         cmd.command("-debug", (c: CommandInput) => {
             appState.toggleDebugMode();
             appState.addCommandResult(c.input, () => <TextResultView text={`Debug Mode: ${appState.debugMode}`}/>);
-        }); 
+        });
+        cmd.command("incognito", (c: CommandInput) => {
+            appState.toggleAnalyticsTracking();
+            appState.addCommandResult(c.input, () => <TextResultView text={`Analytics tracking ${appState.analyticsTracking ? "enabled" : "disabled"}`}/>);
+        });
+        cmd.command("incognito:on", (c: CommandInput) => {
+            appState.toggleAnalyticsTracking(true);
+            appState.addCommandResult(c.input, () => <TextResultView text={`Analytics tracking enabled`}/>);
+        });
+        cmd.command("incognito:off", (c: CommandInput) => {
+            appState.toggleAnalyticsTracking(false);
+            appState.addCommandResult(c.input, () => <TextResultView text={`Analytics tracking disabled`}/>);
+        });
         cmd.command('-annotate:on', (c:CommandInput) => appState.toggleAnnotateTypes(true))
         cmd.command('-annotate:off', (c:CommandInput) => appState.toggleAnnotateTypes(false))
         cmd.command('-em:off', (c:CommandInput) => appState.toggleEmphasizeBytes(false))
