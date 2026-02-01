@@ -1,13 +1,45 @@
 .cookie-disclaimer {
+    /* A floating panel at the bottom of the viewport, as wide as the content but never wider than the viewport */
     position: fixed;
     bottom: 0;
-    padding: 10px;
-    margin: 5px;
-    padding-bottom: 0;
-    background:green;
-    color: white;
-    border-radius: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(90%, 700px);
+    max-width: 100%;
+    max-height: 96vh;
+    margin: 0 auto 2vh auto;
+    box-sizing: border-box;
+    padding: 16px 20px;
+
+    background: color-mix(in srgb, var(--cookie-notice-background, var(--panel-bg-color)) 80%, transparent);
+    backdrop-filter: blur(15px);
+    color: var(--text-color);
+    border-radius: 12px;
+    border: 1px solid color-mix(in srgb, var(--solid-border-color) 40%, transparent);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    z-index: 1000;
+
+    /* Scroll inside the panel when the expanded text does not fit, without showing a scrollbar */
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
 }
-.cookie-disclaimer .button { border-color: white !important}
-.cookie-disclaimer .button { color: white; }
-.cookie-disclaimer p { margin-top: 0; margin-bottom: 10px;}
+
+.cookie-disclaimer .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.cookie-disclaimer button:not(.command-link) {
+    min-width: 140px;
+    padding: 10px 18px;
+    background-color: var(--button-hover-bg, white);
+    font-family: var(--font-family), sans-serif;
+}

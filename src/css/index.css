@@ -81,22 +81,41 @@ h1 { font-family: Impact, Verdana;
     text-transform: uppercase;
     font-weight: lighter;
 }
-.icon { margin-right: 5px; vertical-align: middle; }
+
+.icon {
+    margin-right: 0;
+    vertical-align: middle;
+}
+
 .header-cmd { color: #c5c5c5 }
 
 .mono { font-family: monospace; font-size: 1.3em }
 
 .button {
-    padding: 10px;
     border: solid 1px white;
     border-radius: 5px;
     text-decoration: none;
     display: inline-block;
 }
 
-.button { padding: 5px;}
 .button svg { margin: 0; margin-right: 5px; }
-.button-large { padding: 10px; }
+.button-large {
+    padding-right: 12px ;
+    padding-left: 12px ;
+    height: 30px;
+    width: 135px;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    display: flex;
+    column-gap: 4px;
+    flex-direction: row;
+    line-height: 21px;
+    position: relative;
+    user-select: none;
+    overflow-wrap: break-word;
+    min-width: max-content;
+}
 
 .expressionInput-container {
     display: inline-flex;
