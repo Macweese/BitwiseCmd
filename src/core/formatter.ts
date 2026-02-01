@@ -84,7 +84,7 @@ const formatter = {
             case 'bin':
                 return 'hex';
             case 'hex': return 'dec';
-            default : throw new Error(base + " kind doesn't have opposite kind")
+            default : throw new Error(base + " kind doesn't have opposite kind.")
         }
     }
 };

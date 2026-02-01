@@ -218,7 +218,7 @@ export class ExpressionTree {
     // Build tree from Pratt parser steps
     static fromPrattSteps(steps: IntermediateStep[]): ExpressionTree {
         if (steps.length === 0) {
-            throw new Error('Cannot build tree from empty steps');
+            throw new Error('Cannot build tree from empty steps.');
         }
 
         const nodeMap = new Map<number, ExpressionNode>();

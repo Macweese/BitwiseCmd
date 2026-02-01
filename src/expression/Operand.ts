@@ -49,11 +49,11 @@ export default class Operand implements ExpressionElement {
     static validateSupported(num : Integer) {
         
         if(num.signed && (num.value < INT64_MIN_VALUE || num.value > INT64_MAX_VALUE)) {
-            throw new Error(`Signed 64-bit numbers are supported in range from ${INT64_MIN_VALUE} to ${INT64_MAX_VALUE}. Given number was ${num}`);
+            throw new Error(`Signed 64-bit numbers are supported in range from ${INT64_MIN_VALUE} to ${INT64_MAX_VALUE}. Given number was ${num}.`);
         }
 
         if(!num.signed && (num.value > UINT64_MAX_VALUE)) {
-            throw new Error(`Unisgned 64-bit numbers larger than ${UINT64_MAX_VALUE} are not supported. Given number was ${num}`);
+            throw new Error(`Unsigned 64-bit numbers larger than ${UINT64_MAX_VALUE} are not supported. Given number was ${num}.`);
         }
     }
 }

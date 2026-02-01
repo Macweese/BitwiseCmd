@@ -21,7 +21,7 @@ const calc = {
     addSpace(number: Integer, requiredSpace: number) : Integer {
 
         if(requiredSpace < 0)
-            throw new Error("Required space cannot be negative");
+            throw new Error("Required space cannot be negative.");
 
         const totalSpaceRequired = number.maxBitSize + requiredSpace;
         return new Integer(number.value, nextPowOfTwo(totalSpaceRequired));
@@ -41,7 +41,7 @@ const calc = {
             case "*": return this.mul(op1, op2);
             case "/": return this.div(op1, op2);
             case "%": return this.mod(op1, op2);
-            default: throw new Error(operator + " operator is not supported");
+            default: throw new Error(operator + " operator is not supported.");
         }
     },
 
@@ -50,7 +50,7 @@ const calc = {
         const bin = num.abs().value.toString(2);
         
         if(bin.length > bitSize!)
-            throw new Error(`Binary represenation '${bin}' is bigger than the given bit size ${bitSize}`)
+            throw new Error(`Binary representation for '${num.value}' ('${bin}', ${bin.length} bits) is bigger than the given data type (${bitSize} bits).`)
 
         return num.value < 0
             ? this.engine.applyTwosComplement(bin.padStart(bitSize, '0'))  // Pad BEFORE twos complement
@@ -149,7 +149,7 @@ const calc = {
     _executeForTwoOperands(op1: Integer, op2: Integer,  operation: (bin1:string, bin2:string) => string) : Integer {
         
         if(op1.maxBitSize === op2.maxBitSize && op1.signed !== op2.signed)
-            throw new Error("This operation cannot be applied to signed and unsigned operands of the same size");
+            throw new Error("This operation cannot be applied to signed and unsigned operands of the same size.");
 
         const [num1, num2] = equalizeSize(op1, op2);
 
@@ -290,7 +290,7 @@ const calc = {
             const a = toSignedBigInt(bin1);
             const b = toSignedBigInt(bin2);
             if (b === BigInt(0))
-                throw new Error('Division by zero');
+                throw new Error('Division by zero.');
 
             const quotient = a / b; // BigInt division truncates toward zero
 
@@ -313,7 +313,7 @@ const calc = {
             const a = toSignedBigInt(bin1);
             const b = toSignedBigInt(bin2);
             if (b === BigInt(0))
-                throw new Error('Division by zero');
+                throw new Error('Division by zero.');
 
             // JS/TS style modulus: sign of result matches dividend (a)
             let remainder = a % b;
@@ -355,7 +355,7 @@ export default calc;
 
 function checkSameLength(bin1: string, bin2: string) {
     if (bin1.length !== bin2.length)
-        throw new Error("Binary strings must have the same length");
+        throw new Error("Binary strings must have the same length.");
 }
 
 function flip(bit:string):string { 
