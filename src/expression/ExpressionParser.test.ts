@@ -104,7 +104,7 @@ function findFirst<T>(arr: T[], predicate: (item: T) => boolean): T {
             return arr[i];
     }
 
-    throw new Error("Array doesn't have item that satisfies given predicate");
+    throw new Error("Array doesn't have item that satisfies given predicate.");
 }
 
 it("tokenizes simple expression", () => {

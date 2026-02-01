@@ -20,7 +20,7 @@ export class Integer {
         this.maxBitSize = maxBitSize ?? detectSize(this.value, this.signed);
 
         if(!this.signed && this.value < 0)
-            throw new Error("Value " + value + " cannot be negative if the type is unsigned");
+            throw new Error("Value " + value + " cannot be negative if the type is unsigned.");
     }
 
     static unsigned(value : IntegerInput, maxBitSize?: number) {
@@ -81,10 +81,10 @@ export class Integer {
     resize(newSize: number) {
 
         if(newSize < this.maxBitSize)
-            throw new Error("Size cannot be reduced");
+            throw new Error("Size cannot be reduced.");
         
         if(newSize > 64)
-            throw new Error(`Bit size of ${newSize} is not supported`)
+            throw new Error(`Bit size of ${newSize} is not supported.`)
             
         return new Integer(this.value, newSize, this.signed);
     }
@@ -125,7 +125,7 @@ export function asInteger(num: JsNumber | Integer | string): Integer {
         return num;
 
     if(typeof num === "number" && isNaN(num)) {
-        throw new Error("Cannot create BoundedNumber from NaN");
+        throw new Error("Cannot create BoundedNumber from NaN.");
     }
 
     const size = num > INT32_MAX_VALUE || num < INT32_MIN_VALUE ? 64 : 32;
