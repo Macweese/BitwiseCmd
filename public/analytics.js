@@ -9,8 +9,8 @@
         return;
     }
 
-    var key = 'TrackAnalytics';
-    var disableAnalytics = localStorage.getItem(key) === 'false' ||  window.location.hash.indexOf('-notrack') > -1
+    var key = 'analyticsTracking';
+    var disableAnalytics = localStorage.getItem(key) === 'false' ||  window.location.hash.indexOf('-incognito') > -1
 
     if(disableAnalytics) {
         localStorage.setItem(key, "false");

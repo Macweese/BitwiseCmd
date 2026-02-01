@@ -15,7 +15,7 @@ function DebugIndicators(props:  {appState: AppState}) {
         list.push("debug");
     }
 
-    if(localStorage.getItem('TrackAnalytics') === 'false') {
+    if(localStorage.getItem('analyticsTracking') === 'false') {
         list.push("notrack");
     }
 
