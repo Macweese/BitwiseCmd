@@ -255,15 +255,16 @@ class ExpressionElementTableRow extends React.Component<ExpressionElementRowProp
 
         const op = this.props.expressionItem.getUnderlyingOperand();
         const { allowSignChange } = this.props;
+        const currentValue = op.value; // Get current value
 
         this.infoWasShown = true;
 
         const children = [];
-        let title = `BitwiseCmd treats this number as ${op.value.maxBitSize}-bit integer`;
-        let text = `${op.value.maxBitSize}-bit `;
+        let title = `BitwiseCmd treats this number as ${currentValue.maxBitSize}-bit integer`;
+        let text = `${currentValue.maxBitSize}-bit `;
 
-        const signedStr = op.value.signed ? 'signed' : 'unsigned';
-        const signedOther = op.value.signed ? 'unsigned' : 'signed';
+        const signedStr = currentValue.signed ? 'signed' : 'unsigned';
+        const signedOther = currentValue.signed ? 'unsigned' : 'signed';
         const signedButtonTitle = `Click to change to ${signedOther} preserving the same bits`;
 
         if (op.label.length > 0) {
@@ -271,13 +272,23 @@ class ExpressionElementTableRow extends React.Component<ExpressionElementRowProp
             title += ". This number was converted to facilitate bitwise operation with an operand of a different type.";
         }
 
-        children.push(<span title={title} style={{ cursor: "help" }}>{text.trim()}</span>);
+        children.push(<span key="size-info" title={title} style={{ cursor: "help" }}>{text.trim()}</span>);
 
-        if (allowSignChange)
-            children.push(<button className='accent1 link-button' title={signedButtonTitle} onClick={() => this.onChangeSign()}>{signedStr}</button>);
-        else
-            children.push(<span className='accent1'>&nbsp;{signedStr}</span>)
+        if (allowSignChange) {
+            children.push(
+                <button
+                    key="sign-button"
+                    className='accent1 link-button'
+                    title={signedButtonTitle}
+                    onClick={() => this.onChangeSign()}
+                >
+                    {signedStr}
+                </button>
+            );
+        } else {
+            children.push(<span key="sign-text" className='accent1'>&nbsp;{signedStr}</span>);
+        }
 
-        return <React.Fragment>{children}</React.Fragment>
+        return <React.Fragment>{children}</React.Fragment>;
     }
 }
