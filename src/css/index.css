@@ -178,10 +178,11 @@ a.hashLink { font-size: 1.1em;}
 .expression .bin { letter-spacing: 3px; }
 .expression .info { font-size: 0.9em; color: teal; }
 .expression .byte { margin: 0 3px; }
-.expression-result td { border-top: dotted 1px gray; }
+.expression-result td { border-top: dotted 1px gray; min-width: 21px; }
 .expression .prefix { font-weight: normal; display: none; font-size: 0.9em }
-.expression .other { font-size: 0.9em}
-.expression .operator { text-align: right; padding-right: 5px;}
+.expression .other { font-size: 0.9em; }
+.expression .operator { text-align: right; padding-right: 5px; }
+.expression .negative { font-size: 0.9em; text-align: right; color: var(--other-color); }
 
 .flippable { cursor: pointer; opacity: 1 }
 .flippable:hover { opacity: 0.8 }

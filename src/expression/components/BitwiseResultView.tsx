@@ -125,11 +125,14 @@ class ExpressionElementTableRow extends React.Component<ExpressionElementRowProp
         const bin = formatter.numberToString(scalar.value, 'bin', maxNumberOfBits);
         const signBitIndex = scalar.value.signed && bin.length >= scalar.value.maxBitSize ? bin.length - scalar.value.maxBitSize : -1;
         const valueSize = annotateTypes ? scalar.value.maxBitSize : calc.numberOfBitsDisplayed(scalar.value);
+        const minWidth = scalar.value.maxBitSize === 64 ?  195 : 107; // TODO magic numbers associated with this specific font...
 
         return <tr className={"row-with-bits " + css}>
-            <td className="operator">{operator}</td>
-            <td className="label">
-                <span>{this.getLabel()}</span>
+            <td className="operator" style={{ minWidth: `${minWidth + 26}px` }}>{operator}</td>
+            {/*<td className="label" >*/}
+            {/*    <span>{this.getLabel()}</span>*/}
+            {/*</td>*/}
+            <td className="label" style={{ minWidth: `${minWidth}px` }}>{this.getLabel()}
             </td>
             <td className="bin">
                 <BinaryStringView
@@ -140,8 +143,9 @@ class ExpressionElementTableRow extends React.Component<ExpressionElementRowProp
                     valueBitSize={valueSize}
                     onBitClicked={args => this.onBitClicked(args)} />
             </td>
-            <td className="other">{this.getAlternative()}</td>
-            <td className="info accent1" data-test-name='ignore'>{this.props.annotateTypes ? this.getInfo() : null}</td>
+            <td className="negative">{this.getSign()}</td>
+            <td className="other" style={{ minWidth: `${minWidth}px`}}>{this.getAlternative()}</td>{/* TODO: inline 'style=' ? */}
+            <td className="info accent1" style={{ minWidth: this.props.annotateTypes ? 132 : 0 }} data-test-name='ignore'>{this.props.annotateTypes ? this.getInfo() : null}</td>{/* TODO: inline 'style=' ? */}
             <td className='undo' data-test-name='ignore'>
                 {this.getControlButtons()}
             </td>
@@ -190,7 +194,12 @@ class ExpressionElementTableRow extends React.Component<ExpressionElementRowProp
 
         const v = this.props.expressionItem.evaluate();
         const altBase = formatter.getAlternativeBase(v.base);
-        return formatter.numberToString(v.value, altBase);
+        let string = formatter.numberToString(v.value, altBase);
+        return string.startsWith('-') ? string.substring(1) : string;
+    }
+
+    getSign() {
+        return this.scalar.value.num() < 0 ? "-" : ""
     }
 
     getLabelString(op: Operand): string {
