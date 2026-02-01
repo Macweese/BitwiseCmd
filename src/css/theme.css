@@ -9,7 +9,7 @@
 }
 
 .app-root .header {
-    width: 138px;
+    width: max-content;
     user-select: none;
 }
 

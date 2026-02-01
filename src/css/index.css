@@ -245,14 +245,24 @@ button.link-button {text-decoration: underline;}
 .bladerunner .bladerunner-easter-egg {display: none;}
 
 .bladerunner-easter-egg {
-    position: absolute;
     right: 1em;
     bottom: 1em;
     opacity: 0.3;
 }
 
-.bladerunner-easter-egg:hover { 
+
+.bladerunner-easter-egg:hover {
     opacity: 1;
+}
+
+.bladerunner-easter-egg .command-link,
+.bladerunner-easter-egg button .icon,
+.bladerunner-easter-egg .command-link .icon {
+    margin-right: 0;
+    opacity: 1;
+    gap: 0;
+    width: 0.7vw;
+    height: 0.7vw;
 }
 
 
