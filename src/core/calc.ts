@@ -154,7 +154,7 @@ const calc = {
         }
 
         const result = BigInt("0b" + resultBin) * m;
-        return new Integer(result, num1.maxBitSize);
+        return new Integer(result, num1.maxBitSize, (op1.signed && op2.signed));
     },
 
     engine: { 
