@@ -16,7 +16,7 @@ type BitwiseResultViewProps = {
     expression: Expression;
     emphasizeBytes: boolean;
     annotateTypes: boolean,
-    dimExtrBits: boolean
+    dimExtraBits: boolean
 }
 
 type BitwiseResultViewState = {
@@ -50,7 +50,7 @@ export default class BitwiseResultView extends React.Component<BitwiseResultView
 
         let css = "expression";
 
-        if(this.props.dimExtrBits)
+        if(this.props.dimExtraBits)
             css += " dim-extra-bits";
 
         return <React.Fragment>

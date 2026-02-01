@@ -16,40 +16,40 @@ function SettingsPane(props : SettingsPaneProps) {
             <h3>Settings</h3>
             <div className='setting'>
                 <button type="button" onClick={() => appState.toggleEmphasizeBytes()}>
-                    <FontAwesomeIcon size='xl' icon={appState.emphasizeBytes ? faToggleOn : faToggleOff} /> Emphasize Bytes
+                    <FontAwesomeIcon size='xl' icon={appState.settingsEmphasizeBytes ? faToggleOn : faToggleOff} /> Emphasize Bytes
                 </button>
                 <p className='description'>
-                    {appState.emphasizeBytes 
+                    {appState.settingsEmphasizeBytes
                         ? "Binary strings are padded with extra bits to have a length that is multiple of 8." 
                         : "Binary strings are not padded with extra bits."} 
                 </p>
             </div>
             <div className='setting'>
-                <button type="button" onClick={() => appState.toggleDimExtrBits()}>
-                    <FontAwesomeIcon size='xl' icon={appState.dimExtraBits ? faToggleOn : faToggleOff} /> Dim Padding Bits
+                <button type="button" onClick={() => appState.toggleDimExtraBits()}>
+                    <FontAwesomeIcon size='xl' icon={appState.settingsDimExtraBits ? faToggleOn : faToggleOff} /> Dim Padding Bits
                 </button>
                 <p className='description'>
-                    {appState.dimExtraBits 
+                    {appState.settingsDimExtraBits
                         ? "Extra bits, used for padding to align numbers of different sizes, are dimmed." 
                         : "Extra bits used for padding are not dimmed."} 
                 </p>
             </div>
             <div className='setting'>
                 <button type="button" onClick={() => appState.toggleAnnotateTypes()}>
-                    <FontAwesomeIcon size='xl' icon={appState.annotateTypes ? faToggleOn : faToggleOff} /> Annotate Data Types
+                    <FontAwesomeIcon size='xl' icon={appState.settingsAnnotateTypes ? faToggleOn : faToggleOff} /> Annotate Data Types
                 </button>
                 <p className='description'>
-                    {appState.annotateTypes 
+                    {appState.settingsAnnotateTypes
                         ? "Integers are displayed as they are stored in memory. Bit size is shown." 
                         : "Information about the size of integers is hidden."} 
                 </p>
             </div>
             <div className='setting'>
                 <button type="button" onClick={() => appState.toggleCenteredLayout()}>
-                    <FontAwesomeIcon size='xl' icon={appState.centeredLayout ? faToggleOn : faToggleOff} /> Centered Layout
+                    <FontAwesomeIcon size='xl' icon={appState.settingsCenteredLayout ? faToggleOn : faToggleOff} /> Centered Layout
                 </button>
                 <p className='description'>
-                    {appState.centeredLayout 
+                    {appState.settingsCenteredLayout
                         ? "Content is centered with wide side margins on large screens."
                         : "Content stretches to full width as before."}
                 </p>
