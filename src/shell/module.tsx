@@ -10,7 +10,7 @@ import HelpResultView from './components/HelpResultView';
 import TextResultView from './components/TextResultView';
 import WhatsnewResultView from './components/WhatsNewResultView';
 import {STARTUP_COMMAND_KEY} from './startup';
-import { INT32_MAX_VALUE, INT64_MAX_VALUE } from '../core/const';
+import {MAX_VALUES, MIN_VALUES} from "./components/helpData";
 import TipResultView from "./components/TipResultView";
 
 const shellModule = {
@@ -63,10 +63,9 @@ const shellModule = {
         cmd.command('annotate:off', () => appState.toggleAnnotateTypes(false))
         cmd.command('em:off', () => appState.toggleEmphasizeBytes(false))
         cmd.command('em:on', () => appState.toggleEmphasizeBytes(true))
-        cmd.command("-max", (c:CommandInput) => {
-            const text = `Int32 ${INT32_MAX_VALUE}\nInt64 ${INT64_MAX_VALUE}`
-            appState.addCommandResult(c.input, () => <TextResultView text={text} />)
-        })
+        cmd.command("max", (c: CommandInput) => appState.addCommandResult(c.input, () => <TextResultView text={MAX_VALUES} asCode={true} />))
+        cmd.command("min", (c: CommandInput) => appState.addCommandResult(c.input, () => <TextResultView text={MIN_VALUES} />))
+        // cmd.command("tip", (c: CommandInput) => appState.addCommandResult(c.input, () => <TextResultView text={MIN_VALUES} />))
 
         cmd.command("donate", (c:CommandInput) => {
 
