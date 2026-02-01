@@ -6,19 +6,19 @@ import { sendAnalyticsEvent } from '../analytics';
 
 function DonateResultView() {
     return <div className="donate-result-view">
-        <p>Thank you for your interest in donation. At this point BitwiseCmd can accept donations via services listed below:</p>
+        <p>Thank you for your interest in donating. At this point BitwiseCmd can accept donations via services listed below:</p>
 
         <div className='section'>
         <h3>buymeacoffee.com</h3>
         <p>
-            <a className='button button-large' href='https://bmc.link/boryslevytB' onClick={() => onBuyMeCoffe()} target='_blank' rel="noreferrer">
+            <a className='button button-large' href='https://bmc.link/boryslevytB' onClick={() => onBuyMeCoffee()} target='_blank' rel="noreferrer">
                 <FontAwesomeIcon icon={faCoffee} size='lg' /> Buy Me a Coffee
             </a>
         </p>
         </div>
     </div>
 
-    function onBuyMeCoffe() {
+    function onBuyMeCoffee() {
         sendAnalyticsEvent({eventAction: "BuyMeCoffeeClicked", eventCategory: "Donation"})
     }
 }

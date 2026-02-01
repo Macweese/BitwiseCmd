@@ -99,7 +99,7 @@ function registerDefaultCommand(cmd: CmdShell, appState: AppState) {
             const executeCommand = (c: string) => {
 
                 if (c.length === 0) {
-                    return "Default comand: " + localStorage.getItem(STARTUP_COMMAND_KEY);
+                    return "Default command: " + localStorage.getItem(STARTUP_COMMAND_KEY);
                 }
                 else if (c === 'clear') {
                     localStorage.removeItem(STARTUP_COMMAND_KEY);

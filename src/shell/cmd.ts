@@ -13,7 +13,7 @@ export type CommandOptions = {
 type HandleFunction = (input: CommandInput) => void;
 type InputErrorHandler = (input:string, error: Error) => void;
 
-const DEFUALT_COMMAND_OPTIONS : CommandOptions = {
+const DEFAULT_COMMAND_OPTIONS : CommandOptions = {
     doNotTrack: false
 };
 
@@ -36,7 +36,7 @@ export class CmdShell {
 
         log.debug(`Executing command: ${rawInput}`);
 
-        const resolvedOps = ops ?? Object.assign({}, DEFUALT_COMMAND_OPTIONS);
+        const resolvedOps = ops ?? Object.assign({}, DEFAULT_COMMAND_OPTIONS);
 
         const input = rawInput.trim().toLowerCase();
         const handler = this.findHandler(input);

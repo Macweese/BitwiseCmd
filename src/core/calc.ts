@@ -374,7 +374,7 @@ function equalizeSize(n1: Integer, n2: Integer) : [Integer, Integer] {
     {
         if(n1.signed === n2.signed) return [n1,n2];
 
-        // Example int and usinged int. Poromoted both to 64 bit
+        // Example int and unsigned int. Promoted both to 64 bit
         return [n1.resize(n1.maxBitSize*2).toSigned(), n2.resize(n2.maxBitSize*2).toSigned()];
     }
     
