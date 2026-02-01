@@ -181,6 +181,8 @@ a.hashLink { font-size: 1.1em;}
 .expression-result td { border-top: dotted 1px gray; min-width: 21px; }
 .expression .prefix { font-weight: normal; display: none; font-size: 0.9em }
 .expression .other { font-size: 0.9em; }
+/*.expression .undo { position: relative; z-index: 1; }*/
+/*.expression .tooltips { position: relative; z-index: 1; }*/
 .expression .operator { text-align: right; padding-right: 5px; }
 .expression .negative { font-size: 0.9em; text-align: right; color: var(--other-color); }
 
@@ -243,6 +245,10 @@ button.link-button {text-decoration: underline;}
     opacity: 0.4;
     padding: 0;
     margin-left: 5px;
+}
+
+.undo button:hover {
+    opacity: 0.6;
 }
 
 .solid-border { border: solid 1px rgba(255, 255, 255, 0.8); border-radius: 5px;}
