@@ -1,0 +1,43 @@
+/* Sakura theme tokens */
+.app-root.sakura {
+    --accent1-color: teal;
+    --anchor-color: #B0A088FF;
+    --bg-color: #fae6f7;
+    --btn-color: #b671aa;
+    --btn-disabled-color: rgba(169, 169, 169, 0.5);
+    --btn-hover-bg: rgba(255, 185, 221, 0.7);
+    --button-border-color: tan;
+    --button-hover-bg: thistle;
+    --command-link-color-hover: mediumpurple;
+    --cur-color: orchid;
+    --error-color: #e6463c;
+    --expression-color: #e37197;
+    --font-family: Verdana, sans-serif;
+    --hashlink-color: rgba(159, 114, 114, 0.35);
+    --hashlink-hover-color: #9f7272;
+    --header-cmd-color: ivory;
+    --help-code-color: MediumPurple;
+    --indicator-color: burlywood;
+    --input-border-color: tan;
+    --input-text-color: #775144;
+    --label-color: #A84066;
+    --on-color: #9f7272;
+    --other-color: #c28bc2;
+    --panel-bg-color: #e3d6e3;
+    --placeholder-color: rosybrown;
+    --prefix-color: #c28bc2;
+    --settings-accent-color: lavenderblush;
+    --soft-color: mediumslateblue;
+    --solid-bg-color: skyblue;
+    --solid-border-color: powderblue;
+    --text-color: #9f7272;
+    --top-links-color: #c98a95;
+    --top-links-hover-color: #af6477;
+    --top-links-li-hover-bg: #E3D6E3;
+    --zero-color: #b671aa;
+}
+
+.sakura .row-with-bits .info.accent1 span:not(.accent1)
+{
+    color: DarkSeaGreen;
+}

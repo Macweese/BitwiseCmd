@@ -7,6 +7,10 @@ html { height: 100% }
 @import './theme-midnight.css';
 @import './theme-bladerunner.css';
 @import './theme-graphite.css';
+@import './theme-github.css';
+@import './theme-helix.css';
+@import './theme-emacs.css';
+@import './theme-sakura.css';
 @import './theme.css';
 
 .app-root { 
@@ -71,7 +75,7 @@ html { height: 100% }
 }
 
 /* Theme-scoped code styling to avoid cross-theme overrides */
-.light code, .dark code, .midnight code, .bladerunner code, .graphite code { font-size: 1.2em; font-weight: bold; }
+.light code, .dark code, .midnight code, .bladerunner code, .graphite code, .github code, .helix code, .emacs code, .sakura code { font-size: 1.2em; font-weight: bold; }
 
 h1 { font-family: Impact, Verdana; 
     text-transform: uppercase;

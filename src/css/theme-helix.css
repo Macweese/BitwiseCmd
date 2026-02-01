@@ -1,0 +1,107 @@
+/* Helix theme tokens */
+.app-root.helix {
+    --accent-background: #3cc312;
+    --accent1-color: #409AA8;
+    --anchor-color: #ECCDBA;
+    --bg-color: #3b224c;
+    --btn-color: #a4a0e8;
+    --btn-disabled-color: rgba(144, 151, 160, 0.4);
+    --btn-hover-bg: rgba(40, 23, 51, 0.66);
+    --button-border-color: #97695f;
+    --button-hover-bg: #281733;
+    --command-link-color-hover: #ECCDBA;
+    --cur-color: #f2c35c;
+    --error-color: #ff370a;
+    --expression-color: #CBBCA6FF;
+    --hashlink-color: #ECCDBA;
+    --hashlink-hover-color: #ECCDBA;
+    --header-cmd-color: silver;
+    --help-code-color: #ECCDBA;
+    --indicator-color: #9aa0a3;
+    --input-border-color: rgba(145, 152, 161);
+    --input-text-color: rgba(240, 246, 252);
+    --label-color: #bcbdd0;
+    --lights-on-header-color: silver;
+    --on-color: #bcbdd0;
+    --other-color: rgba(165, 214, 218, 0.4);
+    --panel-bg-color: #281733;
+    --placeholder-color: rgba(240, 246, 252, 0.4);
+    --prefix-color: #737480;
+    --soft-color: hsl(244, 60%, 86%);
+    --soft-date-color: gainsboro;
+    --solid-bg-color: skyblue;
+    --solid-border-color: #606060;
+    --text-color: #bcbdd0;
+    --top-links-color: #737480;
+    --top-links-hover-color: #b7b9cc;
+    --top-links-li-hover-bg: rgba(145, 152, 161, 0.1);
+    --zero-color: #967168;
+    --font-family: "Source Code Pro", Consolas, "Ubuntu Mono", Menlo, "DejaVu Sans Mono", monospace;
+    --text-code-background-color: #2f1e2e;
+}
+
+.helix .expression .info {
+    color: pink;
+}
+
+.helix .address-space.soft {
+    color: var(--indicator-color);
+}
+
+.helix a,
+.helix .top-links a,
+.helix .link-button {
+    text-decoration-line: none;
+}
+
+.helix a:not(.top-links a):hover {
+    text-decoration-line: underline;
+}
+
+.helix .button.button-large:hover,
+.helix .button.button-large {
+    text-decoration-line: none;
+    transition: all 0.5s;
+}
+
+.helix code .command-link,
+.helix .command-link {
+    background-color: var(--text-code-background-color);
+    padding: 3px 5px;
+    border-radius: 3px;
+}
+
+.helix .settings-button .command-link {
+    color: var(--top-links-color);
+}
+
+.helix a,
+.helix button,
+.helix .command-link {
+    transition:
+            color 0.5s ease-in-out,
+            opacity 0.5s ease-in-out;
+}
+
+.helix .command-link:focus {
+    outline: none;
+}
+
+.helix .command-link:focus:hover,
+.helix .command-link {
+    outline: none;
+    text-decoration-line: none;
+}
+
+.helix .command-link:hover,
+.helix code .command-link:hover {
+    outline: none;
+    text-decoration-line: underline !important;
+}
+
+.helix .item.item-new .soft.date,
+.helix .item.item .soft.date,
+.helix .item.item .soft {
+    color: var(--soft-date-color) !important;
+    opacity: 0.9;
+}
