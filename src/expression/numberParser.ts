@@ -52,7 +52,7 @@ function parseInteger(input : string, numberPart: string, suffix: string)  : Int
     let num = BigInt(numberPart);
     const signed = !suffix.startsWith('u');
 
-    const bitSize = getSizeBySuffix(suffix, num, signed);
+    const bitSize = getSizeBySuffix(suffix, num, signed, isNegative);
     const newValue = isNegative  ? -num : num;
 
     if(!signed && isNegative)
@@ -65,10 +65,16 @@ function parseInteger(input : string, numberPart: string, suffix: string)  : Int
     return new Integer(newValue, bitSize, signed);
 }
 
-function getSizeBySuffix(suffix: string, value : bigint, signed: boolean) {
-    
-    const max32 = signed ? INT32_MAX_VALUE : UINT32_MAX_VALUE;
-    
+function getSizeBySuffix(suffix: string, value : bigint, signed: boolean, isNegative: boolean) {
+
+    let max32: bigint;
+    if (signed) {
+        max32 = BigInt(INT32_MAX_VALUE) + (isNegative ? BigInt(1) : BigInt(0));
+    }
+    else {
+        max32 = BigInt(UINT32_MAX_VALUE);
+    }
+
     switch(suffix.replace('u', '').toLowerCase()) {
         case 'l': return 64;
         case 's': return 16;
