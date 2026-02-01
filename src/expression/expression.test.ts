@@ -182,14 +182,14 @@ describe("comparison with nodejs engine", () => {
 
         for(var i =0; i<1000; i++){
 
-            const sign = signs[random(0, signs.length-1)];
-            const isShift = sign.length > 1;
+            const operator = signs[random(0, signs.length-1)];
+            const isShift = operator.length > 1;
             const op1 = random(-INT32_MAX_VALUE, INT32_MAX_VALUE);
             const op2 = isShift ? random(0, 31) : random(-INT32_MAX_VALUE, INT32_MAX_VALUE);
             
-            const input = op1.toString() + sign + op2.toString();
+            const input = op1.toString() + operator + op2.toString();
             
-            if (sign === "*") {
+            if (operator === "*") {
                 // Use BigInt to avoid precision issues and wrap to 32-bit two's complement
                 const modulo = (BigInt(1) << BigInt(32));
                 const expectedNum = ((BigInt(op1) * BigInt(op2)) % modulo + modulo) % modulo;
@@ -197,7 +197,7 @@ describe("comparison with nodejs engine", () => {
                 const expr = parser.parse(input) as BitwiseOperation;
                 const res = (expr.children[1] as Operator).evaluate(expr.children[0] as Operand).value.toString();
                 expect(res).toBe(expectedSigned.toString());
-            } else if (sign === "/") {
+            } else if (operator === "/") {
                 const denom = op2 === 0 ? 1 : op2;
                 const q = BigInt(op1) / BigInt(denom); // trunc toward zero
                 const modulo = (BigInt(1) << BigInt(32));
@@ -206,7 +206,7 @@ describe("comparison with nodejs engine", () => {
                 const expr = parser.parse(op1.toString() + '/' + denom.toString()) as BitwiseOperation;
                 const res = (expr.children[1] as Operator).evaluate(expr.children[0] as Operand).value.toString();
                 expect(res).toBe(expectedSigned.toString());
-            } else if (sign === "-") {
+            } else if (operator === "-") {
                 const diff = BigInt(op1) - BigInt(op2);
                 const modulo = (BigInt(1) << BigInt(32));
                 const expectedNum = ((diff % modulo) + modulo) % modulo;
@@ -257,16 +257,16 @@ describe("comparison with nodejs engine", () => {
 
     it('random: two inbary strings 64-bit', () => {
         
-        const signs = ["|", "&", "^"]
+        const operators = ["|", "&", "^"]
 
         for(var i =0; i<1000; i++){
-            const sign = signs[random(0, signs.length-1)];
-            const isShift = sign.length > 1;
+            const operator = operators[random(0, operators.length-1)];
+            const isShift = operator.length > 1;
             const op1 = random(-Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
             const op2 = isShift ? random(0, 63) : Number.MAX_SAFE_INTEGER;
             
-            const actualInput = `${op1}l${sign}${op2}l`;
-            const expectedInput = `BigInt("${op1}")${sign}BigInt("${op2}")`; 
+            const actualInput = `${op1}l${operator}${op2}l`;
+            const expectedInput = `BigInt("${op1}")${operator}BigInt("${op2}")`;
 
             testBinary(expectedInput, actualInput);
         }

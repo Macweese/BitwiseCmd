@@ -73,7 +73,7 @@ export default class BitwiseResultView extends React.Component<BitwiseResultView
         return model.items.map((itm, i) =>
             <ExpressionElementTableRow
                 key={i}
-                sign={itm.sign}
+                operator={itm.operator}
                 css={itm.css}
                 bitSize={itm.maxBitSize}
                 allowFlipBits={itm.allowFlipBits}
@@ -93,7 +93,7 @@ export default class BitwiseResultView extends React.Component<BitwiseResultView
 }
 
 type ExpressionElementRowProps = {
-    sign: string,
+    operator: string,
     css: string,
     bitSize: number,
     maxNumberOfBits: number,
@@ -120,14 +120,14 @@ class ExpressionElementTableRow extends React.Component<ExpressionElementRowProp
     }
 
     render() {
-        const { sign, css, maxNumberOfBits, emphasizeBytes, allowFlipBits, annotateTypes } = this.props;
+        const { operator, css, maxNumberOfBits, emphasizeBytes, allowFlipBits, annotateTypes } = this.props;
         const scalar = this.props.expressionItem.evaluate();
         const bin = formatter.numberToString(scalar.value, 'bin', maxNumberOfBits);
         const signBitIndex = scalar.value.signed && bin.length >= scalar.value.maxBitSize ? bin.length - scalar.value.maxBitSize : -1;
         const valueSize = annotateTypes ? scalar.value.maxBitSize : calc.numberOfBitsDisplayed(scalar.value);
 
         return <tr className={"row-with-bits " + css}>
-            <td className="sign">{sign}</td>
+            <td className="operator">{operator}</td>
             <td className="label">
                 <span>{this.getLabel()}</span>
             </td>

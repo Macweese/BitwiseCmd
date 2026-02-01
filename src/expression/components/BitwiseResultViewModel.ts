@@ -2,7 +2,6 @@ import { Operand, ListOfNumbers, BitwiseOperation, Operator } from '../expressio
 import { ExpressionElement, Expression } from '../expression-interfaces';
 import calc from '../../core/calc';
 import formatter from '../../core/formatter';
-import { Integer } from '../../core/Integer';
 
 type Config = {
     emphasizeBytes: boolean;
@@ -11,7 +10,7 @@ type Config = {
 }
 
 type ExpressionRowModel = {
-    sign: string;
+    operator: string;
     css: string;
     expressionElement: ExpressionElement;
     allowFlipBits: boolean;
@@ -131,7 +130,7 @@ export default class BitwiseResultViewModel {
 
             const eo = ex as Operator;
 
-            // If it a single NOT expression
+            // If it is a single NOT expression
             if(eo.isNotExpression) {
                 m.addOperatorRow(eo);
                 const notResult = eo.evaluate();
@@ -157,7 +156,7 @@ export default class BitwiseResultViewModel {
         const bits = this.calcMaxNumberOfBits(expr);
         this.maxNumberOfBits = Math.max(bits, this.maxNumberOfBits);
         this.items.push({
-            sign:'',
+            operator:'',
             css: '',
             expressionElement: expr,
             allowFlipBits: this.allowFlipBits,
@@ -174,7 +173,7 @@ export default class BitwiseResultViewModel {
         this.maxNumberOfBits = Math.max(bits, this.maxNumberOfBits);
 
         this.items.push({
-            sign: expr.operator,
+            operator: expr.operator,
             css: '',
             label: this.getLabel(resultNumber),
             expressionElement: expr.operand,
@@ -188,7 +187,7 @@ export default class BitwiseResultViewModel {
         this.maxNumberOfBits = Math.max(bits, this.maxNumberOfBits);
         const child = expr.operand.getUnderlyingOperand();
         this.items.push({
-            sign: expr.operator + formatter.numberToString(child.value, child.base),
+            operator: expr.operator + formatter.numberToString(child.value, child.base),
             css: 'expression-result',
             expressionElement: resultExpr,
             allowFlipBits: false,
@@ -203,7 +202,7 @@ export default class BitwiseResultViewModel {
         this.maxNumberOfBits = Math.max(bits, this.maxNumberOfBits);
 
         this.items.push({
-            sign:'=',
+            operator:'=',
             css: 'expression-result',
             expressionElement: expr,
             allowFlipBits: false,
