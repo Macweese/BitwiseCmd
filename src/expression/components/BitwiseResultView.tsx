@@ -43,7 +43,7 @@ export default class BitwiseResultView extends React.Component<BitwiseResultView
         }
         catch (err) {
             const text = (err as any).message;
-            return <div className='error'>Error: {text}</div>
+            return <div className='error'>{text}</div>
         }
 
         const rows = this.getRows(model!, allowSignChange);
