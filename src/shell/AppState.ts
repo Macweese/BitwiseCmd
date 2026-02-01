@@ -1,18 +1,18 @@
 import log from 'loglevel';
 
-export const APP_VERSION = 11;
+export const APP_VERSION = 12;
 
 export type PersistedAppData = {
-    emphasizeBytes: boolean;
     uiTheme: string;
     version: number | null;
     debugMode: boolean | null;
-    pageVisistsCount: number;
+    pageVisitsCount: number;
     donationClicked: boolean;
-    annotateTypes: boolean;
-    dimExtrBits: boolean;
+    settingsEmphasizeBytes: boolean;
+    settingsAnnotateTypes: boolean;
+    settingsDimExtraBits: boolean;
+    settingsCenteredLayout?: boolean
     cookieDisclaimerHidden: boolean,
-    centeredLayout?: boolean
 }
 
 export type CommandResultView = {
@@ -29,7 +29,6 @@ type ViewFactory = () => JSX.Element;
 export default class AppState {
 
     version: number = APP_VERSION;
-    emphasizeBytes: boolean;
     debugMode: boolean = false;
     uiTheme: string;
     changeHandlers: AppStateChangeHandler[] = [];
@@ -40,26 +39,27 @@ export default class AppState {
     pageVisitsCount: number;
     donationClicked: boolean;
     showSettings: boolean = false;
-    annotateTypes: boolean = false;
-    dimExtraBits: boolean = false;
+    settingsEmphasizeBytes: boolean;
+    settingsAnnotateTypes: boolean = false;
+    settingsDimExtraBits: boolean = false;
+    settingsCenteredLayout: boolean = true;
     cookieDisclaimerHidden: boolean = false;
-    centeredLayout: boolean = true;
 
     constructor(persistData: PersistedAppData, env: string) {
 
         this.env = env;
 
         this.uiTheme = normalizeTheme(persistData.uiTheme);
-        this.emphasizeBytes = !!persistData.emphasizeBytes;
+        this.settingsEmphasizeBytes = !!persistData.settingsEmphasizeBytes;
         this.persistedVersion = persistData.version || 0.1;
         this.wasOldVersion = persistData.version !== null && persistData.version !== undefined && this.version > this.persistedVersion;
         this.debugMode = persistData.debugMode === true;
-        this.pageVisitsCount = persistData.pageVisistsCount || 0;
+        this.pageVisitsCount = persistData.pageVisitsCount || 0;
         this.donationClicked = persistData.donationClicked;
-        this.annotateTypes = !!persistData.annotateTypes;
-        this.dimExtraBits = !!persistData.dimExtrBits;
-        this.cookieDisclaimerHidden = !!persistData.cookieDisclaimerHidden
-        this.centeredLayout = (persistData.centeredLayout === undefined) ? true : !!persistData.centeredLayout;
+        this.settingsAnnotateTypes = !!persistData.settingsAnnotateTypes;
+        this.settingsDimExtraBits = !!persistData.settingsDimExtraBits;
+        this.cookieDisclaimerHidden = !!persistData.cookieDisclaimerHidden;
+        this.settingsCenteredLayout = (persistData.settingsCenteredLayout === undefined) ? true : !!persistData.settingsCenteredLayout;
     }
 
     addCommandResult(input: string, view: ViewFactory) {
@@ -83,8 +83,8 @@ export default class AppState {
     }
 
     toggleEmphasizeBytes(value?: boolean) {
-        this.emphasizeBytes = value !== null && value !== undefined ? value : !this.emphasizeBytes;
-        this.triggerChanged('emphasizeBytes');
+        this.settingsEmphasizeBytes = value !== null && value !== undefined ? value : !this.settingsEmphasizeBytes;
+        this.triggerChanged('settingsEmphasizeBytes');
     }
 
     onChange(handler: AppStateChangeHandler) {
@@ -117,18 +117,18 @@ export default class AppState {
     }
 
     toggleAnnotateTypes(value?: boolean) {
-        this.annotateTypes = value !== null && value !== undefined ? value : !this.annotateTypes;
-        this.triggerChanged('annotateTypes');
+        this.settingsAnnotateTypes = value !== null && value !== undefined ? value : !this.settingsAnnotateTypes;
+        this.triggerChanged('settingsAnnotateTypes');
     }
 
-    toggleDimExtrBits() {
-        this.dimExtraBits = !this.dimExtraBits;
-        this.triggerChanged('dimExtraBits');
+    toggleDimExtraBits() {
+        this.settingsDimExtraBits = !this.settingsDimExtraBits;
+        this.triggerChanged('settingsDimExtraBits');
     }
 
     toggleCenteredLayout(value?: boolean) {
-        this.centeredLayout = value !== null && value !== undefined ? value : !this.centeredLayout;
-        this.triggerChanged('centeredLayout');
+        this.settingsCenteredLayout = value !== null && value !== undefined ? value : !this.settingsCenteredLayout;
+        this.triggerChanged('settingsCenteredLayout');
     }
 
     registerVisit() {
@@ -151,16 +151,16 @@ export default class AppState {
 
     getPersistData(): PersistedAppData {
         return {
-            emphasizeBytes: this.emphasizeBytes,
+            settingsEmphasizeBytes: this.settingsEmphasizeBytes,
             uiTheme: this.uiTheme,
             version: this.version,
             debugMode: this.debugMode,
-            pageVisistsCount: this.pageVisitsCount,
+            pageVisitsCount: this.pageVisitsCount,
             donationClicked: this.donationClicked,
-            annotateTypes: this.annotateTypes,
-            dimExtrBits: this.dimExtraBits,
+            settingsAnnotateTypes: this.settingsAnnotateTypes,
+            settingsDimExtraBits: this.settingsDimExtraBits,
+            settingsCenteredLayout: this.settingsCenteredLayout,
             cookieDisclaimerHidden: this.cookieDisclaimerHidden,
-            centeredLayout: this.centeredLayout
         }
     }
 };

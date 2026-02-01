@@ -19,9 +19,9 @@ type AppRootProps = {
 
 type AppRootState = {
     uiTheme: string,
-    emphasizeBytes: boolean,
+    settingsEmphasizeBytes: boolean,
     commandResults: CommandResultView[],
-    centeredLayout: boolean
+    settingsCenteredLayout: boolean
 }
 
 export default class AppRoot extends React.Component<AppRootProps, AppRootState> {
@@ -58,7 +58,7 @@ export default class AppRoot extends React.Component<AppRootProps, AppRootState>
         const newUi = enableNewUi ? 'new-ui' : '';
         const settingsCss = "settings-button" + (this.props.appState.showSettings ? '' : ' soft');
 
-        const layoutClass = this.state.centeredLayout ? 'layout-centered' : 'layout-stretched';
+        const layoutClass = this.state.settingsCenteredLayout ? 'layout-centered' : 'layout-stretched';
         return <div className={`app-root ${this.state.uiTheme} ${newUi} ${layoutClass}`}>
                     <div className="header-pane">
                         <DebugIndicators appState={this.props.appState} />

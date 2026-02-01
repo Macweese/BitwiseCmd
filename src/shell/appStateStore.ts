@@ -3,16 +3,19 @@ import AppState, { APP_VERSION, PersistedAppData } from "./AppState";
 const storeKey = 'AppState';
 
 const DEFAULT_DATA : PersistedAppData = {
-    uiTheme: 'dark',
-    emphasizeBytes: false,
     version: APP_VERSION,
     debugMode: false,
-    pageVisistsCount: 0,
-    donationClicked: false,
-    annotateTypes: false,
-    dimExtrBits: false,
+
     cookieDisclaimerHidden: false,
-    centeredLayout: true
+    uiTheme: 'dark',
+
+    settingsAnnotateTypes: false,
+    settingsCenteredLayout: true,
+    settingsDimExtraBits: false,
+    settingsEmphasizeBytes: false,
+
+    pageVisitsCount: 0,
+    donationClicked: false,
 }
 
 const appStateStore = {
