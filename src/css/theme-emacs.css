@@ -1,0 +1,41 @@
+/* Emacs theme tokens (Leuven-like light palette) */
+.app-root.emacs {
+    --accent1-color:            #228b22;               /* forest green – comments */
+    --anchor-color:             #0000cd;               /* mediumblue links */
+    --bg-color:                 #fcfcfc;               /* almost white – leuven style */
+    --btn-color:                #4a708b;               /* slategray-ish */
+    --btn-disabled-color:       #a9a9a9;
+    --btn-hover-bg:             #e6f0fa;               /* very light blue hover */
+    --button-border-color:      #b0c4de;               /* lightsteelblue */
+    --button-hover-bg:          #d3e3fd;
+    --command-link-color-hover: #483d8b;               /* darkslateblue */
+    --cur-color:                #ff8c00;               /* darkorange cursor (modern feel) */
+    --error-color:              #b22222;               /* firebrick red */
+    --expression-color:         #8b2252;               /* violetred-ish strings */
+    --font-family:              "JetBrains Mono", "Fira Code", "Source Code Pro", monospace;
+    --hashlink-color:           #8b4513;               /* saddlebrown */
+    --hashlink-hover-color:     #a0522d;               /* sienna hover */
+    --header-cmd-color:         #a9a9a9;               /* darkgray, like the prefix */
+    --help-code-color:          #6a5acd;               /* slateblue */
+    --indicator-color:          #cd853f;               /* peru / goldenrod */
+    --input-border-color:       #a19280;               /* muted brown-gray */
+    --input-text-color:         #333333;
+    --label-color:              #483d8b;
+    --on-color:                 #1a1a1a;
+    --other-color:              #9932cc;               /* darkorchid accent */
+    --panel-bg-color:           #f5f5ff;               /* very pale blue-lavender */
+    --placeholder-color:        #a9a9a9;
+    --prefix-color:             #a9a9a9;
+    --settings-accent-color: #3030bf;
+    --soft-color:               #4169e1;               /* royalblue */
+    --solid-bg-color:           #e8f4ff;
+    --solid-border-color:       #b0d4ff;
+    --text-color:               #1a1a1a;               /* very dark gray text */
+    --top-links-color:          #4169e1;
+    --top-links-hover-color:    #0000cd;
+    --top-links-li-hover-bg:    #e8f1ff;
+    --zero-color:               #cd853f;
+}
+.app-root.emacs {
+    font-size: 0.82em; /* the monospace font runs small */
+}
