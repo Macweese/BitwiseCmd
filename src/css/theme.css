@@ -65,7 +65,7 @@
 .app-root .accent1 { color: var(--accent1-color); }
 .app-root .accent1-border { border-color: var(--accent1-color); }
 
-.app-root .expressionInput {
+.app-root .expressionInput-container {
     border-bottom: solid 1px var(--input-border-color);
     color: var(--input-text-color);
 }
@@ -109,6 +109,10 @@
 .app-root .top-links a:visited,
 .app-root .top-links button {
     color: var(--top-links-color, var(--anchor-color));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6em;
 }
 
 .app-root .top-links a:hover,

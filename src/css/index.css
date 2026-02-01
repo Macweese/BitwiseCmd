@@ -60,16 +60,32 @@ h1 { font-family: Impact, Verdana;
 .button svg { margin: 0; margin-right: 5px; }
 .button-large { padding: 10px; }
 
-.expressionInput { 
-    padding: 3px; 
-    outline: none;
+.expressionInput-container {
+    display: inline-flex;
+    align-items: end;
+    gap: 0;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    min-width: 550px;
+    justify-items: center;
+    justify-content: center;
+}
+
+.expressionInput {
+    flex: 1 1 auto;               /* take all remaining space */
+    min-width: 120px;             /* prevent it from collapsing too much */
+    padding: 3px 8px 5px 28px;    /* ← left padding enough for the prompt icon */
+    margin: 0;
     border: none;
-    border-bottom: solid 1px rgba(255, 255, 255, 0.5);
-    z-index: 100;
-    padding-left: 15px;
-    padding-bottom: 5px;
-    width: 600px; 
-    background: rgba(0, 0, 0, 0);
+    background: transparent;
+    outline: none;
+    font-family: monospace;
+    font-size: 1rem;
+    color: inherit;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .hidden { display: none;}
@@ -122,15 +138,30 @@ button { border: none; }
 button.link-button {text-decoration: underline;}
 
 .settings-button {
-    margin-left: -20px;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
 }
 
-/* When Settings is active (no .soft), remove any button border/outline */
+.settings-button button.command-link {
+    outline: none;
+}
+
 .settings-button button,
 .settings-button .command-link {
     border: none;
     outline: none;
-    box-shadow: none;
+    background: transparent;
+    padding: 6px 8px;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.settings-button:not(.soft) button,
+.settings-button:not(.soft) .command-link,
+.settings-button:hover button,
+.settings-button:hover .command-link {
+    opacity: 1;
 }
 
 .undo button { 
@@ -222,12 +253,28 @@ button:focus {outline:0;}
     padding: 30px 30px;
 }
 
+/* Prompt icon (angle-right) */
 .input-p {
-    display:inline;
-    z-index: 101;
     position: absolute;
-    margin-right: -10px;
-    margin-top: 3px;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    pointer-events: none;         /* lets clicks go through to input */
     opacity: 0.5;
+    color: inherit;
 }
+
+/* Wrapper that contains prompt icon + input */
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;               /* ← grows and shrinks, takes all available space */
+    min-width: 0;                 /* important: allows shrinking below content size */
+    position: relative;
+}
+
+
+
+
 
