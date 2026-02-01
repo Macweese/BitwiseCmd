@@ -80,7 +80,12 @@
 
 .app-root .solid-border {
     border: solid 1px var(--solid-border-color, var(--button-border-color, currentColor));
-    background-color: var(--panel-bg-color, transparent);
+    background-color: color-mix(in srgb, var(--panel-bg-color) 50%, transparent);
+    backdrop-filter: blur(15px);
+}
+
+.app-root .tooltip {
+    background-color: color-mix(in srgb, var(--panel-bg-color) 65%, transparent);
 }
 
 .app-root .help code,

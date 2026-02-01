@@ -23,11 +23,12 @@ function IconWithToolTip (props: React.PropsWithChildren<IconWithToolTipProps>) 
         let left = iconRect.right + 5;
         let top = iconRect.top;
 
+        let positionLeft = false;
         // Check if tooltip would overflow on the right
         if (left + tooltipRect.width > viewportWidth) {
             // Try positioning to the left of the icon
             left = iconRect.left - tooltipRect.width - 5;
-
+            positionLeft = true;
             // If it still doesn't fit, position it aligned to the right edge
             if (left < 0) {
                 left = viewportWidth - tooltipRect.width - 10;
@@ -36,8 +37,10 @@ function IconWithToolTip (props: React.PropsWithChildren<IconWithToolTipProps>) 
 
         // Check if tooltip would overflow on the bottom
         if (top + tooltipRect.height > viewportHeight) {
-            // Position above the icon
-            top = iconRect.bottom - tooltipRect.height;
+            // Position above the icon,
+            // add additional 5-pixel padding to allow room above binary representation,
+            // in case the tooltip is also placed on the left side
+            top = iconRect.bottom - tooltipRect.height - (positionLeft ? (iconRect.height + 5) : 0);
 
             // If it still doesn't fit, align to bottom edge
             if (top < 0) {

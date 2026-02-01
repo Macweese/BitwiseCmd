@@ -5,9 +5,12 @@
 }
 
 .tooltip-holder .tooltip-icon {
-    opacity: 0.5;
+    opacity: 0.4;
     z-index: 0;
-    vertical-align: middle;
+}
+
+.tooltip-icon:hover {
+    opacity: 0.6;
 }
 
 .tooltip-holder .tooltip {
@@ -18,9 +21,8 @@
     padding: 10px;
     border-radius: 5px;
     z-index: 10;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(15px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border-color: color-mix(in srgb, currentColor 30%, transparent);
 }
 
 .tooltip-holder .tooltip p {
@@ -34,4 +36,14 @@
 
 .tooltip-holder:hover .tooltip {
     display: block;
+}
+
+/*
+    TODO:
+     this should only be "active" if the setting
+     for data type annotation is enabled,
+     otherwise, this should be unset/0
+ */
+.tooltips {
+    min-width: 20px;
 }

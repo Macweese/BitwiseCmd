@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import formatter from '../../core/formatter';
 import BinaryStringView, { FlipBitEventArg as BitClickedEventArg } from '../../core/components/BinaryString';
 import BitwiseResultViewModel from './BitwiseResultViewModel';
@@ -70,20 +70,39 @@ export default class BitwiseResultView extends React.Component<BitwiseResultView
 
         const finalMaxBits = Math.max(this.maxSeenLengthNumberOfBits, maxAnnotatedSize);
 
-        return model.items.map((itm, i) =>
-            <ExpressionElementTableRow
-                key={i}
-                operator={itm.operator}
-                css={itm.css}
-                bitSize={itm.maxBitSize}
-                allowFlipBits={itm.allowFlipBits}
-                allowSignChange={allowSignChange}
-                expressionItem={itm.expressionElement}
-                emphasizeBytes={this.props.emphasizeBytes}
-                maxNumberOfBits={finalMaxBits}
-                annotateTypes={this.props.annotateTypes}
-                expression={this.props.expression}
-                onValueChanged={() => this.onValueChanged()} />);
+        // For BitwiseOperation, get the root node ID to identify the final result
+        let rootNodeId: number | null = null;
+        if (this.props.expression instanceof BitwiseOperation && this.props.expression.tree) {
+            rootNodeId = this.props.expression.tree.root.id;
+        }
+
+        return model.items.map((item, i) => {
+            // Check if this row represents the final result
+            // It's the final result if:
+            // 1. It's a BitwiseOperation result row (has '=' operator)
+            // 2. The operand ID matches the root node ID
+            const operand = item.expressionElement.getUnderlyingOperand();
+            const isFinalResult = rootNodeId !== null &&
+                item.operator === '=' &&
+                operand.id === rootNodeId;
+
+            return (
+                <ExpressionElementTableRow
+                    key={i}
+                    operator={item.operator}
+                    css={item.css}
+                    bitSize={item.maxBitSize}
+                    allowFlipBits={item.allowFlipBits}
+                    allowSignChange={allowSignChange}
+                    expressionItem={item.expressionElement}
+                    emphasizeBytes={this.props.emphasizeBytes}
+                    maxNumberOfBits={finalMaxBits}
+                    annotateTypes={this.props.annotateTypes}
+                    expression={this.props.expression}
+                    isFinalResult={isFinalResult}
+                    onValueChanged={() => this.onValueChanged()} />
+            );
+        });
     }
 
     onValueChanged() {
@@ -103,7 +122,8 @@ type ExpressionElementRowProps = {
     expressionItem: ExpressionElement,
     onValueChanged: any,
     annotateTypes: boolean,
-    expression: Expression
+    expression: Expression,
+    isFinalResult: boolean
 };
 
 class ExpressionElementTableRow extends React.Component<ExpressionElementRowProps> {
@@ -146,29 +166,101 @@ class ExpressionElementTableRow extends React.Component<ExpressionElementRowProp
             <td className="negative">{this.getSign()}</td>
             <td className="other" style={{ minWidth: `${minWidth}px`}}>{this.getAlternative()}</td>{/* TODO: inline 'style=' ? */}
             <td className="info accent1" style={{ minWidth: this.props.annotateTypes ? 132 : 0 }} data-test-name='ignore'>{this.props.annotateTypes ? this.getInfo() : null}</td>{/* TODO: inline 'style=' ? */}
+            <td className='tooltips' data-test-name='ignore'>
+                {this.getTooltips()}
+            </td>
             <td className='undo' data-test-name='ignore'>
-                {this.getControlButtons()}
+                {this.getUndoButton()}
             </td>
         </tr>;
+    }
+
+    getTooltips(): React.ReactNode {
+        const currentValue = this.scalar.value;
+
+        // Show tooltip for negative numbers (both intermediate and final results)
+        if (currentValue.value < 0) {
+            return (
+                <IconWithToolTip key={`tooltip-neg-${currentValue.value.toString()}`} icon={iconTip}>
+                    <div className='accent1 tooltip-header'>Two's Complement</div>
+                    <p>
+                        This is a negative number. Its binary representation is <u>inverted</u> using <strong>Two's Complement</strong> operation.
+                    </p>
+                    {this.props.annotateTypes ? null : (
+                        <p>
+                            To see full in-memory binary representation, go to <b>Settings</b> and enable <b>Annotate Data Types</b> toggle.
+                        </p>
+                    )}
+                </IconWithToolTip>
+            );
+        }
+
+        return null;
+    }
+
+    getUndoButton(): React.ReactNode {
+        const currentValue = this.scalar.value;
+        const { isFinalResult } = this.props;
+
+        // Show undo button only for non-final results that have changed
+        // (Final results are calculated, not directly editable)
+        if (!isFinalResult && !this.originalValue.isTheSame(currentValue)) {
+            return (
+                <button
+                    key={`undo-${currentValue.value.toString()}`}
+                    title='Undo all changes'
+                    className='undo'
+                    data-control="undo"
+                    onClick={() => this.undo()}
+                >
+                    <FontAwesomeIcon icon={iconUndo} />
+                </button>
+            );
+        }
+
+        return null;
     }
 
     getControlButtons(): React.ReactNode {
 
         const buttons = [];
+        const currentValue = this.scalar.value;
+        const { isFinalResult } = this.props;
 
-        if (this.scalar.value.value < 0)
-            buttons.push(<IconWithToolTip icon={iconTip}>
-               <div className='accent1 tooltip-header'>Two's Complement</div>
+        // Show tooltip for negative numbers (both intermediate and final results)
+        if (currentValue.value < 0) {
+            buttons.push(
+                <IconWithToolTip key={`tooltip-neg-${currentValue.value.toString()}`} icon={iconTip}>
+                    <div className='accent1 tooltip-header'>Two's Complement</div>
                     <p>
-                        This is a negative number. It's binary representation is <u>inverted</u> using <strong>Two's Complement</strong> operation.
+                        This is a negative number. Its binary representation is <u>inverted</u> using <strong>Two's Complement</strong> operation.
                     </p>
-                    {this.props.annotateTypes ? null : <p>To see full in-memory binary representation, go to <b>Settings</b> and enable <b>Annotate Data Types</b> toggle. </p>}
-            </IconWithToolTip>)
+                    {this.props.annotateTypes ? null : (
+                        <p>
+                            To see full in-memory binary representation, go to <b>Settings</b> and enable <b>Annotate Data Types</b> toggle.
+                        </p>
+                    )}
+                </IconWithToolTip>
+            );
+        }
 
-        if (!this.originalValue.isTheSame(this.scalar.value))
-            buttons.push(<button title='Undo all changes' className='undo' data-control="undo" onClick={() => this.undo()}><FontAwesomeIcon icon={iconUndo} /></button>);
+        // Show undo button only for non-final results that have changed
+        // (Final results are calculated, not directly editable)
+        if (!isFinalResult && !this.originalValue.isTheSame(currentValue)) {
+            buttons.push(
+                <button
+                    key={`undo-${currentValue.value.toString()}`}
+                    title='Undo all changes'
+                    className='undo'
+                    data-control="undo"
+                    onClick={() => this.undo()}
+                >
+                    <FontAwesomeIcon icon={iconUndo} />
+                </button>
+            );
+        }
 
-        return <React.Fragment>{buttons}</React.Fragment>
+        return <React.Fragment>{buttons}</React.Fragment>;
     }
 
     getLabel(): string {
@@ -207,8 +299,16 @@ class ExpressionElementTableRow extends React.Component<ExpressionElementRowProp
     }
 
     undo() {
-        this.changeValue(this.originalValue);
-        this.props.onValueChanged();
+        // Use tree update mechanism for BitwiseOperation
+        const expr = this.props.expression;
+        if (expr instanceof BitwiseOperation && expr.tree) {
+            expr.tree.updateOperand(this.scalar.id, this.originalValue);
+            this.props.onValueChanged();
+        } else {
+            // Fallback for ListOfNumbers
+            this.changeValue(this.originalValue);
+            this.props.onValueChanged();
+        }
     }
 
     onBitClicked(args: BitClickedEventArg) {
