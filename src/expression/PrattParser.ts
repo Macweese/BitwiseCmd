@@ -33,7 +33,7 @@ export class PrattParser {
         const { result, node } = this.parseExpression(0);
 
         if (this.pos < this.input.length) {
-            throw new Error(`Unexpected character at position ${this.pos}: '${this.input[this.pos]}'`);
+            throw new Error(this.formatParseError("Unexpected character", this.pos, this.input));
         }
 
         return { finalResult: result, steps: this.steps, rootNode: node };
@@ -157,7 +157,7 @@ export class PrattParser {
             this.skipWhitespace();
 
             if (this.peek() !== ')') {
-                throw new Error(`Expected closing parenthesis at position ${this.pos}`);
+                throw new Error(this.formatParseError("Expected closing parenthesis", this.pos, this.input));
             }
             this.pos++;
             return { result, node };
@@ -178,7 +178,7 @@ export class PrattParser {
         const match = remainingInput.match(/^(?:0x[0-9a-f]+|0b[0-1]+|\d+)(?:ul|us|ub|l|s|b|u)?/i);
 
         if (!match) {
-            throw new Error(`Expected number at position ${this.pos}`);
+            throw new Error(this.formatParseError("Expected number", this.pos, this.input));
         }
 
         this.pos += match[0].length;
@@ -298,5 +298,30 @@ export class PrattParser {
 
     private formatOperand(op: Operand): string {
         return op.value.toString();
+    }
+
+    /**
+     * Creates a pretty-printed parse error with source context and a caret pointing
+     * at the problem position.
+     *
+     * @param message Short description ("Unexpected character", "Expected closing parenthesis ')'", etc.)
+     * @param pos 0-based position in the cleaned input string
+     * @param input The normalized input (spaces removed)
+     * @returns Formatted multi-line error message ready to be thrown
+     */
+    private formatParseError(message: string, pos: number, input: string): string {
+        const errorPosition = pos + 1; // 1-based indexing for readability
+
+        const paddingSize = 6;
+        const inputLine = "│" + " ".repeat(paddingSize) + `${input}`;
+        const caretLine = "│" + " ".repeat(paddingSize + pos) + "˄";
+        const traceLine = "└" + "─".repeat(paddingSize + pos) + "┘";
+
+        return [
+            `${message} at position ${errorPosition}.`,
+            inputLine,
+            caretLine,
+            traceLine,
+        ].join("\n");
     }
 }
