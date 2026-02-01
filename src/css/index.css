@@ -10,13 +10,47 @@ html { height: 100% }
 @import './theme.css';
 
 .app-root { 
-    font-family: var(--font-family, Verdana); 
+    font-family: var(--font-family, Verdana);
     font-size: 0.8em; 
     margin: 0; 
     padding: 0px 30px; 
     height: 100%; 
     overflow: auto; 
     position: relative;
+
+
+    /* ----------- SCROLLBAR ----------- */
+    /* TODO light theme scrollbar is not visible, because it is white-on-white */
+    /*overflow-y: auto;*/
+
+    /* Make track invisible / blend with background */
+    scrollbar-width: thin;                    /* Firefox */
+    scrollbar-color: rgba(255,255,255,0.4) transparent;
+
+    &::-webkit-scrollbar {
+        width: 6px;                             /* thin size — adjust 4–8px */
+        height: 6px;                            /* horizontal if needed */
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;                /* no visible track */
+        border-radius: 9999px;                  /* just in case */
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.45);  /* semi-transparent white */
+        border-radius: 9999px;                  /* pill / capsule shape */
+        border: 2px solid transparent;          /* optional: makes it look even rounder */
+        background-clip: content-box;           /* keeps border transparent */
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.65);
+        }
+
+        &:active {
+            background: rgba(255, 255, 255, 0.8);
+        }
+    }
 }
 
 /* Centered vs stretched layout */
