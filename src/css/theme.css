@@ -62,7 +62,7 @@
     background-color: inherit;
 }
 
-.app-root .accent1 { color: var(--accent1-color); }
+.app-root .accent1 { color: var(--accent1-color); white-space: nowrap; }
 .app-root .accent1-border { border-color: var(--accent1-color); }
 
 .app-root .expressionInput-container {
