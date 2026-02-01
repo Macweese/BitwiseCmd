@@ -55,7 +55,7 @@ export default class BinaryStringView extends React.Component<BinaryStringViewPr
 
     createBits(bitChars: string[]): JSX.Element[] {
         const allowFlipBits = this.props.allowFlipBits || false;
-        const css = allowFlipBits ? ' flipable' : ''
+        const css = allowFlipBits ? ' flippable' : ''
 
         const disableHighlight = this.props.disableHighlight || false;
         const firstBitIndex = this.props.valueBitSize !== null && this.props.valueBitSize !== undefined
