@@ -32,7 +32,7 @@ const startLightsIfWereOnAfterDelay = (): void => {
     if (getLightIsOn())
         setTimeout(turnLightsOn, 500);
     else
-        log.info("Lights are off by user preference");
+        log.debug("Lights are off by user preference");
 };
 
 const addStateListener = (appState: AppState) => {
@@ -41,10 +41,10 @@ const addStateListener = (appState: AppState) => {
 
     appState.onChange(() => {            
 
-        log.info("App state changed, checking for lights theme. Current theme: " + appState.uiTheme + ", old theme: " + oldTheme);
+        log.debug("App state changed, checking for lights theme. Current theme: " + appState.uiTheme + ", old theme: " + oldTheme);
         
         if(appState.uiTheme === 'bladerunner' && oldTheme !== 'bladerunner') {
-            log.info("Starting lights because bladerunner theme is active");
+            log.debug("Starting lights because bladerunner theme is active");
             startLightsIfWereOnAfterDelay();
         }
         else if(oldTheme === "bladerunner" && appState.uiTheme !== 'bladerunner') {
