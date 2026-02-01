@@ -2,11 +2,45 @@ import React from 'react';
 import CommandLink from '../../core/components/CommandLink';
 import './WhatsNewResultView.css';
 
+/*
+    TODO:
+      • Lots of repeated stuff in here.
+        This could be changed into maybe some map of entries
+        that is iterated over, and added. With the first/last
+        entry being regarded as the most recent, and handled
+        accordingly. Because the most recent change is a
+        different type; ('item item-new' vs 'item').
+ */
 function WhatsNewResultView() {
 
     return <div className="changelog">
         <h3>Changelog</h3>
         <div className='item item-new'>
+            <p>
+                <span className="soft date">Jan 23th, 2026</span> <br />
+            </p>
+            {/* TODO: Complete writing this entry when finished with rework */}
+            <p>Big changes, very features, many wow!</p>
+            The most noticeable change is that the calculator now accounts for operator precedence, and supports parentheses.
+            <ul>
+                <li>
+                    The calculator now behaves as one can expect in most programming languages,
+                    where expressions are evaluated based on priority of operators.{' '}
+                    Order of expressions with regard to parentheses is now respected.<br></br>
+                    Try it out: <span className="no-break"><code><CommandLink text="999 ^ ~((2 * (5 + 5) - 2 * 0x8a) + 100 << 1)" /></code></span>
+                </li>
+                <li>Expressions now support the remainder operator <code>%</code>, just as other multiplicative operators.</li>
+                <li>Fixed a bug preventing subtraction by zero.</li>
+                <li>Fixed a bug causing crash from certain arithmetic shift operations.</li>
+                <li>Optimized the website and calculator; it should now perform calculations faster and use less memory.</li>
+                <li>Introduced four new themes; <CommandLink text="github" />, <CommandLink text="helix" />, <CommandLink text="emacs" /> and <CommandLink text="sakura" /></li>
+                <li>Added a library of tips and trivia, hopefully something you'll find interesting &| useful!</li>
+                <li>Various UI & UX fixes.</li>
+            </ul>
+            {/* TODO: fix this entry -> commit diff */}
+            For a complete list of commits, for these changes, see the <a href="https://github.com/BorysLevytskyi/BitwiseCmd/compare/a...b">diff</a> on Github.
+        </div>
+        <div className='item'>
             <p>
                 <span className="soft date">Nov 28th, 2025</span> <br />
             </p>
