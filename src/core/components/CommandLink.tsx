@@ -9,16 +9,17 @@ type CommandLinkProps = {
     text:string;
     textClassName?: string
     icon?: IconDefinition
+    noBreak?: boolean
 }
 
-function CommandLink({icon, command, text, textClassName}: CommandLinkProps) {
+function CommandLink({icon, command, text, textClassName, noBreak}: CommandLinkProps) {
 
     const onClick = () => cmd.execute(command ?? text);
 
     return (
         <button type="button" className="command-link" onClick={onClick}>
             {icon ? <FontAwesomeIcon icon={icon} className="icon" /> : null}
-            <span className={textClassName}>{text}</span>
+            <span className={[textClassName, noBreak ? 'no-break' : undefined].filter(Boolean).join(' ') || undefined}>{text}</span>
         </button>
     );
 }

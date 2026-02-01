@@ -11,6 +11,7 @@ import TextResultView from './components/TextResultView';
 import WhatsnewResultView from './components/WhatsNewResultView';
 import {STARTUP_COMMAND_KEY} from './startup';
 import { INT32_MAX_VALUE, INT64_MAX_VALUE } from '../core/const';
+import TipResultView from "./components/TipResultView";
 
 const shellModule = {
     setup: function(appState: AppState, cmd: CmdShell) {
@@ -40,6 +41,7 @@ const shellModule = {
         cmd.command("about", (c: CommandInput) => appState.addCommandResult(c.input, () => <AboutResultView />));
         cmd.command("whatsnew", (c: CommandInput) => appState.addCommandResult(c.input, () => <WhatsnewResultView />));
         cmd.command("guid", (c: CommandInput) => appState.addCommandResult(c.input, () => <TextResultView text={uuid()} />));
+        cmd.command("tip", (c: CommandInput) => appState.addCommandResult(c.input, () => <TipResultView />));
         cmd.command("-debug", (c: CommandInput) => {
             appState.toggleDebugMode();
             appState.addCommandResult(c.input, () => <TextResultView text={`Debug Mode: ${appState.debugMode}`}/>);
