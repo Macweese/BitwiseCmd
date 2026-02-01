@@ -60,11 +60,7 @@ const calc = {
     lshift (num: Integer, numBytes : JsNumber) : Integer {
 
         let bytes = asIntN(numBytes);
-
-        if(num.maxBitSize === bytes)
-            return num; // Preserve C undefined behavior
-        
-        while(bytes > num.maxBitSize) bytes -= num.maxBitSize;
+		bytes = bytes & (num.maxBitSize - 1); // mask shift count like C (works for non-power-of-two sizes too)
 
         return this._executeForSingleOperand(num, bin => this.engine.lshift(bin, bytes));
     },
@@ -72,11 +68,7 @@ const calc = {
     rshift (num : Integer, numBytes : JsNumber) : Integer {
         
         let bytes = asIntN(numBytes);
-
-        if(num.maxBitSize === bytes)
-            return num; // Preserve C undefined behavior
-        
-        while(bytes > num.maxBitSize) bytes -= num.maxBitSize;
+		bytes = bytes & (num.maxBitSize - 1); // mask shift count like C (works for non-power-of-two sizes too)
 
         return this._executeForSingleOperand(num, bin => this.engine.rshift(bin, bytes));
     },
@@ -84,11 +76,7 @@ const calc = {
     urshift (num : Integer, numBytes : JsNumber) : Integer {
 
         let bytes = asIntN(numBytes);
-
-        if(num.maxBitSize === bytes)
-            return num; // Preserve C undefined behavior
-        
-        while(bytes > num.maxBitSize) bytes -= num.maxBitSize;
+		bytes = bytes & (num.maxBitSize - 1); // mask shift count like C (works for non-power-of-two sizes too)
 
         return this._executeForSingleOperand(num, bin => this.engine.urshift(bin, bytes));
     },
