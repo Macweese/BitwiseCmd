@@ -79,20 +79,67 @@
 
 /* Blade Runner-specific component tweaks */
 .bladerunner .accent1 button:hover { text-shadow: 0 0 2px #e3a600 }
+.bladerunner .section a:hover,
+.bladerunner .section a:focus,
+.bladerunner .aboutTpl a:hover,
+.bladerunner .aboutTpl a:focus,
+.bladerunner .item a:focus,
+.bladerunner .item a:hover,
 .bladerunner .command-link:hover,
 .bladerunner .command-link:focus { text-shadow: 0 0 2px rgba(69, 243, 255, 0.949); }
-.bladerunner button.hashLink:hover, .bladerunner .undo button:hover, .bladerunner a.hashLink:hover {
+.bladerunner button.hashLink:hover, .bladerunner .undo button:hover, .bladerunner a.hashLink:hover, .bladerunner .aboutTpl a:hover {
     --text-shadow: 0 0 2px currentColor;
     text-shadow: 0 0 2px rgb(229, 33, 0.5);
     color: var(--hashlink-hover-color);
 }
 .bladerunner .undo button:hover { opacity: 1; }
 
+/* Blade Runner: donation-button neon glow */
+.bladerunner a.button:hover .svg-inline--fa,
+.bladerunner a.button:hover svg {
+    filter:
+            drop-shadow(0 0 4px color-mix(in srgb, currentColor 50%, transparent))
+            drop-shadow(0 0 8px color-mix(in srgb, currentColor 30%, transparent))
+            drop-shadow(0 0 14px color-mix(in srgb, currentColor 30%, transparent));
+    animation: neon-flicker 7s infinite alternate;
+    animation-timing-function: ease-in-out;
+}
+
+.bladerunner .cookie-disclaimer button:not(.command-link):hover,
+.bladerunner a.button.button-large:hover,
+.bladerunner a.button-large:focus-visible {
+    --neon: color-mix(in srgb, currentColor 30%, transparent);
+    --neon-glow: color-mix(in srgb, currentColor 10%, transparent);
+
+
+    box-shadow:
+            0 0 5px var(--neon),
+            0 0 2px var(--neon),
+            0 0 1px var(--neon-glow),
+            0 0 2px var(--neon-glow),
+            inset 0 0 10px rgba(255, 255, 255, 0.15);
+    text-shadow: 0 0 10px var(--neon), 0 0 20px var(--neon-glow);
+
+    animation: neon-flicker 3s infinite alternate;
+    animation-timing-function: ease-in-out;
+}
+
+/* Blade Runner: donation-button neon glow flicker */
+@keyframes neon-flicker {
+    3% { opacity: 0.5; }
+    2%, 4% { opacity: 1; }
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+    20%, 24%, 55% { opacity: 0.9; }
+    18%, 22%, 52% { opacity: 0.9; }
+    50% { filter: drop-shadow(0 0 1px currentColor); }
+}
+
 /* Blade Runner: subtle glow for SVG icons inside hash links on hover/focus */
 .bladerunner .hashLink:hover .icon,
 .bladerunner .hashLink:focus .icon,
 .bladerunner .hashLink:hover svg,
 .bladerunner .undo:hover svg,
+.bladerunner .tooltip-holder:hover svg,
 .bladerunner .hashLink:focus svg {
     filter: drop-shadow(0 0 2px currentColor);
 }

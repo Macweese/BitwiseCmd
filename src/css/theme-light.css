@@ -30,4 +30,17 @@
     --cur-color: lightgray;
     --lights-on-header-color: #919191;
     --command-link-color: green;
+
+    --label-color: black;
+    --panel-bg-color: rgba(255, 255, 255, 0.15);
+    --placeholder-color: rgba(0, 0, 0, 0.3);
+    --settings-accent-color: black;
+    --soft-color: #121212;
+    --top-links-color: black;
+    --top-links-hover-color: black;
+    --zero-color: #121212;
+}
+
+.light .cookie-disclaimer button {
+    background: var(--bg-color) !important;
 }
