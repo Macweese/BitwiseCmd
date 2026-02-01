@@ -1,18 +1,45 @@
-.help ul { list-style-type: none; margin: 0; margin-left: 10px; margin-top: 0.2em; padding: 0;  }
-.help li { padding: 1px; margin-bottom: 5px;}
-/* Theme-specific styling moved to src/index.css via CSS variables */
+.help .operators-table, .help .commands-table, .help ul { margin: 0; margin-left: 10px; padding: 0; }
+.help ul { list-style-type: none; }
+.help li { padding: 1px; margin-bottom: 5px; }
 .help p { margin-top: 0.5em }
-.help .section {padding: 1em;}
-.help .panel-container {overflow: hidden;}
-.help .left-panel {float:left; margin-right: 1em;}
-.help .right-panel {float:left; }
-.help .section-title {font-weight: bold; font-size: 1.1em;}
-.help .important-note {padding: 5px; display: inline-block; margin-top: 5px;}
 .help a { white-space: nowrap; }
 .help .no-break { white-space: nowrap; }
 .help .pre { white-space: pre; }
+.help .section { padding: 1em; }
+.help .section-title { font-weight: bold; font-size: 1.1em; }
+.help .panel-container { overflow: hidden; display: inline-flex; justify-content: flex-start; }
+.help .left-panel { float: left; margin-right: 1em; }
+.help .right-panel { float: left; }
 @media (min-width: 1024px) {
     .left-panel, .right-panel {
         width: 45%;
     }
+}
+
+.help .important-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 5px;
+    margin-top: 5px;
+}
+.help .important-note svg { margin-top: 0.25em; flex-shrink: 0; }
+.help .footnotes { font-size: 0.95em; margin-top: 0.75em; opacity: 0.8; line-height: 1.5; }
+
+/* Command and operator tables: the command on the left, aligned with the first line of its description */
+.commands-table td, .operators-table td { vertical-align: text-top; }
+.commands-table td.command-cell { padding-left: 10px; padding-right: 4px; }
+.command-cell {
+    display: flex;
+    align-items: center;
+    height: 21px;
+    white-space: nowrap;
+}
+.command-cell code { display: inline-flex; align-items: center; line-height: 1.1; }
+.command-cell .command-link { display: inline-flex; align-items: center; padding: 3px 5px; }
+.command-desc {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 0.5rem;
+    align-items: start;
 }

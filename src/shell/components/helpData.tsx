@@ -443,3 +443,99 @@ export const HELPFUL_TIPS: readonly TipEntry[] = [
     },
 
 ] as const;
+
+
+export type CommandEntry = {
+    command: string | readonly string[];
+    description?: string;
+    extraContent?: ReactNode;
+};
+
+export const BITWISE_CALCULATION_COMMANDS: readonly CommandEntry[] = [
+    { command: "23 | 34",     description: "type bitwise expression to see the result in binary" },
+    { command: "23 34",       description: "type one or more numbers to see their binary representations" },
+    { command: ["1 << (2 + 1)", "(1 << 2) + 1", "~7 & 1", "~(7 & 1)"],
+        description: "use parentheses to prioritize or nest expressions" },
+] as const;
+
+export const IP_NETWORK_COMMANDS: readonly CommandEntry[] = [
+    { command: "127.0.0.1",              description: "enter single or multiple IP addresses (separated by space) to see their binary representation" },
+    { command: "192.168.0.1/8",          description: "subnet mask notations are supported as well" },
+    { command: "subnet 192.168.24.1/14", description: "display information about a subnet (network address, broadcast address, etc.)" },
+    { command: "vpc 192.168.24.1/24",    description: "see how VPC network address bits are divided between VPC address, Subnets, and Hosts" },
+] as const;
+
+export const COLOR_THEME_COMMANDS: readonly CommandEntry[] = [
+    { command: "light",    description: "set the Light color theme" },
+    { command: "dark",     description: "set the Dark color theme" },
+    { command: "midnight", description: "set the Midnight color theme" },
+    { command: "graphite", description: "set the Graphite color theme" },
+    { command: "github",   description: "set the GitHub color theme" },
+    { command: "helix",    description: "set the Helix color theme" },
+    { command: "emacs",    description: "set the Emacs color theme" },
+    { command: "sakura",   description: "set the Sakura color theme" },
+] as const;
+
+export const OTHER_COMMANDS: readonly CommandEntry[] = [
+    { command: "clear",    description: "clear output pane" },
+    { command: "help",     description: "display this help" },
+    { command: "whatsnew", description: "display changelog" },
+    { command: "em",       description: "toggle byte emphasis" },
+    { command: "about",    description: "about the app" },
+    {
+        command: "guid",
+        description: "generate ",
+        extraContent: (
+            <a href="https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_.28random.29" target="_blank" rel="noreferrer">
+                v4 GUID
+            </a>
+        ),
+    },
+    { command: "tip",    description: "display a tip, trick or trivia" },
+] as const;
+
+type Operator = {
+    symbol: string;
+    description: string;
+    note?: string;
+};
+
+export const BITWISE_OPERATORS: readonly Operator[] = [
+    { symbol: "&",   description: "bitwise AND" },
+    { symbol: "|",   description: "bitwise inclusive OR" },
+    { symbol: "^",   description: "bitwise exclusive XOR" },
+    { symbol: "~",   description: "bitwise NOT" },
+    {
+        symbol: "<<",
+        description: "left shift",
+        note: "[1]",
+    },
+    {
+        symbol: ">>",
+        description: "sign propagating right shift",
+        note: "[1]",
+    },
+    {
+        symbol: ">>>",
+        description: "zero-fill right shift",
+        note: "[1]",
+    },
+] as const;
+
+export const ARITHMETIC_OPERATORS: readonly Operator[] = [
+    { symbol: "+", description: "addition" },
+    { symbol: "-", description: "subtraction" },
+    { symbol: "*", description: "multiplication" },
+    {
+        symbol: "/",
+        description: "division (truncates toward zero)",
+        note: "[2]",
+    },
+    {
+        symbol: "%",
+        description: "remainder (truncated division)",
+        note: "[3]",
+    },
+] as const;
+
+export const ALL_OPERATORS = [...BITWISE_OPERATORS, ...ARITHMETIC_OPERATORS] as const;
