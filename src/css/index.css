@@ -147,6 +147,19 @@ h1 { font-family: Impact, Verdana;
 
 .hidden { display: none;}
 
+/* Visually hidden, but read by screen readers (table headers that the layout makes obvious) */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 .result { margin: 10px 10px 30px; }
 .result .input { margin-bottom: 10px; }
 .result .content { padding-left: 10px}
