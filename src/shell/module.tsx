@@ -52,10 +52,11 @@ const shellModule = {
             appState.toggleAnalyticsTracking(false);
             appState.addCommandResult(c.input, () => <TextResultView text={`Analytics tracking disabled`}/>);
         });
-        cmd.command('-annotate:on', (c:CommandInput) => appState.toggleAnnotateTypes(true))
-        cmd.command('-annotate:off', (c:CommandInput) => appState.toggleAnnotateTypes(false))
-        cmd.command('-em:off', (c:CommandInput) => appState.toggleEmphasizeBytes(false))
-        cmd.command('-em:on', (c:CommandInput) => appState.toggleEmphasizeBytes(true))
+        cmd.command('annotate', () => appState.toggleAnnotateTypes)
+        cmd.command('annotate:on', () => appState.toggleAnnotateTypes(true))
+        cmd.command('annotate:off', () => appState.toggleAnnotateTypes(false))
+        cmd.command('em:off', () => appState.toggleEmphasizeBytes(false))
+        cmd.command('em:on', () => appState.toggleEmphasizeBytes(true))
         cmd.command("-max", (c:CommandInput) => {
             const text = `Int32 ${INT32_MAX_VALUE}\nInt64 ${INT64_MAX_VALUE}`
             appState.addCommandResult(c.input, () => <TextResultView text={text} />)
@@ -73,7 +74,7 @@ const shellModule = {
             appState.addCommandResult(c.input, () => <DonateResultView />)
         });
 
-        cmd.command("track", (c:CommandInput) => {
+        cmd.command("track", () => {
             sendAnalyticsEvent({
                 eventCategory: 'General',
                 eventAction: 'AnalyticsTest'
