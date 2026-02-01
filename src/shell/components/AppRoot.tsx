@@ -70,8 +70,9 @@ export default class AppRoot extends React.Component<AppRootProps, AppRootState>
                         </div>
 
                         <div className="expressionInput-container">
-                            <InputBox onCommandEntered={(input) => cmd.execute(input)} />
-                            
+                            <div className="input-wrapper">
+                                <InputBox onCommandEntered={(input) => cmd.execute(input)} />
+                            </div>
                             <span className={settingsCss}>
                                 <CommandLink text="" command='settings' icon={faGear} />
                             </span>
