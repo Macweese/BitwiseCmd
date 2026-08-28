@@ -87,7 +87,7 @@ export const HELPFUL_TIPS: readonly TipEntry[] = [
                         </span>
                     </code>
                 </p>
-                Although many modern languages already a feature for this, like <code>.bit_count()</code> in Python 3.10 and newer.<br/>
+                Although many modern languages already have a feature for this, like <code>.bit_count()</code> in Python 3.10 and newer.<br/>
                 CPUs have a single instruction for this (<code>POPCNT</code>).
             </>
         ),
