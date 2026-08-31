@@ -88,6 +88,39 @@ describe('calc.xor', () => {
     });
 });
 
+describe('unsigned operands', () => {
+    it('or of two unsigned numbers stays unsigned', () => {
+        const r = calc.or(Integer.unsigned(0xd526, 16), Integer.unsigned(0x4125, 16));
+        expect(r.num()).toBe(0xd527);
+        expect(r.signed).toBe(false);
+        expect(r.maxBitSize).toBe(16);
+    });
+
+    it('and of two unsigned numbers stays unsigned', () => {
+        const r = calc.and(Integer.unsigned(0xd526, 16), Integer.unsigned(0xd125, 16));
+        expect(r.num()).toBe(0xd124);
+        expect(r.signed).toBe(false);
+    });
+
+    it('xor of two unsigned numbers stays unsigned', () => {
+        const r = calc.xor(Integer.unsigned(0xd526, 16), Integer.unsigned(0x4125, 16));
+        expect(r.num()).toBe(0x9403);
+        expect(r.signed).toBe(false);
+    });
+
+    it('or of two unsigned numbers without high bit set', () => {
+        const r = calc.or(Integer.unsigned(23, 32), Integer.unsigned(45, 32));
+        expect(r.num()).toBe(63);
+        expect(r.signed).toBe(false);
+    });
+
+    it('or of two signed numbers stays signed', () => {
+        const r = calc.or(Integer.short(-10970), Integer.short(0x4125));
+        expect(r.num()).toBe(-10969);
+        expect(r.signed).toBe(true);
+    });
+});
+
 describe('calc.add', () => {
     it('adds positives', () => {
         expect(calc.add(Integer.int(2), Integer.int(3)).num()).toBe(5);

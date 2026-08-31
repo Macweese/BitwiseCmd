@@ -148,13 +148,13 @@ const calc = {
 
         let m = BigInt(1);
     
-        if(resultBin[0] === '1') {
+        if(num1.signed && resultBin[0] === '1') {
             resultBin = this.engine.applyTwosComplement(resultBin);
             m = BigInt(-1);
         }
 
         const result = BigInt("0b" + resultBin) * m;
-        return new Integer(result, num1.maxBitSize, (op1.signed && op2.signed));
+        return new Integer(result, num1.maxBitSize, num1.signed);
     },
 
     engine: { 
