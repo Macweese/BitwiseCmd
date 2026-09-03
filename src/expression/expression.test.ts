@@ -176,7 +176,7 @@ describe("comparison with nodejs engine", () => {
         inputs.forEach(i => testBinary(i, i));
     });
 
-    it('random: two inbary strings 64-bit', () => {
+            it('random: two binary strings 64-bit', () => {
         
         const signs = ["|", "&", "^", "<<", ">>", ">>>", "*", "/", "-"]
 
@@ -255,7 +255,7 @@ describe("comparison with nodejs engine", () => {
         }
     });
 
-    it('random: two inbary strings 64-bit', () => {
+        it('random: two binary strings 64-bit', () => {
         
         const operators = ["|", "&", "^"]
 
