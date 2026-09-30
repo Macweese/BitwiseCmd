@@ -70,7 +70,9 @@ const calc = {
         let bytes = asIntN(numBytes);
 		bytes = bytes & (num.maxBitSize - 1); // mask shift count like C (works for non-power-of-two sizes too)
 
-        return this._executeForSingleOperand(num, bin => this.engine.rshift(bin, bytes));
+        return this._executeForSingleOperand(num, bin => num.signed 
+            ? this.engine.rshift(bin, bytes) 
+            : this.engine.urshift(bin, bytes)); // Unsigned types use logical shift (no sign extension)
     },
 
     urshift (num : Integer, numBytes : JsNumber) : Integer {
@@ -134,7 +136,7 @@ const calc = {
         return new Integer(typeof num.value === "bigint" ? result : asIntN(result), num.maxBitSize, num.signed);
     },
 
-    _executeForTwoOperands(op1: Integer, op2: Integer,  operation: (bin1:string, bin2:string) => string) : Integer {
+    _executeForTwoOperands(op1: Integer, op2: Integer,  operation: (bin1:string, bin2:string, signed?:boolean) => string) : Integer {
         
         if(op1.maxBitSize === op2.maxBitSize && op1.signed !== op2.signed)
             throw new Error("This operation cannot be applied to signed and unsigned operands of the same size.");
@@ -144,7 +146,7 @@ const calc = {
         let bin1 = this.toBinaryString(num1).padStart(num1.maxBitSize, num1.value < 0  ? '1' : '0');
         let bin2 = this.toBinaryString(num2).padStart(num2.maxBitSize, num2.value < 0  ? '1' : '0');
 
-        let resultBin = operation(bin1, bin2);
+        let resultBin = operation(bin1, bin2, num1.signed);
 
         let m = BigInt(1);
     
@@ -263,20 +265,20 @@ const calc = {
             const negB = calc.engine.applyTwosComplement(bin2);
             return calc.engine.add(bin1, negB);
         },
-        div (bin1: string, bin2: string) : string {
+        div (bin1: string, bin2: string, signed: boolean = true) : string {
             checkSameLength(bin1, bin2);
             const len = bin1.length;
 
-            const toSignedBigInt = (bin: string) => {
-                if (bin[0] === '1') {
+            const toBigInt = (bin: string) => {
+                if (signed && bin[0] === '1') {
                     const mag = BigInt('0b' + calc.engine.applyTwosComplement(bin));
                     return -mag;
                 }
                 return BigInt('0b' + bin);
             };
 
-            const a = toSignedBigInt(bin1);
-            const b = toSignedBigInt(bin2);
+            const a = toBigInt(bin1);
+            const b = toBigInt(bin2);
             if (b === BigInt(0))
                 throw new Error('Division by zero.');
 
@@ -286,20 +288,20 @@ const calc = {
             const wrapped = (((quotient % modulo) + modulo) % modulo);
             return wrapped.toString(2).padStart(len, '0');
         },
-        mod (bin1: string, bin2: string) : string {
+        mod (bin1: string, bin2: string, signed: boolean = true) : string {
             checkSameLength(bin1, bin2);
             const len = bin1.length;
 
-            const toSignedBigInt = (bin: string) => {
-                if (bin[0] === '1') {
+            const toBigInt = (bin: string) => {
+                if (signed && bin[0] === '1') {
                     const mag = BigInt('0b' + calc.engine.applyTwosComplement(bin));
                     return -mag;
                 }
                 return BigInt('0b' + bin);
             };
 
-            const a = toSignedBigInt(bin1);
-            const b = toSignedBigInt(bin2);
+            const a = toBigInt(bin1);
+            const b = toBigInt(bin2);
             if (b === BigInt(0))
                 throw new Error('Division by zero.');
 
