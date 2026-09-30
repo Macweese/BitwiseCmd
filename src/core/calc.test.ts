@@ -119,6 +119,20 @@ describe('unsigned operands', () => {
         expect(r.num()).toBe(-10969);
         expect(r.signed).toBe(true);
     });
+
+    // Issue #3 scenarios
+    it('or of two unsigned bytes with sign-position bit set stays unsigned', () => {
+        const r = calc.or(Integer.unsigned(129, 8), Integer.unsigned(65, 8));
+        expect(r.num()).toBe(193);
+        expect(r.signed).toBe(false);
+        expect(r.maxBitSize).toBe(8);
+    });
+
+    it('unsigned subtraction wraps to max instead of negative', () => {
+        const r = calc.sub(Integer.unsigned(1, 16), Integer.unsigned(2, 16));
+        expect(r.num()).toBe(65535);
+        expect(r.signed).toBe(false);
+    });
 });
 
 describe('calc.add', () => {
