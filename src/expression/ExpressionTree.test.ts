@@ -10,7 +10,7 @@ it('re-evaluates unsigned operation without error after flipping the sign-positi
     const tree = expr.tree!;
 
     const firstOperandNode = Array.from(tree.allOperands.values())[0];
-    const operand = firstOperandNode.operand;
+    const operand = firstOperandNode.operand!;
 
     // Flip the most significant (sign-position) bit: 1ub -> 129ub
     const flipped = calc.flipBit(operand.value, 0);

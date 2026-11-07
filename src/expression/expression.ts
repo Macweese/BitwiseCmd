@@ -1,8 +1,7 @@
 import Operand from './Operand';
-import Operator from './Operator'
 import ListOfNumbers from './ListOfNumbers';
 import BitwiseOperation from './BitwiseOperation';
-import { Expression, ExpressionElement } from './expression-interfaces';
+import { Expression } from './expression-interfaces';
 import { numberParser } from './numberParser';
 import { PrattParser } from './PrattParser';
 
@@ -24,7 +23,7 @@ class ExpressionParser {
     };
 
     canParse (input: string) : boolean {
-        var trimmed = input.replace(/^\s+|\s+$/, '');
+        var trimmed = input.trim();
         var i = this.factories.length-1;
         for(;i>=0;i--) {
             if(this.factories[i].canCreate(trimmed)){
@@ -35,7 +34,7 @@ class ExpressionParser {
     };
 
     parse (input: string) : Expression | null {
-        var trimmed = input.replace(/^\s+|\s+$/, '');
+        var trimmed = input.trim();
         var i = 0, l = this.factories.length, factory;
 
         for(;i<l;i++) {
@@ -78,53 +77,15 @@ class ListOfNumbersExpressionFactory implements IExpressionParserFactory
 }
 
 class BitwiseOperationExpressionFactory implements IExpressionParserFactory {
-    fullRegex: RegExp;
-
-    constructor() {
-        // Updated regex to include parentheses
-        this.fullRegex = /^[-,~,<,>,&,^|,*,%,\/,\(,\),-,b,x,l,s,u,a-f,0-9,+\s]+$/i;
-    }
+    // Operators, parentheses, digits of all three bases, type suffixes and whitespace
+    fullRegex = /^[-~<>&^|*%\/()bxlsua-f0-9+\s]+$/i;
 
     canCreate(input: string): boolean {
-        this.fullRegex.lastIndex = 0;
-        return this.fullRegex.test(this.normalizeString(input));
+        return this.fullRegex.test(input);
     };
 
     create(input: string): Expression {
-        const normalizedString = this.normalizeString(input);
-
-        try {
-            const prattParser = new PrattParser(normalizedString);
-            const { finalResult, steps, rootNode } = prattParser.parse();
-
-            const children = this.stepsToChildren(steps, finalResult);
-
-            return new BitwiseOperation(normalizedString, children, steps, rootNode);
-        } catch (error) {
-            throw error;
-        }
-    };
-
-    private stepsToChildren(steps: any[], finalResult: Operand): ExpressionElement[] {
-        const children: ExpressionElement[] = [];
-
-        if (steps.length === 0) {
-            return [finalResult];
-        }
-
-        // Add first operand
-        children.push(steps[0].leftOperand);
-
-        // Add each operation
-        for (const step of steps) {
-            children.push(new Operator(step.rightOperand, step.operator));
-        }
-
-        return children;
-    }
-
-    normalizeString (input : string): string {
-        return input.replace(/\s+/g,'');
+        return new BitwiseOperation(input, new PrattParser(input).parse());
     };
 }
 

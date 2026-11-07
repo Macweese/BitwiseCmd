@@ -17,15 +17,9 @@ type ExpressionRowModel = {
     allowFlipBits: boolean;
     label: string;
     maxBitSize: number;
+    isFinalResult: boolean;
 }
 
-
-// TODO:
-//  edge cases to fix - still not displaying
-//  intermediary calculation expressions properly;
-//  (result is fine, presentation is not)
-//      -1 + 5 * 4      // it displays '1 - 1' for some reason, and before the parenthesized expression
-//      5 - (1 + 1)     // it displays '1 + 1 = 2' then '2 - 5 = 3', this is a flaw in how we walk the tree... this is tough ngl
 export default class BitwiseResultViewModel {
 
     emphasizeBytes: boolean;
@@ -49,29 +43,9 @@ export default class BitwiseResultViewModel {
         return model;
     }
 
-    static buildBitwiseOperation (expr : BitwiseOperation, config : Config) {
+    // Post-order traversal of the expression tree with deferred emission of left leaves
+    static buildBitwiseOperation(expr: BitwiseOperation, config: Config) {
         const m = new BitwiseResultViewModel(config);
-
-        // If we have steps from the Pratt parser, use them
-        if (expr.steps && expr.steps.length > 0) {
-            return BitwiseResultViewModel.buildFromSteps(expr, config);
-        }
-
-        // Fallback to old logic for backward compatibility
-        return BitwiseResultViewModel.buildBitwiseOperationLegacy(expr, config);
-    };
-
-    // Modified post-order traversal of the expression tree with left leaf emission
-    static buildFromSteps(expr: BitwiseOperation, config: Config) {
-        const m = new BitwiseResultViewModel(config);
-
-        if (!expr.tree) {
-            m.maxNumberOfBits = BitwiseResultViewModel.applyEmphasizeBytes(
-                m.maxNumberOfBits,
-                m.emphasizeBytes
-            );
-            return m;
-        }
 
         // Recursively walk the tree and emit display rows in the correct
         // presentation order.  Returns the Operand representing this subtree's
@@ -92,8 +66,8 @@ export default class BitwiseResultViewModel {
         function emitNode(node: ExpressionNode): Operand {
             if (node.type === 'operand') {
                 // Leaf: emit a scalar row and return the operand.
-                m.addScalarRow(node.operand);
-                return node.operand;
+                m.addScalarRow(node.operand!);
+                return node.operand!;
             }
 
             if (node.type === 'unary') {
@@ -125,7 +99,7 @@ export default class BitwiseResultViewModel {
                 // is NOT emitted as a standalone scalar row — it would otherwise be
                 // orphaned above the sub-expression which it at this point is unrelated to.
                 emitNode(node.rightChild!);   // resolve right sub-expression
-                operatorRowValue = node.leftChild!.operand;  // deferred left leaf
+                operatorRowValue = node.leftChild!.operand!;  // deferred left leaf
             } else {
                 // All other cases: resolve left first
                 // (if it's a sub-expression its rows appear; if it's a leaf it gets its scalar row).
@@ -133,7 +107,7 @@ export default class BitwiseResultViewModel {
 
                 if (rightIsLeaf) {
                     // Right is a plain leaf: use it directly on the operator row.
-                    operatorRowValue = node.rightChild!.operand;
+                    operatorRowValue = node.rightChild!.operand!;
                 } else {
                     // Both sides are sub-expressions.  Resolve the right one
                     // (its rows appear, ending with "= right-result").  The
@@ -164,52 +138,16 @@ export default class BitwiseResultViewModel {
 
         emitNode(expr.tree.root);
 
+        // The last row emitted for an operation is the value of the whole expression
+        if (expr.tree.root.type !== 'operand')
+            m.items[m.items.length - 1].isFinalResult = true;
+
         m.maxNumberOfBits = BitwiseResultViewModel.applyEmphasizeBytes(
             m.maxNumberOfBits,
             m.emphasizeBytes
         );
         return m;
     }
-
-    // Remove the old recalculateSteps method - no longer needed!
-
-    static buildBitwiseOperationLegacy (expr : BitwiseOperation, config : Config) {
-        const len = expr.children.length;
-        const m = new BitwiseResultViewModel(config);
-
-        let prev : Operand | null = null;
-
-        for (let i = 0; i < len; i++) {
-            const ex = expr.children[i];
-            if(ex instanceof Operand) {
-                m.addScalarRow(ex);
-                prev = ex;
-                continue;
-            }
-
-            const eo = ex as Operator;
-
-            // If it is a single NOT expression
-            if(eo.isNotExpression) {
-                m.addOperatorRow(eo);
-                const notResult = eo.evaluate();
-                m.addExpressionResultRow(notResult);
-                prev = notResult;
-            }
-            else if(eo.isShiftExpression){
-                prev = eo.evaluate(prev as Operand);
-                m.addShiftExpressionResultRow(eo, prev);
-            } else {
-
-                prev = eo.evaluate(prev as Operand);
-                m.addOperatorRow(eo);
-                m.addExpressionResultRow(prev);
-            }
-        }
-
-        m.maxNumberOfBits = BitwiseResultViewModel.applyEmphasizeBytes(m.maxNumberOfBits, m.emphasizeBytes);
-        return m;
-    };
 
     addScalarRow(expr: Operand) {
         const bits = this.calcMaxNumberOfBits(expr);
@@ -221,12 +159,13 @@ export default class BitwiseResultViewModel {
             allowFlipBits: this.allowFlipBits,
             label: '',
             maxBitSize: expr.value.maxBitSize,
+            isFinalResult: false,
         });
     };
 
     addOperatorRow(expr: Operator) {
 
-        const resultNumber = expr.isNotExpression ? expr.evaluate() : expr.getUnderlyingOperand();
+        const resultNumber = expr.getUnderlyingOperand();
         const bits = this.calcMaxNumberOfBits(resultNumber);
 
         this.maxNumberOfBits = Math.max(bits, this.maxNumberOfBits);
@@ -237,7 +176,8 @@ export default class BitwiseResultViewModel {
             label: this.getLabel(resultNumber),
             expressionElement: expr.operand,
             allowFlipBits: this.allowFlipBits,
-            maxBitSize: resultNumber.value.maxBitSize
+            maxBitSize: resultNumber.value.maxBitSize,
+            isFinalResult: false,
         });
     };
 
@@ -251,7 +191,8 @@ export default class BitwiseResultViewModel {
             expressionElement: resultExpr,
             allowFlipBits: false,
             label: '',
-            maxBitSize: resultExpr.value.maxBitSize
+            maxBitSize: resultExpr.value.maxBitSize,
+            isFinalResult: false,
         });
     };
 
@@ -266,7 +207,8 @@ export default class BitwiseResultViewModel {
             expressionElement: expr,
             allowFlipBits: false,
             label: '',
-            maxBitSize: expr.value.maxBitSize
+            maxBitSize: expr.value.maxBitSize,
+            isFinalResult: false,
         });
     };
 
