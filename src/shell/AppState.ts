@@ -1,4 +1,5 @@
 import log from 'loglevel';
+import analyticsTracking from './analyticsTracking';
 
 export const APP_VERSION = 12;
 
@@ -13,7 +14,6 @@ export type PersistedAppData = {
     settingsDimExtraBits: boolean;
     settingsCenteredLayout?: boolean
     cookieDisclaimerHidden: boolean,
-    analyticsTracking?: boolean
 }
 
 export type CommandResultView = {
@@ -45,7 +45,7 @@ export default class AppState {
     settingsDimExtraBits: boolean = false;
     settingsCenteredLayout: boolean = true;
     cookieDisclaimerHidden: boolean = false;
-    analyticsTracking: boolean = false;
+    analyticsTracking: boolean;
 
     constructor(persistData: PersistedAppData, env: string) {
 
@@ -62,7 +62,7 @@ export default class AppState {
         this.settingsDimExtraBits = !!persistData.settingsDimExtraBits;
         this.cookieDisclaimerHidden = !!persistData.cookieDisclaimerHidden;
         this.settingsCenteredLayout = (persistData.settingsCenteredLayout === undefined) ? true : !!persistData.settingsCenteredLayout;
-        this.analyticsTracking = persistData.analyticsTracking? false : true;
+        this.analyticsTracking = analyticsTracking.isEnabled();
     }
 
     addCommandResult(input: string, view: ViewFactory) {
@@ -115,7 +115,8 @@ export default class AppState {
     }
 
     toggleAnalyticsTracking(value?: boolean) {
-        this.analyticsTracking = !this.analyticsTracking;
+        this.analyticsTracking = value !== null && value !== undefined ? value : !this.analyticsTracking;
+        analyticsTracking.setEnabled(this.analyticsTracking);
         this.triggerChanged('analyticsTracking');
     }
 
@@ -169,7 +170,6 @@ export default class AppState {
             settingsDimExtraBits: this.settingsDimExtraBits,
             settingsCenteredLayout: this.settingsCenteredLayout,
             cookieDisclaimerHidden: this.cookieDisclaimerHidden,
-            analyticsTracking: this.analyticsTracking,
         }
     }
 };

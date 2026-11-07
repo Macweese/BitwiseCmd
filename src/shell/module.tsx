@@ -46,18 +46,22 @@ const shellModule = {
             appState.toggleDebugMode();
             appState.addCommandResult(c.input, () => <TextResultView text={`Debug Mode: ${appState.debugMode}`}/>);
         });
-        cmd.command("incognito", (c: CommandInput) => {
-            appState.toggleAnalyticsTracking();
-            appState.addCommandResult(c.input, () => <TextResultView text={`Analytics tracking ${appState.analyticsTracking ? "enabled" : "disabled"}`}/>);
-        });
-        cmd.command("incognito:on", (c: CommandInput) => {
-            appState.toggleAnalyticsTracking(true);
-            appState.addCommandResult(c.input, () => <TextResultView text={`Analytics tracking enabled`}/>);
-        });
-        cmd.command("incognito:off", (c: CommandInput) => {
-            appState.toggleAnalyticsTracking(false);
-            appState.addCommandResult(c.input, () => <TextResultView text={`Analytics tracking disabled`}/>);
-        });
+
+        // Incognito mode turns analytics tracking off. The flags -incognito and -notrack are
+        // read from the URL hash by analytics.js before the app loads; typed in, they do the same.
+        const setIncognito = (c: CommandInput, incognito?: boolean) => {
+            appState.toggleAnalyticsTracking(incognito === undefined ? undefined : !incognito);
+            const text = appState.analyticsTracking
+                ? "Incognito mode is off. Analytics tracking resumes the next time the page is loaded."
+                : "Incognito mode is on. Analytics tracking is disabled.";
+            appState.addCommandResult(c.input, () => <TextResultView text={text} />);
+        };
+        cmd.command("incognito", (c: CommandInput) => setIncognito(c));
+        cmd.command("incognito:on", (c: CommandInput) => setIncognito(c, true));
+        cmd.command("incognito:off", (c: CommandInput) => setIncognito(c, false));
+        cmd.command("-incognito", (c: CommandInput) => setIncognito(c, true));
+        cmd.command("-notrack", (c: CommandInput) => setIncognito(c, true)); // the flag's name before version 12
+
         cmd.command('annotate', () => appState.toggleAnnotateTypes)
         cmd.command('annotate:on', () => appState.toggleAnnotateTypes(true))
         cmd.command('annotate:off', () => appState.toggleAnnotateTypes(false))

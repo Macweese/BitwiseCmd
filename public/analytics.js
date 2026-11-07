@@ -9,12 +9,17 @@
         return;
     }
 
+    // Keep in sync with src/shell/analyticsTracking.ts
     var key = 'analyticsTracking';
-    var disableAnalytics = localStorage.getItem(key) === 'false' ||  window.location.hash.indexOf('-incognito') > -1
+    var legacyKey = 'TrackAnalytics';
+    var storedValue = localStorage.getItem(key) || localStorage.getItem(legacyKey);
+    var hash = window.location.hash;
+    var disableAnalytics = storedValue === 'false' || hash.indexOf('-incognito') > -1 || hash.indexOf('-notrack') > -1;
 
     if(disableAnalytics) {
         localStorage.setItem(key, "false");
-        console.log('Analytics tracking disabled by local storage.');
+        localStorage.removeItem(legacyKey);
+        console.log('Analytics tracking disabled (incognito).');
         return;
     }
 
