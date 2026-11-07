@@ -487,6 +487,10 @@ export const OTHER_COMMANDS: readonly CommandEntry[] = [
     { command: "help",     description: "display this help" },
     { command: "whatsnew", description: "display changelog" },
     { command: "em",       description: "toggle byte emphasis" },
+    { command: "annotate", description: "toggle data type annotations" },
+    { command: "max",      description: "display the maximum values of the integer types" },
+    { command: "min",      description: "display the minimum values of the integer types" },
+    { command: "incognito", description: "toggle analytics tracking" },
     { command: "about",    description: "about the app" },
     {
         command: "guid",
