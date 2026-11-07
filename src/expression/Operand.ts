@@ -15,9 +15,10 @@ export default class Operand implements ExpressionElement {
     label: string;
 
     constructor(value : Integer | JsNumber, base?: NumberBase) {
-        
-         if(!isInteger(value))
-             value = asInteger(value);
+
+        if(!isInteger(value)) {
+            value = asInteger(value);
+        }
 
         Operand.validateSupported(value);
 

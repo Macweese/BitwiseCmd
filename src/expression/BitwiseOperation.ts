@@ -1,19 +1,17 @@
-import { Expression, ExpressionElement } from "./expression-interfaces";
-import { IntermediateStep } from "./PrattParser";
-import {ExpressionNode, ExpressionTree} from "./ExpressionTree";
+import { Expression } from "./expression-interfaces";
+import { ExpressionNode, ExpressionTree } from "./ExpressionTree";
+import Operand from "./Operand";
 
 export default class BitwiseOperation implements Expression {
     expressionString: string;
-    children: ExpressionElement[];
-    steps: IntermediateStep[];
-    tree: ExpressionTree | null;
+    tree: ExpressionTree;
 
-    constructor(expressionString: string, children: ExpressionElement[], steps?: IntermediateStep[], rootNode?: ExpressionNode) {
+    constructor(expressionString: string, root: ExpressionNode) {
         this.expressionString = expressionString;
-        this.children = children;
-        this.steps = steps || [];
+        this.tree = new ExpressionTree(root);
+    }
 
-        // Use provided root node or build from steps
-        this.tree = rootNode ? new ExpressionTree(rootNode) : null;
+    evaluate(): Operand {
+        return this.tree.root.evaluate();
     }
 }

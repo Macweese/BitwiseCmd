@@ -185,6 +185,12 @@ a.hashLink { font-size: 1.1em;}
 /*.expression .undo { position: relative; z-index: 1; }*/
 /*.expression .tooltips { position: relative; z-index: 1; }*/
 .expression .operator { text-align: right; padding-right: 5px; }
+/* Keep the columns from jumping between rows of different widths; the widths are tuned to the monospace font */
+.expression .row-with-bits .operator { min-width: 133px; }
+.expression .row-with-bits .label, .expression .row-with-bits .other { min-width: 107px; }
+.expression .row-with-bits.wide .operator { min-width: 221px; }
+.expression .row-with-bits.wide .label, .expression .row-with-bits.wide .other { min-width: 195px; }
+.expression.annotated .row-with-bits .info { min-width: 132px; }
 .expression .negative { font-size: 0.9em; text-align: right; color: var(--other-color); }
 
 .flippable { cursor: pointer; opacity: 1 }

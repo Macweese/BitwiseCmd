@@ -74,8 +74,14 @@ const calc = {
         return this._executeForSingleOperand(num, bin => this.engine.urshift(bin, bytes));
     },
 
-    not(num:Integer) : Integer { 
+    not(num:Integer) : Integer {
         return this._executeForSingleOperand(num, this.engine.not);
+    },
+
+    // Arithmetic negation within the operand's width: wraps like hardware, so
+    // -INT_MIN stays INT_MIN and negating an unsigned number gives its two's complement.
+    negate(num: Integer) : Integer {
+        return this._executeForSingleOperand(num, this.engine.applyTwosComplement);
     },
 
     and (num1 : Integer, num2 : Integer) : Integer {

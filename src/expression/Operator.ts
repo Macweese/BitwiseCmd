@@ -71,9 +71,10 @@ function equalizeSize(op1: Operand, op2: Operand) {
     {
         if(n1.signed === n2.signed) return;
 
-        // Example int and usinged int. Poromoted both to 64 bit        
+        // Example int and unsigned int. Promote both to 64 bit
         op1.setValue(n1.resize(n1.maxBitSize*2).toSigned()).setLabel("converted");
         op2.setValue(n2.resize(n2.maxBitSize*2).toSigned()).setLabel("converted");
+        return;
     }
     
     if(n1.maxBitSize > n2.maxBitSize) 
