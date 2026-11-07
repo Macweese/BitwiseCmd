@@ -43,93 +43,49 @@ export default class BitwiseResultViewModel {
         return model;
     }
 
-    // Post-order traversal of the expression tree with deferred emission of left leaves
+    // Walks the expression tree and emits the rows in the order a reader can follow:
+    // the operands of an operation right above its result, left operand first.
     static buildBitwiseOperation(expr: BitwiseOperation, config: Config) {
         const m = new BitwiseResultViewModel(config);
 
-        // Recursively walk the tree and emit display rows in the correct
-        // presentation order.  Returns the Operand representing this subtree's
-        // value — either the leaf itself or the evaluated result of an expression.
+        // Emits the rows of a subtree and returns its value: the leaf itself or the
+        // evaluated result of the operation. For a binary operation the rows are
         //
-        // A leaf that is the left child of a binary op whose right
-        // child is a sub-expression must NOT be emitted as an early scalar row.
-        // Instead, it is "cached" and shown on the operator row AFTER the
-        // right sub-expression has been fully resolved.  This way operands only
-        // appear in the display at the point they are actually consumed in a
-        // calculation, and never speculatively before a nested sub-expression.
+        //   LEFT=leaf,     RIGHT=leaf      ->                  scalar(left),   op-row(right),        = result
+        //   LEFT=sub-expr, RIGHT=leaf      ->                  resolve(left),  op-row(right),        = result
+        //   LEFT=leaf,     RIGHT=sub-expr  -> resolve(right),  scalar(left),   op-row(right result), = result
+        //   LEFT=sub-expr, RIGHT=sub-expr  -> resolve(right),  resolve(left),  op-row(right result), = result
         //
-        // The four cases for a binary operation node:
-        //   LEFT=leaf,     RIGHT=leaf      -> scalar(left),    op-row(right),  = result
-        //   LEFT=leaf,     RIGHT=sub-expr  -> resolve(right),  op-row(LEFT),   = result       ← deferred
-        //   LEFT=sub-expr, RIGHT=leaf      -> resolve(left),   op-row(right),  = result
-        //   LEFT=sub-expr, RIGHT=sub-expr  -> resolve(left),   resolve(right), op-row(right), = result
+        // so that the two rows above a "=" row are always "left operand" then "operator right
+        // operand", which matters for the operators that are not commutative. A right
+        // sub-expression is resolved first so that its rows don't separate the left operand
+        // from the operator row that uses it. A repeated (computed) value cannot have its bits
+        // flipped: only the leaves are the user's input.
         function emitNode(node: ExpressionNode): Operand {
             if (node.type === 'operand') {
-                // Leaf: emit a scalar row and return the operand.
                 m.addScalarRow(node.operand!);
                 return node.operand!;
             }
 
             if (node.type === 'unary') {
-                // Unary (~ or -):
-                //   1. Recurse into the child so its rows appear first.
-                //   2. Emit the operator row referencing the child's value.
-                //   3. Emit the '=' result row.
                 const childValue = emitNode(node.leftChild!);
                 const result = node.evaluate();
-                m.addOperatorRow(new Operator(childValue, node.operator!));
+                m.addOperatorRow(new Operator(childValue, node.operator!), node.leftChild!.type === 'operand');
                 m.addExpressionResultRow(result);
                 return result;
             }
 
-            // Binary operation.
             const operator = node.operator!;
-            const isShift = operator === '<<' || operator === '>>' || operator === '>>>';
-            const leftIsLeaf  = node.leftChild!.type === 'operand';
             const rightIsLeaf = node.rightChild!.type === 'operand';
 
-            // Determine what value to show on the operator row,
-            // and emit sub-expression rows in the right order.
-            let operatorRowValue: Operand;
-
-            if (leftIsLeaf && !rightIsLeaf) {
-                // LEFT is a plain leaf, RIGHT is a sub-expression.
-                // Resolve the right sub-expression first (its rows appear now),
-                // then show the left leaf on the operator row.  The left leaf
-                // is NOT emitted as a standalone scalar row — it would otherwise be
-                // orphaned above the sub-expression which it at this point is unrelated to.
-                emitNode(node.rightChild!);   // resolve right sub-expression
-                operatorRowValue = node.leftChild!.operand!;  // deferred left leaf
-            } else {
-                // All other cases: resolve left first
-                // (if it's a sub-expression its rows appear; if it's a leaf it gets its scalar row).
-                const leftResult = emitNode(node.leftChild!);
-
-                if (rightIsLeaf) {
-                    // Right is a plain leaf: use it directly on the operator row.
-                    operatorRowValue = node.rightChild!.operand!;
-                } else {
-                    // Both sides are sub-expressions.  Resolve the right one
-                    // (its rows appear, ending with "= right-result").  The
-                    // operator row must show the LEFT result, not the right:
-                    // the right result is already visible on the '=' row
-                    // immediately above, so repeating it would be redundant.
-                    // Showing the left result is what gives the reader the
-                    // other operand they need to follow the calculation in a cohesive manner.
-                    emitNode(node.rightChild!);
-                    operatorRowValue = leftResult;
-                }
-            }
-
+            const rightValue = rightIsLeaf ? node.rightChild!.operand! : emitNode(node.rightChild!);
+            emitNode(node.leftChild!);
             const result = node.evaluate();
 
-            if (isShift) {
-                m.addShiftExpressionResultRow(
-                    new Operator(operatorRowValue, operator),
-                    result
-                );
-            } else {
-                m.addOperatorRow(new Operator(operatorRowValue, operator));
+            if (operator === '<<' || operator === '>>' || operator === '>>>')
+                m.addShiftExpressionResultRow(new Operator(rightValue, operator), result);
+            else {
+                m.addOperatorRow(new Operator(rightValue, operator), rightIsLeaf);
                 m.addExpressionResultRow(result);
             }
 
@@ -163,7 +119,7 @@ export default class BitwiseResultViewModel {
         });
     };
 
-    addOperatorRow(expr: Operator) {
+    addOperatorRow(expr: Operator, allowFlipBits: boolean = true) {
 
         const resultNumber = expr.getUnderlyingOperand();
         const bits = this.calcMaxNumberOfBits(resultNumber);
@@ -175,7 +131,7 @@ export default class BitwiseResultViewModel {
             css: '',
             label: this.getLabel(resultNumber),
             expressionElement: expr.operand,
-            allowFlipBits: this.allowFlipBits,
+            allowFlipBits: this.allowFlipBits && allowFlipBits,
             maxBitSize: resultNumber.value.maxBitSize,
             isFinalResult: false,
         });
