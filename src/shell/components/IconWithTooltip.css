@@ -37,13 +37,3 @@
 .tooltip-holder:hover .tooltip {
     display: block;
 }
-
-/*
-    TODO:
-     this should only be "active" if the setting
-     for data type annotation is enabled,
-     otherwise, this should be unset/0
- */
-.tooltips {
-    min-width: 20px;
-}
