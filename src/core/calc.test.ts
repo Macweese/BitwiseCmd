@@ -226,6 +226,62 @@ describe('calc.div', () => {
     });
 });
 
+describe('calc.mod', () => {
+    it('takes the sign of the dividend, like C', () => {
+        expect(calc.mod(Integer.int(7), Integer.int(3)).num()).toBe(1);
+        expect(calc.mod(Integer.int(-7), Integer.int(3)).num()).toBe(-1);
+        expect(calc.mod(Integer.int(7), Integer.int(-3)).num()).toBe(1);
+        expect(calc.mod(Integer.int(-7), Integer.int(-3)).num()).toBe(-1);
+    });
+
+    it('is consistent with truncating division: a == (a / b) * b + a % b', () => {
+        for (const [a, b] of [[7, 3], [-7, 3], [7, -3], [-7, -3], [2147483647, -2], [-2147483648, 3]]) {
+            const q = calc.div(Integer.int(a), Integer.int(b)).num();
+            const r = calc.mod(Integer.int(a), Integer.int(b)).num();
+            expect(q * b + r).toBe(a);
+        }
+    });
+
+    it('unsigned operands are not sign-extended', () => {
+        const r = calc.mod(Integer.unsigned(4294967295, 32), Integer.unsigned(10, 32));
+        expect(r.num()).toBe(5);
+        expect(r.signed).toBe(false);
+    });
+
+    it('INT_MIN % -1 is 0', () => {
+        expect(calc.mod(Integer.int(-2147483648), Integer.int(-1)).num()).toBe(0);
+    });
+
+    it('modulo by zero throws', () => {
+        expect(() => calc.mod(Integer.int(1), Integer.int(0))).toThrow('Division by zero');
+    });
+});
+
+describe('shift count', () => {
+    it('is reduced modulo the operand width', () => {
+        expect(calc.lshift(Integer.int(1), 32).num()).toBe(1);
+        expect(calc.lshift(Integer.int(1), 33).num()).toBe(2);
+        expect(calc.lshift(Integer.long(1), 64).num()).toBe(1);
+        expect(calc.lshift(Integer.long(1), 65).num()).toBe(2);
+        expect(calc.lshift(Integer.short(1), 17).num()).toBe(2);
+    });
+
+    it('works for widths that are not a power of two', () => {
+        expect(calc.lshift(new Integer(BigInt(1), 5), 6).num()).toBe(2);
+        expect(calc.lshift(new Integer(BigInt(1), 5), 1).num()).toBe(2);
+    });
+
+    it('a negative count wraps like a masked hardware count', () => {
+        expect(calc.lshift(Integer.int(1), -1).num()).toBe(-2147483648); // 1 << 31
+        expect(calc.rshift(Integer.int(-2147483648), -1).num()).toBe(-1); // >> 31
+    });
+
+    it('accepts 64-bit counts without losing precision', () => {
+        expect(calc.lshift(Integer.int(1), BigInt('18446744073709551615')).num()).toBe(-2147483648); // count % 32 == 31
+        expect(calc.lshift(Integer.int(1), BigInt('18446744073709551616')).num()).toBe(1);            // count % 32 == 0
+    });
+});
+
 describe('calc.lshift', () => {
 
     it("respects bit size", () => {

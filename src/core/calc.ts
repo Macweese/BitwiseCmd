@@ -58,28 +58,19 @@ const calc = {
     },
 
     lshift (num: Integer, numBytes : JsNumber) : Integer {
-
-        let bytes = asIntN(numBytes);
-		bytes = bytes & (num.maxBitSize - 1); // mask shift count like C (works for non-power-of-two sizes too)
-
+        const bytes = shiftCount(numBytes, num.maxBitSize);
         return this._executeForSingleOperand(num, bin => this.engine.lshift(bin, bytes));
     },
 
     rshift (num : Integer, numBytes : JsNumber) : Integer {
-        
-        let bytes = asIntN(numBytes);
-		bytes = bytes & (num.maxBitSize - 1); // mask shift count like C (works for non-power-of-two sizes too)
-
-        return this._executeForSingleOperand(num, bin => num.signed 
-            ? this.engine.rshift(bin, bytes) 
+        const bytes = shiftCount(numBytes, num.maxBitSize);
+        return this._executeForSingleOperand(num, bin => num.signed
+            ? this.engine.rshift(bin, bytes)
             : this.engine.urshift(bin, bytes)); // Unsigned types use logical shift (no sign extension)
     },
 
     urshift (num : Integer, numBytes : JsNumber) : Integer {
-
-        let bytes = asIntN(numBytes);
-		bytes = bytes & (num.maxBitSize - 1); // mask shift count like C (works for non-power-of-two sizes too)
-
+        const bytes = shiftCount(numBytes, num.maxBitSize);
         return this._executeForSingleOperand(num, bin => this.engine.urshift(bin, bytes));
     },
 
@@ -241,23 +232,8 @@ const calc = {
         },
         mul (bin1: string, bin2: string) : string {
             checkSameLength(bin1, bin2);
-            const len = bin1.length;
-
-            const toSignedBigInt = (bin: string) => {
-                if (bin[0] === '1') {
-                    const mag = BigInt('0b' + calc.engine.applyTwosComplement(bin));
-                    return -mag;
-                }
-                return BigInt('0b' + bin);
-            };
-
-            const a = toSignedBigInt(bin1);
-            const b = toSignedBigInt(bin2);
-            const product = a * b;
-
-            const modulo = (BigInt(1) << BigInt(len));
-            const wrapped = ((product % modulo) + modulo) % modulo;
-            return wrapped.toString(2).padStart(len, '0');
+            // The low `len` bits of a product do not depend on the signedness of the operands
+            return wrapToWidth(binToBigInt(bin1, true) * binToBigInt(bin2, true), bin1.length);
         },
         sub (bin1: string, bin2: string) : string {
             checkSameLength(bin1, bin2);
@@ -267,53 +243,23 @@ const calc = {
         },
         div (bin1: string, bin2: string, signed: boolean = true) : string {
             checkSameLength(bin1, bin2);
-            const len = bin1.length;
-
-            const toBigInt = (bin: string) => {
-                if (signed && bin[0] === '1') {
-                    const mag = BigInt('0b' + calc.engine.applyTwosComplement(bin));
-                    return -mag;
-                }
-                return BigInt('0b' + bin);
-            };
-
-            const a = toBigInt(bin1);
-            const b = toBigInt(bin2);
+            const a = binToBigInt(bin1, signed);
+            const b = binToBigInt(bin2, signed);
             if (b === BigInt(0))
                 throw new Error('Division by zero.');
 
-            const quotient = a / b; // BigInt division truncates toward zero
-
-            const modulo = (BigInt(1) << BigInt(len));
-            const wrapped = (((quotient % modulo) + modulo) % modulo);
-            return wrapped.toString(2).padStart(len, '0');
+            // BigInt division truncates toward zero, like C
+            return wrapToWidth(a / b, bin1.length);
         },
         mod (bin1: string, bin2: string, signed: boolean = true) : string {
             checkSameLength(bin1, bin2);
-            const len = bin1.length;
-
-            const toBigInt = (bin: string) => {
-                if (signed && bin[0] === '1') {
-                    const mag = BigInt('0b' + calc.engine.applyTwosComplement(bin));
-                    return -mag;
-                }
-                return BigInt('0b' + bin);
-            };
-
-            const a = toBigInt(bin1);
-            const b = toBigInt(bin2);
+            const a = binToBigInt(bin1, signed);
+            const b = binToBigInt(bin2, signed);
             if (b === BigInt(0))
                 throw new Error('Division by zero.');
 
-            // JS/TS style modulus: sign of result matches dividend (a)
-            let remainder = a % b;
-            remainder = b < 0 ? -remainder : remainder;
-            console.log("remainder: " + remainder);
-
-            // Now wrap result within bitwidth, for two's complement, so sign is preserved
-            const modulo = (BigInt(1) << BigInt(len));
-            const wrapped = ((remainder % modulo) + modulo) % modulo;
-            return wrapped.toString(2).padStart(len, '0');
+            // BigInt remainder takes the sign of the dividend, like C
+            return wrapToWidth(a % b, bin1.length);
         },
         flipBit(bin: string, bitIndex : number) : string {
             return bin.substring(0, bitIndex) + flip(bin[bitIndex]) + bin.substring(bitIndex+1)
@@ -346,6 +292,28 @@ export default calc;
 function checkSameLength(bin1: string, bin2: string) {
     if (bin1.length !== bin2.length)
         throw new Error("Binary strings must have the same length.");
+}
+
+// Reduces a shift count to the range [0, width) the way hardware does
+// (x86 masks the count, JavaScript masks it for 32-bit values). Done on
+// BigInt so that 64-bit counts are not rounded on the way through a double.
+function shiftCount(count: JsNumber, width: number) : number {
+    const w = BigInt(width);
+    return Number(((BigInt(count) % w) + w) % w);
+}
+
+// Interprets a fixed-width binary string as a number, as two's complement when signed
+function binToBigInt(bin: string, signed: boolean) : bigint {
+    if (signed && bin[0] === '1')
+        return -BigInt('0b' + calc.engine.applyTwosComplement(bin));
+
+    return BigInt('0b' + bin);
+}
+
+// Keeps the low `width` bits of a number as a binary string (discards overflow, like fixed-width hardware)
+function wrapToWidth(value: bigint, width: number) : string {
+    const modulo = BigInt(1) << BigInt(width);
+    return (((value % modulo) + modulo) % modulo).toString(2).padStart(width, '0');
 }
 
 function flip(bit:string):string { 
