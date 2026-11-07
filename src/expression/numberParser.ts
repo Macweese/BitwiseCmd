@@ -22,16 +22,16 @@ class NumberParser {
 
     caseParse(input : string) {
         const regex = new RegExp(numberRegexFullString);
-        return regex.test(input);
+        return regex.test(input.toLowerCase());
     }
 
     parse (input : string) : ParsedNumber {
 
         if(input.length === 0) throw new Error("input is null or empty");
 
-        const regex = new RegExp(numberRegexFullString, "i");
-        
-        const m = regex.exec(input);
+        // Prefixes and suffixes are accepted in either case (0XFFu, 10UL)
+        const normalized = input.toLowerCase();
+        const m = new RegExp(numberRegexFullString).exec(normalized);
 
         if(m === null || m.length === 0)
             throw new Error(input + " is not a number");
@@ -40,7 +40,7 @@ class NumberParser {
         
         return {
             value: value,
-            base: getBase(input),
+            base: getBase(normalized),
             input: input
         }
     };
