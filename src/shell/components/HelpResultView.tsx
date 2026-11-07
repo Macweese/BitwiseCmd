@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React from 'react';
 import CommandLink from '../../core/components/CommandLink';
 import './HelpResultView.css';
 import { INT32_MAX_VALUE, INT32_MIN_VALUE } from '../../core/const';

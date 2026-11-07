@@ -447,9 +447,7 @@ export const HELPFUL_TIPS: readonly TipEntry[] = [
             </>
         ),
     },
-
 ] as const;
-
 
 export type CommandEntry = {
     command: string | readonly string[];
@@ -550,31 +548,28 @@ export const ARITHMETIC_OPERATORS: readonly Operator[] = [
 
 export const ALL_OPERATORS = [...BITWISE_OPERATORS, ...ARITHMETIC_OPERATORS] as const;
 
-// TODO: remove the \t hack, make the result div be a table, do it properly
-//  or re-use the CommandTable component somehow
 export const MAX_VALUES: readonly CommandEntry[] = [
-    { command: `${INT8_MAX_VALUE}b`,    description: "Signed 8-bit:\t\t" },
-    { command: `${INT16_MAX_VALUE}s`,   description: "Signed 16-bit:\t\t" },
-    { command: `${INT32_MAX_VALUE}`,    description: "Signed 32-bit:\t\t" },
-    { command: `${INT64_MAX_VALUE}l`,   description: "Signed 64-bit:\t\t" },
-    { command: `${UINT8_MAX_VALUE}ub`,  description: "Unsigned 8-bit:\t\t" },
-    { command: `${UINT16_MAX_VALUE}us`, description: "Unsigned 16-bit:\t" },
-    { command: `${UINT32_MAX_VALUE}u`,  description: "Unsigned 32-bit:\t" },
-    { command: `${UINT64_MAX_VALUE}ul`, description: "Unsigned 64-bit:\t" },
+    { command: `${INT8_MAX_VALUE}b`,    description: "Signed 8-bit:" },
+    { command: `${INT16_MAX_VALUE}s`,   description: "Signed 16-bit:" },
+    { command: `${INT32_MAX_VALUE}`,    description: "Signed 32-bit:" },
+    { command: `${INT64_MAX_VALUE}l`,   description: "Signed 64-bit:" },
+    { command: `${UINT8_MAX_VALUE}ub`,  description: "Unsigned 8-bit:" },
+    { command: `${UINT16_MAX_VALUE}us`, description: "Unsigned 16-bit:" },
+    { command: `${UINT32_MAX_VALUE}u`,  description: "Unsigned 32-bit:" },
+    { command: `${UINT64_MAX_VALUE}ul`, description: "Unsigned 64-bit:" },
     {
         command: `${INT8_MAX_VALUE}b ${INT16_MAX_VALUE}s ${INT32_MAX_VALUE} ${INT64_MAX_VALUE}l ${UINT8_MAX_VALUE}ub ${UINT16_MAX_VALUE}us ${UINT32_MAX_VALUE}u ${UINT64_MAX_VALUE}ul`,
-        description: "Display all:\t\t"
+        description: "Display all:"
     },
 ] as const;
 
-// TODO: remove the \t hack, make the result div be a table, do it properly
 export const MIN_VALUES: readonly CommandEntry[] = [
-    { command: `${INT8_MIN_VALUE}b`,  description: "Signed 8-bit:\t" },
-    { command: `${INT16_MIN_VALUE}s`, description: "Signed 16-bit:\t" },
-    { command: `${INT32_MIN_VALUE}`,  description: "Signed 32-bit:\t" },
-    { command: `${INT64_MIN_VALUE}l`, description: "Signed 64-bit:\t" },
+    { command: `${INT8_MIN_VALUE}b`,  description: "Signed 8-bit:" },
+    { command: `${INT16_MIN_VALUE}s`, description: "Signed 16-bit:" },
+    { command: `${INT32_MIN_VALUE}`,  description: "Signed 32-bit:" },
+    { command: `${INT64_MIN_VALUE}l`, description: "Signed 64-bit:" },
     {
         command: `${INT8_MIN_VALUE}b ${INT16_MIN_VALUE}s ${INT32_MIN_VALUE} ${INT64_MIN_VALUE}l`,
-        description: "Display all:\t"
+        description: "Display all:"
     },
 ] as const;

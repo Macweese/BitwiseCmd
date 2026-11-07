@@ -2,43 +2,30 @@ import React from 'react';
 import CommandLink from '../../core/components/CommandLink';
 import './WhatsNewResultView.css';
 
-/*
-    TODO:
-      • Lots of repeated stuff in here.
-        This could be changed into maybe some map of entries
-        that is iterated over, and added. With the first/last
-        entry being regarded as the most recent, and handled
-        accordingly. Because the most recent change is a
-        different type; ('item item-new' vs 'item').
- */
 function WhatsNewResultView() {
 
     return <div className="changelog">
         <h3>Changelog</h3>
         <div className='item item-new'>
             <p>
-                <span className="soft date">Jan 23th, 2026</span> <br />
+                <span className="soft date">Unreleased</span> <br />
             </p>
-            {/* TODO: Complete writing this entry when finished with rework */}
-            <p>Big changes, very features, many wow!</p>
-            The most noticeable change is that the calculator now accounts for operator precedence, and supports parentheses.
             <ul>
                 <li>
-                    The calculator now behaves as one can expect in most programming languages,
-                    where expressions are evaluated based on priority of operators.{' '}
-                    Order of expressions with regard to parentheses is now respected.<br></br>
-                    Try it out: <span className="no-break"><code><CommandLink text="999 ^ ~((2 * (5 + 5) - 2 * 0x8a) + 100 << 1)" /></code></span>
+                    Expressions follow the operator precedence of C and Java and support parentheses, so{' '}
+                    <code><CommandLink text="1 + 2 * 3" /></code> is 7 and <code><CommandLink text="(1 + 2) * 3" /></code> is 9.
+                    Try: <span className="no-break"><code><CommandLink text="999 ^ ~((2 * (5 + 5) - 2 * 0x8a) + 100 << 1)" /></code></span>
                 </li>
-                <li>Expressions now support the remainder operator <code>%</code>, just as other multiplicative operators.</li>
-                <li>Fixed a bug preventing subtraction by zero.</li>
-                <li>Fixed a bug causing crash from certain arithmetic shift operations.</li>
-                <li>Optimized the website and calculator; it should now perform calculations faster and use less memory.</li>
-                <li>Introduced four new themes; <CommandLink text="github" />, <CommandLink text="helix" />, <CommandLink text="emacs" /> and <CommandLink text="sakura" /></li>
-                <li>Added a library of tips and trivia, hopefully something you'll find interesting &| useful!</li>
-                <li>Various UI & UX fixes.</li>
+                <li>Added the remainder operator <code>%</code>: <code><CommandLink text="-7 % 3" /></code>.</li>
+                <li>
+                    Operations on unsigned numbers keep their results unsigned (<a href="https://github.com/BorysLevytskyi/BitwiseCmd/issues/3">#3</a>),
+                    and negative literals such as <code><CommandLink text="-1u" /></code> work inside expressions.
+                </li>
+                <li>Errors in an expression point at the offending position.</li>
+                <li>Four new themes: <CommandLink text="github" />, <CommandLink text="helix" />, <CommandLink text="emacs" /> and <CommandLink text="sakura" />.</li>
+                <li>New commands: <CommandLink text="tip" /> for tips and trivia, <CommandLink text="max" /> and <CommandLink text="min" /> for the limits of the integer types, and <CommandLink text="incognito" /> to turn analytics tracking off.</li>
+                <li>The cookie notice is a floating panel, the input box is centered, and results show the sign and the operator in their own columns.</li>
             </ul>
-            {/* TODO: fix this entry -> commit diff */}
-            For a complete list of commits, for these changes, see the <a href="https://github.com/BorysLevytskyi/BitwiseCmd/compare/a...b">diff</a> on Github.
         </div>
         <div className='item'>
             <p>

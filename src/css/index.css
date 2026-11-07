@@ -24,35 +24,31 @@ html { height: 100% }
 
 
     /* ----------- SCROLLBAR ----------- */
-    /* TODO light theme scrollbar is not visible, because it is white-on-white */
-    /*overflow-y: auto;*/
-
-    /* Make track invisible / blend with background */
+    /* Thin, derived from the theme's text color so that it is visible on light and dark backgrounds */
     scrollbar-width: thin;                    /* Firefox */
-    scrollbar-color: rgba(255,255,255,0.4) transparent;
+    scrollbar-color: color-mix(in srgb, var(--text-color) 40%, transparent) transparent;
 
     &::-webkit-scrollbar {
-        width: 6px;                             /* thin size — adjust 4–8px */
-        height: 6px;                            /* horizontal if needed */
+        width: 6px;
+        height: 6px;
     }
 
     &::-webkit-scrollbar-track {
-        background: transparent;                /* no visible track */
-        border-radius: 9999px;                  /* just in case */
+        background: transparent;
     }
 
     &::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.45);  /* semi-transparent white */
-        border-radius: 9999px;                  /* pill / capsule shape */
-        border: 2px solid transparent;          /* optional: makes it look even rounder */
-        background-clip: content-box;           /* keeps border transparent */
+        background: color-mix(in srgb, var(--text-color) 45%, transparent);
+        border-radius: 9999px;
+        border: 2px solid transparent;          /* keeps the thumb off the edges */
+        background-clip: content-box;
 
         &:hover {
-            background: rgba(255, 255, 255, 0.65);
+            background: color-mix(in srgb, var(--text-color) 65%, transparent);
         }
 
         &:active {
-            background: rgba(255, 255, 255, 0.8);
+            background: color-mix(in srgb, var(--text-color) 80%, transparent);
         }
     }
 }
@@ -100,8 +96,8 @@ h1 { font-family: Impact, Verdana;
 
 .button svg { margin: 0; margin-right: 5px; }
 .button-large {
-    padding-right: 12px ;
-    padding-left: 12px ;
+    padding-right: 12px;
+    padding-left: 12px;
     height: 30px;
     width: 135px;
     align-items: center;
@@ -131,9 +127,9 @@ h1 { font-family: Impact, Verdana;
 }
 
 .expressionInput {
-    flex: 1 1 auto;               /* take all remaining space */
-    min-width: 120px;             /* prevent it from collapsing too much */
-    padding: 3px 8px 5px 28px;    /* ← left padding enough for the prompt icon */
+    flex: 1 1 auto;
+    min-width: 120px;
+    padding: 3px 8px 5px 28px;    /* room for the prompt icon on the left */
     margin: 0;
     border: none;
     background: transparent;
@@ -182,8 +178,7 @@ a.hashLink { font-size: 1.1em;}
 .expression-result td { border-top: dotted 1px gray; min-width: 21px; }
 .expression .prefix { font-weight: normal; display: none; font-size: 0.9em }
 .expression .other { font-size: 0.9em; }
-/*.expression .undo { position: relative; z-index: 1; }*/
-/*.expression .tooltips { position: relative; z-index: 1; }*/
+.expression .tooltips { min-width: 20px; } /* room for the icon, so that rows don't jump when one appears */
 .expression .operator { text-align: right; padding-right: 5px; }
 /* Keep the columns from jumping between rows of different widths; the widths are tuned to the monospace font */
 .expression .row-with-bits .operator { min-width: 133px; }
@@ -197,8 +192,9 @@ a.hashLink { font-size: 1.1em;}
 .flippable:hover { opacity: 0.8 }
 .text-result-view {
     white-space: pre;
-
 }
+.values-list td { padding: 0.15em 1ch 0.15em 0; }
+.values-list .values-list-label { white-space: nowrap; }
 
 .hex .prefix { display: inline; }
 
@@ -356,7 +352,7 @@ button:focus {outline:0;}
     top: 50%;
     transform: translateY(-50%);
     z-index: 2;
-    pointer-events: none;         /* lets clicks go through to input */
+    pointer-events: none;         /* clicks go through to the input */
     opacity: 0.5;
     color: inherit;
 }
@@ -365,12 +361,7 @@ button:focus {outline:0;}
 .input-wrapper {
     display: flex;
     align-items: center;
-    flex: 1 1 auto;               /* ← grows and shrinks, takes all available space */
-    min-width: 0;                 /* important: allows shrinking below content size */
+    flex: 1 1 auto;
+    min-width: 0;                 /* allows shrinking below the content size */
     position: relative;
 }
-
-
-
-
-

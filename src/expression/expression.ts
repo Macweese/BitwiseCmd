@@ -78,7 +78,7 @@ class ListOfNumbersExpressionFactory implements IExpressionParserFactory
 
 class BitwiseOperationExpressionFactory implements IExpressionParserFactory {
     // Operators, parentheses, digits of all three bases, type suffixes and whitespace
-    fullRegex = /^[-~<>&^|*%\/()bxlsua-f0-9+\s]+$/i;
+    fullRegex = /^[-~<>&^|*%/()bxlsua-f0-9+\s]+$/i;
 
     canCreate(input: string): boolean {
         return this.fullRegex.test(input);
