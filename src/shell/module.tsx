@@ -21,7 +21,6 @@ const shellModule = {
         
         cmd.command("help", (c: CommandInput) => appState.addCommandResult(c.input, () => <HelpResultView />));
         cmd.command("clear", () => appState.clearCommandResults());
-        cmd.command("em", () => appState.toggleEmphasizeBytes());
         cmd.command("dark", () => appState.setUiTheme('dark'));
         cmd.command("light", () => appState.setUiTheme('light'));
         cmd.command("midnight", () => appState.setUiTheme('midnight'));
@@ -62,14 +61,23 @@ const shellModule = {
         cmd.command("-incognito", (c: CommandInput) => setIncognito(c, true));
         cmd.command("-notrack", (c: CommandInput) => setIncognito(c, true)); // the flag's name before version 12
 
-        cmd.command('annotate', () => appState.toggleAnnotateTypes)
-        cmd.command('annotate:on', () => appState.toggleAnnotateTypes(true))
-        cmd.command('annotate:off', () => appState.toggleAnnotateTypes(false))
-        cmd.command('em:off', () => appState.toggleEmphasizeBytes(false))
-        cmd.command('em:on', () => appState.toggleEmphasizeBytes(true))
-        cmd.command("max", (c: CommandInput) => appState.addCommandResult(c.input, () => <TextResultView text={MAX_VALUES} asCode={true} />))
-        cmd.command("min", (c: CommandInput) => appState.addCommandResult(c.input, () => <TextResultView text={MIN_VALUES} />))
-        // cmd.command("tip", (c: CommandInput) => appState.addCommandResult(c.input, () => <TextResultView text={MIN_VALUES} />))
+        cmd.command('annotate', () => appState.toggleAnnotateTypes());
+        cmd.command('annotate:on', () => appState.toggleAnnotateTypes(true));
+        cmd.command('annotate:off', () => appState.toggleAnnotateTypes(false));
+        cmd.command('em', () => appState.toggleEmphasizeBytes());
+        cmd.command('em:on', () => appState.toggleEmphasizeBytes(true));
+        cmd.command('em:off', () => appState.toggleEmphasizeBytes(false));
+
+        // Names of the commands above before version 12, kept so that old links keep working
+        cmd.command('-annotate:on', () => appState.toggleAnnotateTypes(true));
+        cmd.command('-annotate:off', () => appState.toggleAnnotateTypes(false));
+        cmd.command('-em:on', () => appState.toggleEmphasizeBytes(true));
+        cmd.command('-em:off', () => appState.toggleEmphasizeBytes(false));
+
+        const showValues = (c: CommandInput, values: typeof MAX_VALUES) => appState.addCommandResult(c.input, () => <TextResultView text={values} />);
+        cmd.command("max", (c: CommandInput) => showValues(c, MAX_VALUES));
+        cmd.command("min", (c: CommandInput) => showValues(c, MIN_VALUES));
+        cmd.command("-max", (c: CommandInput) => showValues(c, MAX_VALUES)); // name before version 12
 
         cmd.command("donate", (c:CommandInput) => {
 
