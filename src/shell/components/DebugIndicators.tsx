@@ -1,6 +1,7 @@
 import AppState from "../AppState";
 import React from "react";
 import './DebugIndicators.css';
+import analyticsTracking from '../analyticsTracking';
 
 function DebugIndicators(props:  {appState: AppState}) {
 
@@ -15,7 +16,7 @@ function DebugIndicators(props:  {appState: AppState}) {
         list.push("debug");
     }
 
-    if(localStorage.getItem('analyticsTracking') === 'false') {
+    if(!analyticsTracking.isEnabled()) {
         list.push("notrack");
     }
 
