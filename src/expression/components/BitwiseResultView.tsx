@@ -67,7 +67,7 @@ export default class BitwiseResultView extends React.Component<BitwiseResultView
 
     getRows(model: BitwiseResultViewModel, allowSignChange: boolean): JSX.Element[] {
 
-        const maxAnnotatedSize = this.props.annotateTypes ? model.items.map(i => i.maxBitSize).sort().reverse()[0] :0;
+        const maxAnnotatedSize = this.props.annotateTypes ? Math.max(...model.items.map(i => i.maxBitSize)) : 0;
 
         this.maxSeenLengthNumberOfBits = Math.max(model.maxNumberOfBits, this.maxSeenLengthNumberOfBits);
 
