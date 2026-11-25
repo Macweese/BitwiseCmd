@@ -6,8 +6,8 @@ import AppRoot from './AppRoot';
 
 beforeEach(() => localStorage.clear());
 
-function start() {
-    const appState = new AppState(appStateStore.getPersistedData(), 'test');
+function start(settings: object = {}) {
+    const appState = new AppState({ ...appStateStore.getPersistedData(), ...settings }, 'test');
     render(<AppRoot appState={appState} />);
     return appState;
 }
@@ -55,25 +55,62 @@ describe('list of results', () => {
         expect(third).toHaveBeenCalledTimes(1);
     });
 
-    it.each([
-        ['emphasize bytes', (s: AppState) => s.toggleEmphasizeBytes()],
-        ['annotate types', (s: AppState) => s.toggleAnnotateTypes()],
-        ['dim extra bits', (s: AppState) => s.toggleDimExtraBits()],
-    ])('renders the results again when the setting "%s" changes', (_name, change) => {
+    it('renders the results again when the setting "annotate types" changes', () => {
         const appState = start();
 
         const first = addResult(appState, 'result 1');
         const second = addResult(appState, 'result 2');
-        act(() => change(appState));
+        act(() => appState.toggleAnnotateTypes());
 
         expect(first).toHaveBeenCalledTimes(2);
         expect(second).toHaveBeenCalledTimes(2);
+    });
+
+    it('renders the results again only the first time that the emphasis of bytes is on', () => {
+        const appState = start();
+
+        // The first time, the rows get the bits that fill a number up to full bytes
+        const first = addResult(appState, 'result 1');
+        act(() => appState.toggleEmphasizeBytes());
+        expect(first).toHaveBeenCalledTimes(2);
+
+        act(() => appState.toggleEmphasizeBytes());
+        act(() => appState.toggleEmphasizeBytes());
+        expect(first).toHaveBeenCalledTimes(2);
+    });
+
+    it('does not render the results again when the emphasis of bytes was on at the start', () => {
+        const appState = start({ settingsEmphasizeBytes: true });
+
+        const first = addResult(appState, 'result 1');
+        act(() => appState.toggleEmphasizeBytes());
+        act(() => appState.toggleEmphasizeBytes());
+
+        expect(first).toHaveBeenCalledTimes(1);
+    });
+
+    it('gives the two display settings of the stylesheet to the root element as classes', () => {
+        // eslint-disable-next-line testing-library/no-node-access -- the stylesheet reads the classes of the root element
+        const classes = () => Array.from(document.querySelector('.app-root')!.classList);
+        const appState = start();
+        expect(classes()).not.toContain('emphasize-bytes');
+        expect(classes()).not.toContain('dim-extra-bits');
+
+        act(() => appState.toggleEmphasizeBytes());
+        act(() => appState.toggleDimExtraBits());
+        expect(classes()).toContain('emphasize-bytes');
+        expect(classes()).toContain('dim-extra-bits');
+
+        act(() => appState.toggleEmphasizeBytes());
+        expect(classes()).not.toContain('emphasize-bytes');
+        expect(classes()).toContain('dim-extra-bits');
     });
 
     it.each([
         ['the theme', (s: AppState) => s.setUiTheme('light')],
         ['the settings pane', (s: AppState) => s.toggleShowSettings()],
         ['the layout', (s: AppState) => s.toggleCenteredLayout()],
+        ['the dimming of the padding bits', (s: AppState) => s.toggleDimExtraBits()],
     ])('does not render the results again when %s changes', (_name, change) => {
         const appState = start();
 

@@ -31,7 +31,6 @@ export class IpAddressView extends React.Component<IpAddressViewProps>
         return <BinaryStringView 
             binaryString={fmt(value)} 
             key={octetNumber} 
-            emphasizeBytes={false} 
             allowFlipBits={true}
             className={`octet-${octetNumber}`}
             onBitClicked={e => this.onFlippedBit(e.newBinaryString, octetNumber, ip)} />;

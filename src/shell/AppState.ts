@@ -44,6 +44,9 @@ export default class AppState {
     donationClicked: boolean;
     showSettings: boolean = false;
     settingsEmphasizeBytes: boolean;
+    // True from the first time that the emphasis of bytes is on. From then on the rows contain
+    // the bits that fill a number up to full bytes, and the stylesheet shows or hides them.
+    bytePadding: boolean;
     settingsAnnotateTypes: boolean = false;
     settingsDimExtraBits: boolean = false;
     settingsCenteredLayout: boolean = true;
@@ -56,6 +59,7 @@ export default class AppState {
 
         this.uiTheme = normalizeTheme(persistData.uiTheme);
         this.settingsEmphasizeBytes = !!persistData.settingsEmphasizeBytes;
+        this.bytePadding = this.settingsEmphasizeBytes;
         this.persistedVersion = persistData.version || 0.1;
         this.wasOldVersion = persistData.version !== null && persistData.version !== undefined && this.version > this.persistedVersion;
         this.debugMode = persistData.debugMode === true;
@@ -95,6 +99,7 @@ export default class AppState {
 
     toggleEmphasizeBytes(value?: boolean) {
         this.settingsEmphasizeBytes = value !== null && value !== undefined ? value : !this.settingsEmphasizeBytes;
+        this.bytePadding = this.bytePadding || this.settingsEmphasizeBytes;
         this.triggerChanged('settingsEmphasizeBytes');
     }
 

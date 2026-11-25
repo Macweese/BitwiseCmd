@@ -16,13 +16,13 @@ import bladerunner from '../Bladerunner';
 type ResultItemProps = {
     result: CommandResultView,
     appState: AppState,
-    // The display settings that a view can read. They are props, and thus a change renders the result again.
-    emphasizeBytes: boolean,
+    // The display settings that change the content of a view. They are props, and thus a change
+    // renders the result again. The other display settings are classes on the root element.
     annotateTypes: boolean,
-    dimExtraBits: boolean
+    bytePadding: boolean
 };
 
-// One result of the list. It is rendered again only when a display setting changes,
+// One result of the list. It is rendered again only when one of these display settings changes,
 // and not when a different result is added or removed.
 const ResultItem = React.memo(function ResultItem({ result, appState }: ResultItemProps) {
     return <DisplayResultView resultKey={result.key} input={result.input} inputHash={hash.encodeHash(result.input)} appState={appState}>
@@ -61,9 +61,8 @@ export default class AppRoot extends React.Component<AppRootProps, AppRootState>
 
         return this.state.commandResults.map(r =>
             <ResultItem key={r.key} result={r} appState={appState}
-                emphasizeBytes={appState.settingsEmphasizeBytes}
                 annotateTypes={appState.settingsAnnotateTypes}
-                dimExtraBits={appState.settingsDimExtraBits} />);
+                bytePadding={appState.bytePadding} />);
     }
 
     componentDidMount(): void {
@@ -77,7 +76,11 @@ export default class AppRoot extends React.Component<AppRootProps, AppRootState>
         const settingsCss = "settings-button" + (this.props.appState.showSettings ? '' : ' soft');
 
         const layoutClass = this.state.settingsCenteredLayout ? 'layout-centered' : 'layout-stretched';
-        return <div className={`app-root ${this.state.uiTheme} ${newUi} ${layoutClass}`}>
+        // The stylesheet applies these two settings. Thus a change does not render the results again.
+        const displayClasses = (this.props.appState.settingsEmphasizeBytes ? ' emphasize-bytes' : '')
+            + (this.props.appState.settingsDimExtraBits ? ' dim-extra-bits' : '');
+
+        return <div className={`app-root ${this.state.uiTheme} ${newUi} ${layoutClass}${displayClasses}`}>
                     <div className="header-pane">
                         <DebugIndicators appState={this.props.appState} />
                         <div className="header">

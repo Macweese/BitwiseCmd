@@ -196,7 +196,12 @@ a.hashLink { font-size: 1.1em;}
 .expression .label { font-weight:  bold; padding-right: 5px; text-align: right; }
 .expression .bin { letter-spacing: 3px; }
 .expression .info { font-size: 0.9em; color: teal; }
-.expression .byte { margin: 0 3px; }
+/* The emphasis of bytes: a gap before the first bit and after the last bit of each group of 8 bits,
+   counted from the right. The class is on the root element, thus the results are not rendered again. */
+.emphasize-bytes .bytes > span:nth-last-child(8n) { margin-left: 3px; }
+.emphasize-bytes .bytes > span:nth-last-child(8n+1) { margin-right: 3px; }
+/* The bits that fill a number up to full bytes show only with the emphasis */
+.app-root:not(.emphasize-bytes) .byte-padding { display: none; }
 .expression-result td { border-top: dotted 1px gray; min-width: 21px; }
 .expression .prefix { font-weight: normal; display: none; font-size: 0.9em }
 .expression .other { font-size: 0.9em; }

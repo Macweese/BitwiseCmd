@@ -16,9 +16,9 @@ import { OperandWarning } from '../warnings';
 
 type BitwiseResultViewProps = {
     expression: Expression;
-    emphasizeBytes: boolean;
     annotateTypes: boolean,
-    dimExtraBits: boolean
+    // Make the bits that fill a number up to full bytes. They show only when the emphasis of bytes is on.
+    bytePadding: boolean
 }
 
 type BitwiseResultViewState = {
@@ -41,7 +41,7 @@ export default class BitwiseResultView extends React.Component<BitwiseResultView
 
 
         try {
-            model = BitwiseResultViewModel.createModel(this.props.expression, this.props.emphasizeBytes, this.props.annotateTypes);
+            model = BitwiseResultViewModel.createModel(this.props.expression, false, this.props.annotateTypes);
         }
         catch (err) {
             const text = (err as any).message;
@@ -51,9 +51,6 @@ export default class BitwiseResultView extends React.Component<BitwiseResultView
         const rows = this.getRows(model!, allowSignChange);
 
         let css = "expression";
-
-        if(this.props.dimExtraBits)
-            css += " dim-extra-bits";
 
         if(this.props.annotateTypes)
             css += " annotated";
@@ -86,7 +83,7 @@ export default class BitwiseResultView extends React.Component<BitwiseResultView
                     allowSignChange={allowSignChange}
                     expressionItem={item.expressionElement}
                     warnings={item.warnings}
-                    emphasizeBytes={this.props.emphasizeBytes}
+                    bytePadding={this.props.bytePadding}
                     maxNumberOfBits={finalMaxBits}
                     annotateTypes={this.props.annotateTypes}
                     expression={this.props.expression}
@@ -107,7 +104,7 @@ type ExpressionElementRowProps = {
     css: string,
     bitSize: number,
     maxNumberOfBits: number,
-    emphasizeBytes: boolean,
+    bytePadding: boolean,
     allowFlipBits: boolean,
     allowSignChange: boolean,
     expressionItem: ExpressionElement,
@@ -132,9 +129,12 @@ class ExpressionElementTableRow extends React.Component<ExpressionElementRowProp
     }
 
     render() {
-        const { operator, css, maxNumberOfBits, emphasizeBytes, allowFlipBits, annotateTypes } = this.props;
+        const { operator, css, maxNumberOfBits, bytePadding, allowFlipBits, annotateTypes } = this.props;
         const scalar = this.props.expressionItem.evaluate();
-        const bin = formatter.numberToString(scalar.value, 'bin', maxNumberOfBits);
+        // With the emphasis of bytes a number shows full bytes. The bits that fill it up are in the row
+        // for the two states of the setting, and the stylesheet hides them when the emphasis is off.
+        const paddedBits = bytePadding ? BitwiseResultViewModel.applyEmphasizeBytes(maxNumberOfBits, true) : maxNumberOfBits;
+        const bin = formatter.numberToString(scalar.value, 'bin', paddedBits);
         const signBitIndex = scalar.value.signed && bin.length >= scalar.value.maxBitSize ? bin.length - scalar.value.maxBitSize : -1;
         const valueSize = annotateTypes ? scalar.value.maxBitSize : calc.numberOfBitsDisplayed(scalar.value);
         const rowCss = "row-with-bits " + css + (scalar.value.maxBitSize === 64 ? " wide" : "");
@@ -144,7 +144,8 @@ class ExpressionElementTableRow extends React.Component<ExpressionElementRowProp
             <td className="label">{this.getLabel()}</td>
             <td className="bin">
                 <BinaryStringView
-                    emphasizeBytes={emphasizeBytes}
+                    className="bytes"
+                    bytePaddingBits={paddedBits - maxNumberOfBits}
                     binaryString={bin}
                     allowFlipBits={allowFlipBits}
                     signBitIndex={signBitIndex}

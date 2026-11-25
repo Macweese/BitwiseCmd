@@ -3,8 +3,8 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import BitwiseResultView from './BitwiseResultView';
 import { parser } from '../expression';
 
-function renderResult(input: string, annotateTypes: boolean) {
-    return render(<BitwiseResultView expression={parser.parse(input)!} emphasizeBytes={false} annotateTypes={annotateTypes} dimExtraBits={false} />);
+function renderResult(input: string, annotateTypes: boolean, bytePadding: boolean = false) {
+    return render(<BitwiseResultView expression={parser.parse(input)!} annotateTypes={annotateTypes} bytePadding={bytePadding} />);
 }
 
 // The type annotation of each row, for example "8-bit signed"
@@ -47,6 +47,74 @@ it('pads every row to the same number of bits', () => {
     // The third cell of a row contains its bits
     const widths = screen.getAllByRole('row').map(row => (within(row).getAllByRole('cell')[2].textContent || '').length);
     expect(widths).toEqual([32, 32, 32]);
+});
+
+describe('bits of a row', () => {
+    // The elements of the bits of a row, from the left
+    const bitsOf = (row: HTMLElement) => within(row).getAllByText(/^[01]$/, { selector: 'span' });
+    const textOf = (row: HTMLElement) => bitsOf(row).map(bit => bit.textContent).join('');
+
+    it('are only the bits of the number when the padding of bytes is off', () => {
+        renderResult('5', false);
+
+        expect(textOf(screen.getByRole('row'))).toBe('101');
+    });
+
+    it('fill the number up to full bytes, and mark the added bits for the stylesheet', () => {
+        renderResult('5 1000', false, true);
+
+        const [five, thousand] = screen.getAllByRole('row').map(bitsOf);
+        expect(five.map(bit => bit.textContent).join('')).toBe('0000000000000101');
+        expect(thousand.map(bit => bit.textContent).join('')).toBe('0000001111101000');
+        // 1000 has 10 bits. Thus the 6 bits at the left are the padding of the two rows.
+        [five, thousand].forEach(bits => {
+            expect(bits.map(bit => bit.classList.contains('byte-padding'))).toEqual([...Array(6).fill(true), ...Array(10).fill(false)]);
+        });
+    });
+
+    it('have no padding of bytes when the types are shown', () => {
+        renderResult('5b', true, true);
+
+        const bits = bitsOf(screen.getByRole('row'));
+        expect(bits).toHaveLength(8);
+        expect(bits.filter(bit => bit.classList.contains('byte-padding'))).toHaveLength(0);
+    });
+
+    it('flip when the user clicks them', () => {
+        renderResult('5', false);
+
+        fireEvent.click(bitsOf(screen.getByRole('row'))[2]);
+        expect(textOf(screen.getByRole('row'))).toBe('100');
+
+        fireEvent.click(bitsOf(screen.getByRole('row'))[1]);
+        expect(textOf(screen.getByRole('row'))).toBe('110');
+    });
+
+    it('flip also in the padding of bytes', () => {
+        renderResult('5', false, true);
+
+        fireEvent.click(bitsOf(screen.getByRole('row'))[0]);
+
+        expect(textOf(screen.getByRole('row'))).toBe('10000101');
+        expect(within(screen.getByRole('row')).getByText('133')).toBeInTheDocument();
+    });
+
+    it('do not flip in a row that shows a result', () => {
+        renderResult('1 | 2', false);
+
+        const result = screen.getAllByRole('row')[2];
+        fireEvent.click(bitsOf(result)[1]);
+
+        expect(textOf(result)).toBe('11');
+    });
+
+    it('have one click handler for the row, not one for each bit', () => {
+        renderResult('5', false);
+
+        // React sets the onclick property of an element that has a click handler
+        const bits = bitsOf(screen.getByRole('row'));
+        expect(bits.filter(bit => bit.onclick !== null)).toHaveLength(0);
+    });
 });
 
 describe('warnings', () => {
