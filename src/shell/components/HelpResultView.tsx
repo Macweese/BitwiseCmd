@@ -2,8 +2,7 @@ import React from 'react';
 import CommandLink from '../../core/components/CommandLink';
 import './HelpResultView.css';
 import { INT32_MAX_VALUE, INT32_MIN_VALUE } from '../../core/const';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { Icon, faInfoCircle } from '../../core/components/icons';
 import {
     COLOR_THEME_COMMANDS,
     OTHER_COMMANDS,
@@ -46,7 +45,7 @@ function HelpResultView() {
                         ))}
                         </tbody>
                     </table>
-                    <div className="important-note"><FontAwesomeIcon icon={faInfoCircle} size="lg" />
+                    <div className="important-note"><Icon icon={faInfoCircle} size="lg" />
                         <div>
                             <a target='_blank' href='https://en.cppreference.com/w/c/language/operator_precedence' rel="noreferrer">Operator precedence</a>
                             {' '}is respected: expressions are <strong>not</strong> evaluated left-to-right.

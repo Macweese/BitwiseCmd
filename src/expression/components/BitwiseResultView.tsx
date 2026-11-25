@@ -6,12 +6,9 @@ import { Expression, ExpressionElement } from '../expression-interfaces';
 import { Operand, ListOfNumbers, BitwiseOperation } from '../expression';
 import calc from '../../core/calc';
 import { Integer } from '../../core/Integer';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRotateLeft as iconUndo } from '@fortawesome/free-solid-svg-icons';
-import { faCircleQuestion as iconTip } from '@fortawesome/free-regular-svg-icons';
 import loglevel from 'loglevel';
 import IconWithToolTip from '../../shell/components/IconWithTooltip';
-import { WarningTriangleIcon } from '../../core/components/icons';
+import { Icon, WarningTriangleIcon, faArrowRotateLeft as iconUndo, faCircleQuestion as iconTip } from '../../core/components/icons';
 import { OperandWarning } from '../warnings';
 
 type BitwiseResultViewProps = {
@@ -236,7 +233,7 @@ class ExpressionElementTableRow extends React.Component<ExpressionElementRowProp
                     data-control="undo"
                     onClick={() => this.undo()}
                 >
-                    <FontAwesomeIcon icon={iconUndo} />
+                    <Icon icon={iconUndo} />
                 </button>
             );
         }

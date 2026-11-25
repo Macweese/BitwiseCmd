@@ -1,5 +1,4 @@
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Icon, IconDefinition } from './icons';
 import React from 'react';
 import cmd from '../../shell/cmd';
 import './CommandLink.css';
@@ -18,7 +17,7 @@ function CommandLink({icon, command, text, textClassName, noBreak}: CommandLinkP
 
     return (
         <button type="button" className="command-link" onClick={onClick}>
-            {icon ? <FontAwesomeIcon icon={icon} className="icon" /> : null}
+            {icon ? <Icon icon={icon} className="icon" /> : null}
             <span className={[textClassName, noBreak ? 'no-break' : undefined].filter(Boolean).join(' ') || undefined}>{text}</span>
         </button>
     );

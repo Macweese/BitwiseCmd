@@ -1,3 +1,14 @@
+/* The box of an icon, as the library of Font Awesome 6.7.2 set it with a stylesheet that it added to
+   the page at startup. This file must be the first stylesheet of the application, as that one was. */
+svg:not(:root).svg-inline--fa, svg:not(:host).svg-inline--fa { overflow: visible; box-sizing: content-box; }
+.svg-inline--fa { display: var(--fa-display, inline-block); height: 1em; overflow: visible; vertical-align: -0.125em; }
+.svg-inline--fa.fa-xs { vertical-align: 0em; }
+.svg-inline--fa.fa-lg { vertical-align: -0.2em; }
+.svg-inline--fa.fa-xl { vertical-align: -0.25em; }
+.fa-xs { font-size: 0.75em; line-height: 0.0833333337em; vertical-align: 0.125em; }
+.fa-lg { font-size: 1.25em; line-height: 0.05em; vertical-align: -0.075em; }
+.fa-xl { font-size: 1.5em; line-height: 0.0416666682em; vertical-align: -0.125em; }
+
 /* A glyph has the box of a letter, as the icons of the icon font have */
 .glyph {
     width: 1em;

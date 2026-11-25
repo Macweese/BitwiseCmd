@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { faCircleQuestion } from '@fortawesome/free-regular-svg-icons';
+import { faCircleQuestion } from '../../core/components/icons';
 import IconWithToolTip, { getTooltipPosition } from './IconWithTooltip';
 
 const rect = (left: number, top: number, width: number, height: number) =>

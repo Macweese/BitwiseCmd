@@ -2,8 +2,7 @@ import { useState } from "react";
 import "./CookieDisclaimerFooter.css";
 import AppState from "../AppState";
 import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCaretDown, faCaretUp, faCircleXmark } from "@fortawesome/free-solid-svg-icons";
+import { Icon, faCaretDown, faCaretUp, faCircleXmark } from "../../core/components/icons";
 import CommandLink from "../../core/components/CommandLink";
 
 function CookieDisclaimerFooter(props: { appState: AppState }): JSX.Element | null {
@@ -33,7 +32,7 @@ function CookieDisclaimerFooter(props: { appState: AppState }): JSX.Element | nu
                         className="button button-large"
                         onClick={() => setExpanded(!expanded)}
                     >
-                        <FontAwesomeIcon icon={expanded ? faCaretDown : faCaretUp}/>
+                        <Icon icon={expanded ? faCaretDown : faCaretUp}/>
                         {expanded ? "Read Less" : "Read More"}
                     </button>
 
@@ -41,7 +40,7 @@ function CookieDisclaimerFooter(props: { appState: AppState }): JSX.Element | nu
                         className="button button-large"
                         onClick={() => props.appState.setCookieDisclaimerHidden(true)}
                     >
-                        <FontAwesomeIcon icon={faCircleXmark}/>
+                        <Icon icon={faCircleXmark}/>
                         Hide
                     </button>
                 </div>

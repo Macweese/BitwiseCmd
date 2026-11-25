@@ -1,6 +1,5 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Icon, faToggleOff, faToggleOn } from '../../core/components/icons';
 import './SettingsPane.css';
-import { faToggleOff, faToggleOn } from '@fortawesome/free-solid-svg-icons';
 import AppState from '../AppState';
 
 type SettingsPaneProps = {
@@ -16,7 +15,7 @@ function SettingsPane(props : SettingsPaneProps) {
             <h3>Settings</h3>
             <div className='setting'>
                 <button type="button" onClick={() => appState.toggleEmphasizeBytes()}>
-                    <FontAwesomeIcon size='xl' icon={appState.settingsEmphasizeBytes ? faToggleOn : faToggleOff} /> Emphasize Bytes
+                    <Icon size='xl' icon={appState.settingsEmphasizeBytes ? faToggleOn : faToggleOff} /> Emphasize Bytes
                 </button>
                 <p className='description'>
                     {appState.settingsEmphasizeBytes
@@ -26,7 +25,7 @@ function SettingsPane(props : SettingsPaneProps) {
             </div>
             <div className='setting'>
                 <button type="button" onClick={() => appState.toggleDimExtraBits()}>
-                    <FontAwesomeIcon size='xl' icon={appState.settingsDimExtraBits ? faToggleOn : faToggleOff} /> Dim Padding Bits
+                    <Icon size='xl' icon={appState.settingsDimExtraBits ? faToggleOn : faToggleOff} /> Dim Padding Bits
                 </button>
                 <p className='description'>
                     {appState.settingsDimExtraBits
@@ -36,7 +35,7 @@ function SettingsPane(props : SettingsPaneProps) {
             </div>
             <div className='setting'>
                 <button type="button" onClick={() => appState.toggleAnnotateTypes()}>
-                    <FontAwesomeIcon size='xl' icon={appState.settingsAnnotateTypes ? faToggleOn : faToggleOff} /> Annotate Data Types
+                    <Icon size='xl' icon={appState.settingsAnnotateTypes ? faToggleOn : faToggleOff} /> Annotate Data Types
                 </button>
                 <p className='description'>
                     {appState.settingsAnnotateTypes
@@ -46,7 +45,7 @@ function SettingsPane(props : SettingsPaneProps) {
             </div>
             <div className='setting'>
                 <button type="button" onClick={() => appState.toggleCenteredLayout()}>
-                    <FontAwesomeIcon size='xl' icon={appState.settingsCenteredLayout ? faToggleOn : faToggleOff} /> Centered Layout
+                    <Icon size='xl' icon={appState.settingsCenteredLayout ? faToggleOn : faToggleOff} /> Centered Layout
                 </button>
                 <p className='description'>
                     {appState.settingsCenteredLayout

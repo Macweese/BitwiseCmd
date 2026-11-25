@@ -1,6 +1,5 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Icon, faCoffee } from '../../core/components/icons';
 import React from 'react';
-import { faCoffee} from "@fortawesome/free-solid-svg-icons";
 import "./DonateResultView.css";
 import { sendAnalyticsEvent } from '../analytics';
 
@@ -12,7 +11,7 @@ function DonateResultView() {
         <h3>buymeacoffee.com</h3>
         <p>
             <a className='button button-large' href='https://bmc.link/boryslevytB' onClick={() => onBuyMeCoffee()} target='_blank' rel="noreferrer">
-                <FontAwesomeIcon icon={faCoffee} size='lg' /> Buy Me a Coffee
+                <Icon icon={faCoffee} size='lg' /> Buy Me a Coffee
             </a>
         </p>
         </div>

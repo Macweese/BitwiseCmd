@@ -1,3 +1,4 @@
+import './core/components/icons.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import cmd, { CommandInput } from './shell/cmd';

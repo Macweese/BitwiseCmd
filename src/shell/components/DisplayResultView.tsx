@@ -1,5 +1,4 @@
-import { faTrashAlt, faLink, faCheck } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Icon, faTrashAlt, faLink, faCheck } from '../../core/components/icons';
 import React, { useState } from 'react';
 import AppState from '../AppState';
 import loglevel from 'loglevel';
@@ -37,11 +36,11 @@ const DisplayResultView: React.FunctionComponent<DisplayResultProps> = (props) =
                                 <span className="cur">&gt;</span>
                                 <span className="input-string">{props.input}</span>
                                     <a className="hashLink" title="Copy link for this expression" onClick={async (e) => {return await copyLink(e)}} href={link}>
-                                        <FontAwesomeIcon className="icon" icon={copied ? faCheck : faLink} size="xs" />
+                                        <Icon className="icon" icon={copied ? faCheck : faLink} size="xs" />
                                     </a>
                                     <span className='soft hashLink'>{copiedText}</span>
                                     <button className="hashLink" title="Remove this result" onClick={() => appState.removeResultByKey(props.resultKey)}>
-                                        <FontAwesomeIcon className="icon" icon={faTrashAlt} size="xs" />
+                                        <Icon className="icon" icon={faTrashAlt} size="xs" />
                                     </button>
                             </div>
                         <div className="content">

@@ -8,7 +8,7 @@ import hash from '../../core/hash';
 import TopLinks from './TopLinks';
 import SettingsPane from './SettingsPane';
 import CommandLink from '../../core/components/CommandLink';
-import { faGear, faPersonRunning } from '@fortawesome/free-solid-svg-icons';
+import { faGear, faPersonRunning } from '../../core/components/icons';
 import CookieDisclaimerFooter from './CookieDisclaimerFooter';
 import bladerunner from '../Bladerunner';
 

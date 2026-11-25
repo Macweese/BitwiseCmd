@@ -4,7 +4,7 @@ import './VpcView.css';
 import { getNetworkAddress, getAddressSpaceSize } from '../subnet-utils';
 import { IpAddressWithSubnetMask, VpcCommand } from '../models';
 import formatter from '../../core/formatter';
-import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { faInfoCircle } from '../../core/components/icons';
 import IconWithToolTip from '../../shell/components/IconWithTooltip';
 
 
