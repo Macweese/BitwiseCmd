@@ -1,4 +1,5 @@
 import calc from '../core/calc';
+import { Integer } from '../core/Integer';
 import Operand from './Operand';
 import { ExpressionElement } from './expression-interfaces';
 
@@ -42,16 +43,40 @@ export default class Operator implements ExpressionElement {
     }
 }
 
+// Integer promotion, as in C, C++, C# and Java. An operand that is narrower than int
+// goes into an operation as a 32-bit signed int. Thus operations on bytes and shorts
+// do not wrap at 8 or 16 bits. All 8-bit and 16-bit values fit, signed or unsigned.
+export function promote(operand: Operand) : Operand {
+    const n = operand.value;
+
+    return n.maxBitSize < 32
+        ? operand.setValue(new Integer(n.value, 32, true)).setLabel("promoted")
+        : operand;
+}
+
 function applyNotOperator(operand: Operand) : Operand {
-    return new Operand(calc.not(operand.value), operand.base);
+    return new Operand(calc.not(promote(operand).value), operand.base);
 }
 
 function applyOperator(op1 : Operand, operator: string, op2 : Operand) : Operand {
     
     const isShift = /<|>/.test(operator);
 
-    if(!isShift)
+    if(isShift)
     {
+        // The result of a shift has the type of its (promoted) left operand
+        promote(op1);
+    }
+    else
+    {
+        // Promote two narrow operands. For a narrow operand next to a 32-bit or 64-bit
+        // operand, equalizeSize converts the narrow operand to the type of the other operand.
+        if(op1.value.maxBitSize < 32 && op2.value.maxBitSize < 32)
+        {
+            promote(op1);
+            promote(op2);
+        }
+
         if(op1.value.maxBitSize === op2.value.maxBitSize && op1.value.signed !== op2.value.signed)
             throw new Error("Operator `" + operator + "` cannot be applied to signed and unsigned operands of the same " + op2.value.maxBitSize + "-bit size.");
 

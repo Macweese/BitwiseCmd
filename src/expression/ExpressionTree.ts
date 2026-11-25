@@ -1,5 +1,5 @@
 import Operand from './Operand';
-import Operator from './Operator';
+import Operator, { promote } from './Operator';
 import calc from '../core/calc';
 import { Integer } from '../core/Integer';
 
@@ -49,7 +49,7 @@ export class ExpressionNode {
                 return this.operand!;
 
             case 'unary': {
-                const child = this.leftChild!.evaluate();
+                const child = promote(this.leftChild!.evaluate());
                 const value = this.operator === '~' ? calc.not(child.value) : calc.negate(child.value);
                 return new Operand(value, child.base);
             }

@@ -37,9 +37,18 @@ describe('BitwiseResultViewModel', () => {
             return { rows: model.items.map(i => i.maxBitSize), bits: model.maxNumberOfBits };
         };
 
-        // -1 as a byte takes 8 bits, as the int it is converted to it takes 32
+        // -1 has 8 bits as a byte. It has 32 bits as the int that the promotion or the conversion gives.
+        expect(sizes('-1b + 1b')).toEqual({ rows: [32, 32, 32], bits: 32 });
         expect(sizes('-1b + 1')).toEqual({ rows: [32, 32, 32], bits: 32 });
+        expect(sizes('~-1b')).toEqual({ rows: [32, 32, 32], bits: 32 });
+        expect(sizes('-1b >> 1')).toEqual({ rows: [32, 32], bits: 32 });
         expect(sizes('-1b + 1l')).toEqual({ rows: [64, 64, 64], bits: 64 });
+    });
+
+    it('shows the operands of bytes and shorts as the ints they are promoted to', () => {
+        expect(rows('127b + 1b')).toEqual(['127', '+1', '=128']);
+        expect(rows('1b << 8')).toEqual(['1', '<<8256']);
+        expect(rows('~0ub')).toEqual(['0', '~0', '=-1']);
     });
 
     it('marks the final result', () => {

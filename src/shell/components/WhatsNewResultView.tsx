@@ -18,8 +18,12 @@ function WhatsNewResultView() {
                 </li>
                 <li>Added the remainder operator <code>%</code>: <code><CommandLink text="-7 % 3" /></code>.</li>
                 <li>
-                    Operations on unsigned numbers keep their results unsigned (<a href="https://github.com/BorysLevytskyi/BitwiseCmd/issues/72">#72</a>),
+                    Operations on unsigned 32- and 64-bit numbers keep their results unsigned (<a href="https://github.com/BorysLevytskyi/BitwiseCmd/issues/72">#72</a>),
                     and negative literals such as <code><CommandLink text="-1u" /></code> work inside expressions.
+                </li>
+                <li>
+                    Bytes and shorts are promoted to 32-bit integers before an operation, as in C and Java, so{' '}
+                    <code><CommandLink text="127b + 1b" /></code> is 128 and signed and unsigned ones can be mixed: <code><CommandLink text="255ub + 1b" /></code>.
                 </li>
                 <li>Errors in an expression point at the offending position.</li>
                 <li>Four new themes: <CommandLink text="github" />, <CommandLink text="helix" />, <CommandLink text="emacs" /> and <CommandLink text="sakura" />.</li>

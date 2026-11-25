@@ -268,18 +268,22 @@ class ExpressionElementTableRow extends React.Component<ExpressionElementRowProp
 
         const children = [];
         let title = `BitwiseCmd treats this number as ${currentValue.maxBitSize}-bit integer`;
-        let text = `${currentValue.maxBitSize}-bit `;
+        let text = `${currentValue.maxBitSize}-bit`;
 
         const signedStr = currentValue.signed ? 'signed' : 'unsigned';
         const signedOther = currentValue.signed ? 'unsigned' : 'signed';
         const signedButtonTitle = `Click to change to ${signedOther} preserving the same bits`;
 
-        if (op.label.length > 0) {
+        if (op.label === "promoted") {
+            text += " (promoted)";
+            title += ". An 8- or 16-bit integer is promoted to a 32-bit signed integer before an operation, as in C, C++, C# and Java.";
+        }
+        else if (op.label.length > 0) {
             text += " (converted)";
             title += ". This number was converted to facilitate bitwise operation with an operand of a different type.";
         }
 
-        children.push(<span key="size-info" title={title} style={{ cursor: "help" }}>{text.trim()}</span>);
+        children.push(<span key="size-info" title={title} style={{ cursor: "help" }}>{text}</span>);
 
         if (allowSignChange) {
             children.push(

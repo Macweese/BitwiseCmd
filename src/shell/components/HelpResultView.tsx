@@ -59,6 +59,7 @@ function HelpResultView() {
                             <p>
                                 <sup>[1]</sup> Shifts follow Java: the shift count is reduced modulo the width of the shifted operand, <strong>which includes negative counts</strong>.
                                 For example <span className="no-break"><code>1 &lt;&lt; 5 * -1</code></span> is evaluated as <span className="no-break"><code>1 &lt;&lt; 27</code></span> for 32-bit integers.
+                                A byte or a short is promoted to a 32-bit integer before it is shifted, so its width is 32 as well.
                                 In C and C++ a negative shift count, or one that is not smaller than the width, is undefined behaviour; Rust rejects such counts (its shift count is unsigned and an out-of-range count panics in debug builds).
                                 Check the specification of your language to be sure.
                                 <br/>
@@ -112,6 +113,11 @@ function HelpResultView() {
                         <li><code>32-bit integer</code> - numbers entered without suffixes that fall in range of {INT32_MIN_VALUE} and {INT32_MAX_VALUE}. Use <code>u</code> suffix to denote an unsigned version of 32-bit integer. This is a default number type.</li>
                         <li><code>64-bit integer</code> - a.k.a Long. Numbers entered without suffixes and exceed the 32-bit range or entered with <code>l</code> and <code>ul</code> suffixes for signed and unsigned versions respectively <span className="no-break">(e.g. <code><CommandLink text='10l 10ul' /></code>)</span>.</li>
                     </ul>
+                    <p>
+                        An operation on bytes and shorts is carried out on 32-bit integers, as in C, C++, C# and Java: 8- and 16-bit operands are promoted to a signed 32-bit integer first.
+                        This is why <code><CommandLink text='127b + 1b' /></code> is 128 and <code><CommandLink text='~0ub' /></code> is -1.
+                        Mask the result to keep it within a byte: <span className="no-break"><code><CommandLink text='~0x0fub & 0xff' /></code></span>.
+                    </p>
                 </div>
                 <div className="section">
                     <strong className="section-title soft">Tip</strong>
