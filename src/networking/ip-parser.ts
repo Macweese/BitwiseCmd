@@ -14,6 +14,11 @@ const CMD_VPC = 'vpc';
 const ipAddressParser = {
     parse: function(input: string) : ParsingResult {
 
+        // Each IP address contains a dot. The shell gives each expression to this parser first,
+        // and a long expression has many parts to examine.
+        if(input.indexOf('.') === -1)
+            return null;
+
         const result = this.parseCommand(input);
 
         const matches = this.getMaches(result.nextInput);

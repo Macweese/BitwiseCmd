@@ -3,6 +3,10 @@ import { IpAddressWithSubnetMask, IpAddress, SubnetCommand, VpcCommand } from ".
 
 
 describe('parser tests', () => {
+    it.each(['5 & 3', '1 2 3', 'vpc', 'subnet 10', 'help'])('gives null for an input without a dot: %s', (input) => {
+        expect(ipAddressParser.parse(input)).toBe(null);
+    });
+
     it('can parse correct ip address', () => {
         const actual = ipAddressParser.parse('127.1.2.3');
         expect(actual).not.toBe(null);

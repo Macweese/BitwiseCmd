@@ -3,7 +3,7 @@ import AppState from '../shell/AppState';
 import { CmdShell, CommandInput, CommandOptions } from '../shell/cmd';
 import ErrorResultView from '../shell/components/ErrorResultView';
 import IpAddressView from './components/IpAddressView';
-import ipAddressParser, {ParsingError, ParsedIpObject} from './ip-parser';
+import ipAddressParser, {ParsingError, ParsedIpObject, ParsingResult} from './ip-parser';
 import { IpAddress, IpAddressWithSubnetMask, SubnetCommand, VpcCommand } from "./models";
 import log from 'loglevel';
 import SubnetView from './components/SubnetView';
@@ -14,15 +14,19 @@ import VpcView from './components/VpcView';
 const networkingAppModule = {
     setup: function(appState: AppState, cmd: CmdShell) {
         
+        // canHandle parses the input, and handle uses that result. Thus the input is parsed once.
+        let parsed: { input: string, result: ParsingResult } | null = null;
+
         // Add Ip Address commands
         cmd.command({
             runsFromLink: true,
             canHandle: (input:string) => {
-                const parsed = ipAddressParser.parse(input);
-                return parsed !== null && parsed !== undefined;
+                parsed = { input, result: ipAddressParser.parse(input) };
+                return parsed.result !== null && parsed.result !== undefined;
             },
             handle: function(c: CommandInput) {
-                var result = ipAddressParser.parse(c.input);
+                const result = parsed !== null && parsed.input === c.input ? parsed.result : ipAddressParser.parse(c.input);
+                parsed = null;
 
                 if(result === null || result === undefined)
                     return;
