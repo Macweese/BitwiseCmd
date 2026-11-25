@@ -38,8 +38,36 @@
 }
 
 .cookie-disclaimer button:not(.command-link) {
+    /* A theme can set --cookie-button-bg to give the buttons a different background */
+    --background: var(--cookie-button-bg, var(--button-hover-bg, white));
+
     min-width: 140px;
     padding: 10px 18px;
-    background-color: var(--button-hover-bg, white);
+    background-color: var(--background);
     font-family: var(--font-family), sans-serif;
+    /* A button moves when it is pressed. This value gives the button its own stacking context
+       at all times, not only while it moves. */
+    translate: 0px;
+    transition: background-color 120ms, border-color 120ms, translate 80ms;
+}
+
+/* When the pointer is on a button, the background moves in the direction of the text colour
+   and the border gets the text colour. Blade Runner and GitHub have their own effects. */
+.app-root:not(.bladerunner, .github) .cookie-disclaimer button:not(.command-link):hover {
+    background-color: color-mix(in srgb, var(--background), currentColor 15%);
+    border-color: currentColor;
+}
+
+.app-root:not(.bladerunner, .github) .cookie-disclaimer button:not(.command-link):active {
+    background-color: color-mix(in srgb, var(--background), currentColor 28%);
+}
+
+.cookie-disclaimer button:not(.command-link):active {
+    translate: 0 1px;
+}
+
+/* Only for the keyboard: a click does not show the outline */
+.cookie-disclaimer button:not(.command-link):focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
 }
