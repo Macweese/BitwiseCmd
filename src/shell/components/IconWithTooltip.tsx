@@ -1,6 +1,6 @@
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { isValidElement, useRef, useState } from "react";
+import React, { isValidElement, useLayoutEffect, useRef, useState } from "react";
 import "./IconWithTooltip.css";
 
 export type IconWithToolTipProps = {
@@ -9,89 +9,85 @@ export type IconWithToolTipProps = {
     className?: string
 }
 
+type Size = { width: number, height: number };
+
+// The position of a tooltip in the viewport. The tooltip goes to the right of its icon.
+// If there is no room, it goes to the left of the icon or up. It always stays in the viewport.
+export function getTooltipPosition(icon: DOMRect, tooltip: Size, viewport: Size) : { left: number, top: number } {
+    let left = icon.right + 5;
+    let top = icon.top;
+    let isOnTheLeft = false;
+
+    if (left + tooltip.width > viewport.width) {
+        left = icon.left - tooltip.width - 5;
+        isOnTheLeft = true;
+
+        if (left < 0)
+            left = viewport.width - tooltip.width - 10;
+    }
+
+    if (top + tooltip.height > viewport.height) {
+        // On the left of the icon, the tooltip also goes above the row. Then it does not hide the bits.
+        top = icon.bottom - tooltip.height - (isOnTheLeft ? icon.height + 5 : 0);
+
+        if (top < 0)
+            top = viewport.height - tooltip.height - 10;
+    }
+
+    return { left: left < 0 ? 10 : left, top: top < 0 ? 10 : top };
+}
+
+// A popover is in the top layer of the browser. No ancestor can clip it, and its fixed
+// position is relative to the viewport. A browser without popovers shows the tooltip in its place.
+function showInTopLayer(element: HTMLElement) {
+    const popover = element as HTMLElement & { showPopover?: () => void };
+
+    if (typeof popover.showPopover === 'function') {
+        element.setAttribute('popover', 'manual');
+        popover.showPopover();
+    }
+}
+
 function IconWithToolTip (props: React.PropsWithChildren<IconWithToolTipProps>)  {
     const tooltipRef = useRef<HTMLDivElement>(null);
     const iconRef = useRef<HTMLSpanElement>(null);
-    const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({ visibility: 'hidden' });
+    // The tooltip is in the document only while the pointer is on the icon
+    const [isOpen, setIsOpen] = useState(false);
 
-    const updateTooltipPosition = () => {
-        if (!tooltipRef.current || !iconRef.current) return;
+    // Set the position before the browser paints the tooltip
+    useLayoutEffect(() => {
+        const tooltip = tooltipRef.current;
+        const icon = iconRef.current;
 
-        const iconRect = iconRef.current.getBoundingClientRect();
-        const tooltipRect = tooltipRef.current.getBoundingClientRect();
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
+        if (!isOpen || !tooltip || !icon)
+            return;
 
-        let left = iconRect.right + 5;
-        let top = iconRect.top;
+        showInTopLayer(tooltip);
 
-        let positionLeft = false;
-        // Check if tooltip would overflow on the right
-        if (left + tooltipRect.width > viewportWidth) {
-            // Try positioning to the left of the icon
-            left = iconRect.left - tooltipRect.width - 5;
-            positionLeft = true;
-            // If it still doesn't fit, position it aligned to the right edge
-            if (left < 0) {
-                left = viewportWidth - tooltipRect.width - 10;
-            }
-        }
+        const viewport = { width: window.innerWidth, height: window.innerHeight };
+        const { left, top } = getTooltipPosition(icon.getBoundingClientRect(), tooltip.getBoundingClientRect(), viewport);
+        tooltip.style.left = `${left}px`;
+        tooltip.style.top = `${top}px`;
 
-        // Check if tooltip would overflow on the bottom
-        if (top + tooltipRect.height > viewportHeight) {
-            // Position above the icon,
-            // add additional 5-pixel padding to allow room above binary representation,
-            // in case the tooltip is also placed on the left side
-            top = iconRect.bottom - tooltipRect.height - (positionLeft ? (iconRect.height + 5) : 0);
+        const close = () => setIsOpen(false);
+        const closeOnEscape = (e: KeyboardEvent) => { if (e.key === 'Escape') close(); };
 
-            // If it still doesn't fit, align to bottom edge
-            if (top < 0) {
-                top = viewportHeight - tooltipRect.height - 10;
-            }
-        }
+        document.addEventListener('keydown', closeOnEscape);
+        // The tooltip has a fixed position. It does not move with its icon when the page scrolls.
+        window.addEventListener('scroll', close, true);
 
-        // Ensure it doesn't overflow on the left
-        if (left < 0) {
-            left = 10;
-        }
+        return () => {
+            document.removeEventListener('keydown', closeOnEscape);
+            window.removeEventListener('scroll', close, true);
+        };
+    }, [isOpen]);
 
-        // Ensure it doesn't overflow on the top
-        if (top < 0) {
-            top = 10;
-        }
-
-        setTooltipStyle({
-            left: `${left}px`,
-            top: `${top}px`,
-            visibility: 'visible'
-        });
-    };
-
-    const handleMouseEnter = () => {
-        // First render hidden to measure, then position
-        // This is to avoid sporadic repositioning
-        setTooltipStyle({ visibility: 'hidden' });
-        requestAnimationFrame(() => {
-            updateTooltipPosition();
-        });
-    };
-
-    const handleMouseLeave = () => {
-        setTooltipStyle({ visibility: 'hidden' });
-    };
-
-    return <div className={props.className ? 'tooltip-holder ' + props.className : 'tooltip-holder'} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+    return <div className={props.className ? 'tooltip-holder ' + props.className : 'tooltip-holder'} onMouseEnter={() => setIsOpen(true)} onMouseLeave={() => setIsOpen(false)}>
         <span className="tooltip-icon" ref={iconRef}>
             {isValidElement(props.icon) ? props.icon : <FontAwesomeIcon icon={props.icon} />}
         </span>
 
-        <div
-            className='tooltip solid-border solid-background'
-            ref={tooltipRef}
-            style={tooltipStyle}
-        >
-            {props.children}
-        </div>
+        {isOpen ? <div className='tooltip solid-border solid-background' role="tooltip" ref={tooltipRef}>{props.children}</div> : null}
     </div>;
 }
 

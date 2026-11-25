@@ -31,7 +31,6 @@
 }
 
 .tooltip-holder .tooltip {
-    display: none;
     /* A tooltip is in the cell of the icons, which does not let text wrap */
     white-space: normal;
     font-size: 0.9em;
@@ -65,6 +64,20 @@
     cursor: text;
 }
 
-.tooltip-holder:hover .tooltip {
-    display: block;
+/* An open popover has the browser defaults of a dialog in the centre of the page.
+   Remove the defaults that a tooltip does not use. */
+.tooltip-holder .tooltip[popover] {
+    inset: auto;
+    margin: 0;
+    overflow: visible;
+    color: inherit;
+}
+
+/* An area on the two sides of the tooltip. The pointer can go across it from the icon
+   to the tooltip, and the tooltip stays open. */
+.tooltip-holder .tooltip::before {
+    content: '';
+    position: absolute;
+    inset: 0 -6px;
+    z-index: -1;
 }

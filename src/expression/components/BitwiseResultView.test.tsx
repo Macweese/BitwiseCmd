@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import BitwiseResultView from './BitwiseResultView';
 import { parser } from '../expression';
 
@@ -50,21 +50,34 @@ it('pads every row to the same number of bits', () => {
 });
 
 describe('warnings', () => {
+    // The explanation is in the document only while the pointer is on the triangle
+    function pointAtWarning(row: HTMLElement) {
+        fireEvent.mouseEnter(within(row).getByRole('img', { name: "Warning" }));
+    }
+
     it('show a triangle with the explanation on the row they are about', () => {
         renderResult('127b + 1b', false);
 
         const rows = screen.getAllByRole('row');
-        expect(within(rows[2]).getByRole('img', { name: "Warning" })).toBeInTheDocument();
         expect(within(rows[0]).queryByRole('img', { name: "Warning" })).not.toBeInTheDocument();
+        expect(within(rows[1]).queryByRole('img', { name: "Warning" })).not.toBeInTheDocument();
+
+        pointAtWarning(rows[2]);
         expect(within(rows[2]).getByText("Does not fit the type of its operands")).toBeInTheDocument();
         expect(within(rows[2]).getByText((_, e) => e?.tagName === 'P' && /stored back into an 8-bit signed integer it would be -128\./.test(e.textContent || ''))).toBeInTheDocument();
-        expect(within(rows[0]).queryByText(/Does not fit/)).not.toBeInTheDocument();
+    });
+
+    it('do not show the explanation before the pointer is on the triangle', () => {
+        renderResult('127b + 1b', false);
+
+        expect(screen.queryByText(/Does not fit/)).not.toBeInTheDocument();
     });
 
     it('list every warning of a row', () => {
         renderResult('1b << 40', false);
 
         const shift = screen.getAllByRole('row')[1];
+        pointAtWarning(shift);
         expect(within(shift).getByText("Shift count out of range")).toBeInTheDocument();
         expect(within(shift).getByText("Does not fit the type of its operand")).toBeInTheDocument();
     });
@@ -72,6 +85,7 @@ describe('warnings', () => {
     it('show each value of the explanation in its own element', () => {
         renderResult('-1 + 1ul', false);
 
+        pointAtWarning(screen.getAllByRole('row')[0]);
         const values = within(screen.getAllByRole('row')[0]).getAllByText(/^-?\d+$/, { selector: 'strong' }).map(e => e.textContent);
         expect(values).toEqual(['-1', '4294967295', '18446744073709551615']);
     });
@@ -79,6 +93,6 @@ describe('warnings', () => {
     it('are absent where there is nothing to warn about', () => {
         renderResult('1 + 2', false);
 
-        expect(screen.queryByText(/Overflow|Converted|Shift count|Does not fit|64-bit number/)).not.toBeInTheDocument();
+        expect(screen.queryByRole('img', { name: "Warning" })).not.toBeInTheDocument();
     });
 });
