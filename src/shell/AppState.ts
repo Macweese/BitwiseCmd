@@ -3,6 +3,10 @@ import analyticsTracking from './analyticsTracking';
 
 export const APP_VERSION = 12;
 
+// The page keeps this number of results. A new result removes the oldest one. Each result uses
+// memory and DOM nodes, thus without a limit a long session uses more memory each time.
+export const MAX_COMMAND_RESULTS = 500;
+
 export type PersistedAppData = {
     uiTheme: string;
     version: number | null;
@@ -37,6 +41,9 @@ export default class AppState {
     uiTheme: string;
     changeHandlers: AppStateChangeHandler[] = [];
     commandResults: CommandResultView[] = [];
+    maxCommandResults: number = MAX_COMMAND_RESULTS;
+    // True when the limit removed a result. The page then tells the user.
+    olderResultsRemoved: boolean = false;
     persistedVersion: number;
     wasOldVersion: boolean;
     env: string;
@@ -75,12 +82,19 @@ export default class AppState {
     addCommandResult(input: string, view: ViewFactory) {
         const key = generateKey();
         this.commandResults.unshift({ key, input, view });
+
+        if (this.commandResults.length > this.maxCommandResults) {
+            this.commandResults.length = this.maxCommandResults;
+            this.olderResultsRemoved = true;
+        }
+
         log.debug(`command result added: ${input}`);
         this.triggerChanged('commandResults');
     }
 
     clearCommandResults() {
         this.commandResults = [];
+        this.olderResultsRemoved = false;
         this.triggerChanged('commandResults');
     }
 

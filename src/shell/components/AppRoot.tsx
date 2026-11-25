@@ -105,6 +105,9 @@ export default class AppRoot extends React.Component<AppRootProps, AppRootState>
                             <div id="output">
                             {this.getResultViews()}
                             </div>
+                            {this.props.appState.olderResultsRemoved
+                                ? <div className="results-limit-note">Older results were removed. The page keeps the last {this.props.appState.maxCommandResults} results.</div>
+                                : null}
                     </div>
                     <CookieDisclaimerFooter appState={this.props.appState} />
                     <div className="bladerunner-easter-egg">

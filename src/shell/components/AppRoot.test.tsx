@@ -144,3 +144,21 @@ describe('list of results', () => {
         expect(resultTexts()).toEqual(['result 4', 'result 3']);
     });
 });
+
+describe('the limit of the history', () => {
+    it('shows a note when older results were removed, and not before', () => {
+        const appState = start();
+        appState.maxCommandResults = 2;
+
+        addResult(appState, 'result 1');
+        addResult(appState, 'result 2');
+        expect(screen.queryByText(/Older results were removed/)).not.toBeInTheDocument();
+
+        addResult(appState, 'result 3');
+        expect(resultTexts()).toEqual(['result 3', 'result 2']);
+        expect(screen.getByText('Older results were removed. The page keeps the last 2 results.')).toBeInTheDocument();
+
+        act(() => appState.clearCommandResults());
+        expect(screen.queryByText(/Older results were removed/)).not.toBeInTheDocument();
+    });
+});

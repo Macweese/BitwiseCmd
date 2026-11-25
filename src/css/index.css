@@ -160,6 +160,9 @@ h1 { font-family: Impact, Verdana;
 .result { margin: 10px 10px 30px; }
 
 /* Only for a browser with popovers. There, a tooltip opens in the top layer, where containment does not clip it. */
+/* Shown after the oldest result when the limit of the history removed results */
+.results-limit-note { margin: 0 0 30px; font-size: 0.9em; opacity: 0.6; }
+
 @supports selector(:popover-open) {
     /* A result is independent of the other results: a change in one result causes no layout or paint
        work in the others. This also applies to the first results. Without it, the style work for a
