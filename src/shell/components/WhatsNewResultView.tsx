@@ -18,7 +18,7 @@ function WhatsNewResultView() {
                 </li>
                 <li>Added the remainder operator <code>%</code>: <code><CommandLink text="-7 % 3" /></code>.</li>
                 <li>
-                    Operations on unsigned numbers keep their results unsigned (<a href="https://github.com/BorysLevytskyi/BitwiseCmd/issues/3">#3</a>),
+                    Operations on unsigned numbers keep their results unsigned (<a href="https://github.com/BorysLevytskyi/BitwiseCmd/issues/72">#72</a>),
                     and negative literals such as <code><CommandLink text="-1u" /></code> work inside expressions.
                 </li>
                 <li>Errors in an expression point at the offending position.</li>
