@@ -13,6 +13,23 @@ import CookieDisclaimerFooter from './CookieDisclaimerFooter';
 import bladerunner from '../Bladerunner';
 
 
+type ResultItemProps = {
+    result: CommandResultView,
+    appState: AppState,
+    // The display settings that a view can read. They are props, and thus a change renders the result again.
+    emphasizeBytes: boolean,
+    annotateTypes: boolean,
+    dimExtraBits: boolean
+};
+
+// One result of the list. It is rendered again only when a display setting changes,
+// and not when a different result is added or removed.
+const ResultItem = React.memo(function ResultItem({ result, appState }: ResultItemProps) {
+    return <DisplayResultView resultKey={result.key} input={result.input} inputHash={hash.encodeHash(result.input)} appState={appState}>
+        {result.view()}
+    </DisplayResultView>;
+});
+
 type AppRootProps = {
     appState: AppState,    
 };
@@ -40,12 +57,13 @@ export default class AppRoot extends React.Component<AppRootProps, AppRootState>
     }
 
     getResultViews() : JSX.Element[] {
+        const appState = this.props.appState;
 
-        var results = this.state.commandResults.map((r, i) => 
-            <DisplayResultView resultIndex={i} resultKey={r.key} key={r.key} input={r.input} inputHash={hash.encodeHash(r.input)} appState={this.props.appState}>
-                {r.view()}
-            </DisplayResultView>);
-        return results;
+        return this.state.commandResults.map(r =>
+            <ResultItem key={r.key} result={r} appState={appState}
+                emphasizeBytes={appState.settingsEmphasizeBytes}
+                annotateTypes={appState.settingsAnnotateTypes}
+                dimExtraBits={appState.settingsDimExtraBits} />);
     }
 
     componentDidMount(): void {

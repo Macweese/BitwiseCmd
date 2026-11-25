@@ -43,7 +43,8 @@ const shellModule = {
         cmd.command("tip", (c: CommandInput) => appState.addCommandResult(c.input, () => <TipResultView />));
         cmd.command("-debug", (c: CommandInput) => {
             appState.toggleDebugMode();
-            appState.addCommandResult(c.input, () => <TextResultView text={`Debug Mode: ${appState.debugMode}`}/>);
+            const text = `Debug Mode: ${appState.debugMode}`;
+            appState.addCommandResult(c.input, () => <TextResultView text={text}/>);
         });
 
         // Incognito mode turns analytics tracking off. The flags -incognito and -notrack are

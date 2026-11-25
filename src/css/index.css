@@ -158,6 +158,28 @@ h1 { font-family: Impact, Verdana;
 }
 
 .result { margin: 10px 10px 30px; }
+
+/* Only for a browser with popovers. There, a tooltip opens in the top layer, where containment does not clip it. */
+@supports selector(:popover-open) {
+    /* A result is independent of the other results: a change in one result causes no layout or paint
+       work in the others. This also applies to the first results. Without it, the style work for a
+       new result increases with the number of results. Containment clips the content that goes out
+       of a result. Thus a result must be as wide as its widest row. */
+    #output > .result { contain: layout style paint; min-width: min-content; }
+
+    /* Containment also stops the collapse of the margins of a result with the margins of its content.
+       Put the space below a result into the result. There it collapses with the last margin of the
+       content, as before. */
+    #output > .result { margin-top: 0; margin-bottom: 0; }
+    #output > .result:first-child { margin-top: 10px; }
+    #output > .result > .content { margin-bottom: 30px; }
+
+    /* The browser does not render a result that is off screen. The first results are on the first
+       screen, where this has no benefit. The height is an estimate for a result that the browser
+       did not render before. */
+    #output > .result:nth-child(n+5) { content-visibility: auto; contain-intrinsic-size: auto none auto 150px; }
+}
+
 .result .input { margin-bottom: 10px; }
 .result .content { padding-left: 10px}
 .result .cur { margin-right: 5px; }

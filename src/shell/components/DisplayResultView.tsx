@@ -10,8 +10,6 @@ type DisplayResultProps = {
     inputHash: string,
     input: string,
     resultKey: number,
-    resultIndex: number,
-    onRemove?: (i: number) => void,
     children: JSX.Element
 }
 
@@ -42,7 +40,7 @@ const DisplayResultView: React.FunctionComponent<DisplayResultProps> = (props) =
                                         <FontAwesomeIcon className="icon" icon={copied ? faCheck : faLink} size="xs" />
                                     </a>
                                     <span className='soft hashLink'>{copiedText}</span>
-                                    <button className="hashLink" title="Remove this result" onClick={() => appState.removeResult(props.resultIndex)}>
+                                    <button className="hashLink" title="Remove this result" onClick={() => appState.removeResultByKey(props.resultKey)}>
                                         <FontAwesomeIcon className="icon" icon={faTrashAlt} size="xs" />
                                     </button>
                             </div>

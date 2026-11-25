@@ -25,6 +25,9 @@ export type CommandResultView = {
 export type AppStateAttribute = keyof AppState;
 export type AppStateChangeHandler = (state: AppState, attribute : AppStateAttribute) => void;
 
+// Makes the view of a result. It can read the display settings from the application state:
+// the result is rendered again when one of them changes. All other data must be fixed when
+// the result is added.
 type ViewFactory = () => JSX.Element;
 
 export default class AppState {
@@ -75,6 +78,11 @@ export default class AppState {
     clearCommandResults() {
         this.commandResults = [];
         this.triggerChanged('commandResults');
+    }
+
+    // The position of a result changes when a newer result is added. Its key does not change.
+    removeResultByKey(key: number) {
+        this.removeResult(this.commandResults.findIndex(r => r.key === key));
     }
 
     removeResult(index: number) {
