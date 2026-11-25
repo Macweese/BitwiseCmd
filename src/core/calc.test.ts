@@ -544,3 +544,33 @@ describe("calc.engine.", () => {
         expect(calc.engine.applyTwosComplement("01010100")).toBe("10101100"); // reverse
     });
 });
+
+describe('numbers that do not fit their type', () => {
+    it('toBinaryString gives all bits of a negative number that is out of the range of its type', () => {
+        expect(calc.toBinaryString(new Integer(-255, 8))).toBe("00000001");
+        expect(calc.toBinaryString(new Integer(-128, 8))).toBe("10000000");
+    });
+
+    it('toBinaryString rejects a number that has more bits than its type', () => {
+        expect(() => calc.toBinaryString(new Integer(256, 8)))
+            .toThrowError("Binary representation for '256' ('100000000', 9 bits) is bigger than the given data type (8 bits).");
+        expect(() => calc.toBinaryString(new Integer(-256, 8))).toThrowError(/is bigger than the given data type \(8 bits\)/);
+    });
+
+    it('an operation rejects a number that has more bits than its type', () => {
+        const tooLarge = new Integer(256, 8);
+
+        expect(() => calc.not(tooLarge)).toThrowError(/is bigger than the given data type/);
+        expect(() => calc.add(tooLarge, Integer.byte(1))).toThrowError(/is bigger than the given data type/);
+        expect(() => calc.lshift(tooLarge, 1)).toThrowError(/is bigger than the given data type/);
+        expect(() => calc.flipBit(tooLarge, 0)).toThrowError(/is bigger than the given data type/);
+    });
+
+    it('an operation uses the bits of a value that is out of the range of its type', () => {
+        // 200 has the bits of -56 in a signed byte
+        expect(calc.add(new Integer(200, 8), Integer.byte(1)).value).toBe(BigInt(-55));
+        expect(calc.rshift(new Integer(200, 8), 1).value).toBe(BigInt(-28));
+        expect(calc.urshift(new Integer(200, 8), 1).value).toBe(BigInt(100));
+        expect(calc.div(new Integer(200, 8), Integer.byte(2)).value).toBe(BigInt(-28));
+    });
+});

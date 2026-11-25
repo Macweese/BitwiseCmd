@@ -1,5 +1,7 @@
 import { Integer, JsNumber,  asInteger } from "./Integer";
-import { asIntN } from "./utils";
+
+const ZERO = BigInt(0);
+const ONE = BigInt(1);
 
 const calc = {
 
@@ -10,7 +12,9 @@ const calc = {
     },
 
     flipBit: function(num: Integer | JsNumber, bitIndex: number): Integer  {
-        return this._executeForSingleOperand(asInteger(num), (bin) => this.engine.flipBit(bin, bitIndex));
+        const n = asInteger(num);
+        // The index 0 is the most significant bit of the type
+        return resultOf(bitsOf(n) ^ (ONE << BigInt(n.maxBitSize - 1 - bitIndex)), n);
     },
 
     promoteTo64Bit(number: Integer) : Integer {
@@ -47,113 +51,73 @@ const calc = {
 
     toBinaryString(num: Integer) : string {
         const bitSize = num.maxBitSize;
-        const bin = num.abs().value.toString(2);
-        
-        if(bin.length > bitSize!)
-            throw new Error(`Binary representation for '${num.value}' ('${bin}', ${bin.length} bits) is bigger than the given data type (${bitSize} bits).`)
 
-        return num.value < 0
-            ? this.engine.applyTwosComplement(bin.padStart(bitSize, '0'))  // Pad BEFORE twos complement
-            : bin;
+        if(!fitsWidth(num)) {
+            const bin = num.abs().value.toString(2);
+            throw new Error(`Binary representation for '${num.value}' ('${bin}', ${bin.length} bits) is bigger than the given data type (${bitSize} bits).`)
+        }
+
+        // The bits of a negative number are its two's complement in the width of its type
+        return num.value < ZERO
+            ? BigInt.asUintN(bitSize, num.value).toString(2).padStart(bitSize, '0')
+            : num.value.toString(2);
     },
 
     lshift (num: Integer, numBytes : JsNumber) : Integer {
-        const bytes = shiftCount(numBytes, num.maxBitSize);
-        return this._executeForSingleOperand(num, bin => this.engine.lshift(bin, bytes));
+        return resultOf(typedValue(num) << BigInt(shiftCount(numBytes, num.maxBitSize)), num);
     },
 
     rshift (num : Integer, numBytes : JsNumber) : Integer {
-        const bytes = shiftCount(numBytes, num.maxBitSize);
-        return this._executeForSingleOperand(num, bin => num.signed
-            ? this.engine.rshift(bin, bytes)
-            : this.engine.urshift(bin, bytes)); // Unsigned types use logical shift (no sign extension)
+        // BigInt keeps the sign of a negative value in a right shift. An unsigned type has no negative values.
+        return resultOf(typedValue(num) >> BigInt(shiftCount(numBytes, num.maxBitSize)), num);
     },
 
     urshift (num : Integer, numBytes : JsNumber) : Integer {
-        const bytes = shiftCount(numBytes, num.maxBitSize);
-        return this._executeForSingleOperand(num, bin => this.engine.urshift(bin, bytes));
+        return resultOf(bitsOf(num) >> BigInt(shiftCount(numBytes, num.maxBitSize)), num);
     },
 
     not(num:Integer) : Integer {
-        return this._executeForSingleOperand(num, this.engine.not);
+        return resultOf(~typedValue(num), num);
     },
 
     // Arithmetic negation within the operand's width: wraps like hardware, so
     // -INT_MIN stays INT_MIN and negating an unsigned number gives its two's complement.
     negate(num: Integer) : Integer {
-        return this._executeForSingleOperand(num, this.engine.applyTwosComplement);
+        return resultOf(-typedValue(num), num);
     },
 
     and (num1 : Integer, num2 : Integer) : Integer {
-        return this._executeForTwoOperands(num1, num2, this.engine.and);
+        return binaryOperation(num1, num2, (a, b) => a & b);
     },
 
     or (num1 : Integer, num2 : Integer) : Integer {
-        return this._executeForTwoOperands(num1, num2, this.engine.or);
+        return binaryOperation(num1, num2, (a, b) => a | b);
     },
 
     xor (num1 : Integer, num2 : Integer) : Integer {
-        return this._executeForTwoOperands(num1, num2, this.engine.xor);
+        return binaryOperation(num1, num2, (a, b) => a ^ b);
     },
-    
+
     mul (num1: Integer, num2: Integer) : Integer {
-        return this._executeForTwoOperands(num1, num2, this.engine.mul);
+        return binaryOperation(num1, num2, (a, b) => a * b);
     },
-    
+
     sub (num1: Integer, num2: Integer) : Integer {
-        return this._executeForTwoOperands(num1, num2, this.engine.sub);
+        return binaryOperation(num1, num2, (a, b) => a - b);
     },
-    
+
+    // BigInt division truncates toward zero, like C
     div (num1: Integer, num2: Integer) : Integer {
-        return this._executeForTwoOperands(num1, num2, this.engine.div);
+        return binaryOperation(num1, num2, (a, b) => a / nonZero(b));
     },
 
     add(num1: Integer, num2: Integer) : Integer {
-       return this._executeForTwoOperands(num1, num2, this.engine.add);
+        return binaryOperation(num1, num2, (a, b) => a + b);
     },
 
+    // BigInt remainder takes the sign of the dividend, like C
     mod(num1: Integer, num2: Integer) : Integer {
-        return this._executeForTwoOperands(num1, num2, this.engine.mod);
-    },
-
-    _executeForSingleOperand(num: Integer, operation: (bin:string) => string) : Integer {
-
-        let bin = this.toBinaryString(num).padStart(num.maxBitSize, num.value < 0 ? '1' : '0');
-
-        bin = operation(bin);
-
-        let negative = false;
-
-        if(num.signed && bin[0] === '1') {
-            bin = this.engine.applyTwosComplement(bin);
-            negative = true;
-        }
-
-        const result = BigInt("0b" + bin) * BigInt(negative ? -1 : 1);
-        return new Integer(typeof num.value === "bigint" ? result : asIntN(result), num.maxBitSize, num.signed);
-    },
-
-    _executeForTwoOperands(op1: Integer, op2: Integer,  operation: (bin1:string, bin2:string, signed?:boolean) => string) : Integer {
-        
-        if(op1.maxBitSize === op2.maxBitSize && op1.signed !== op2.signed)
-            throw new Error("This operation cannot be applied to signed and unsigned operands of the same size.");
-
-        const [num1, num2] = equalizeSize(op1, op2);
-
-        let bin1 = this.toBinaryString(num1).padStart(num1.maxBitSize, num1.value < 0  ? '1' : '0');
-        let bin2 = this.toBinaryString(num2).padStart(num2.maxBitSize, num2.value < 0  ? '1' : '0');
-
-        let resultBin = operation(bin1, bin2, num1.signed);
-
-        let m = BigInt(1);
-    
-        if(num1.signed && resultBin[0] === '1') {
-            resultBin = this.engine.applyTwosComplement(resultBin);
-            m = BigInt(-1);
-        }
-
-        const result = BigInt("0b" + resultBin) * m;
-        return new Integer(result, num1.maxBitSize, num1.signed);
+        return binaryOperation(num1, num2, (a, b) => a % nonZero(b));
     },
 
     engine: { 
@@ -294,6 +258,51 @@ const calc = {
 };
 
 export default calc;
+
+// The operations calculate on BigInt values. A result that is out of the range of its type
+// wraps, as in hardware with a fixed width.
+
+// A number fits the width of its type if its magnitude has no more bits than the type
+function fitsWidth(n: Integer) : boolean {
+    const magnitude = n.value < ZERO ? -n.value : n.value;
+    return magnitude >> BigInt(n.maxBitSize) === ZERO;
+}
+
+// The value that the bits of a number have in its type
+function typedValue(n: Integer) : bigint {
+    if(!fitsWidth(n))
+        calc.toBinaryString(n); // Throws the error for a number that is too large
+
+    return n.signed ? BigInt.asIntN(n.maxBitSize, n.value) : BigInt.asUintN(n.maxBitSize, n.value);
+}
+
+// The bits of a number as a value that is not negative
+function bitsOf(n: Integer) : bigint {
+    return BigInt.asUintN(n.maxBitSize, typedValue(n));
+}
+
+// A number of the given type from a value. The value wraps to the width of the type.
+function resultOf(value: bigint, type: Integer) : Integer {
+    const wrapped = type.signed ? BigInt.asIntN(type.maxBitSize, value) : BigInt.asUintN(type.maxBitSize, value);
+    return new Integer(wrapped, type.maxBitSize, type.signed);
+}
+
+function binaryOperation(op1: Integer, op2: Integer, operation: (a: bigint, b: bigint) => bigint) : Integer {
+
+    if(op1.maxBitSize === op2.maxBitSize && op1.signed !== op2.signed)
+        throw new Error("This operation cannot be applied to signed and unsigned operands of the same size.");
+
+    const [num1, num2] = equalizeSize(op1, op2);
+
+    return resultOf(operation(typedValue(num1), typedValue(num2)), num1);
+}
+
+function nonZero(divisor: bigint) : bigint {
+    if(divisor === ZERO)
+        throw new Error('Division by zero.');
+
+    return divisor;
+}
 
 function checkSameLength(bin1: string, bin2: string) {
     if (bin1.length !== bin2.length)
