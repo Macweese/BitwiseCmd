@@ -22,6 +22,8 @@ describe("expression parser", () => {
     it("does not parse a list of numbers containing a bad number", () => {
         expect(parser.parse("1 2 z")).toBeNull();
         expect(parser.parse("")).toBeNull();
+        expect(parser.parse("0xff,ff")).toBeNull();
+        expect(parser.parse("1 0xff,ff")).toBeNull();
     });
 
     it("parses expressions with every operator", () => {

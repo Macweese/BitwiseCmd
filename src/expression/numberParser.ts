@@ -2,7 +2,7 @@ import { INT32_MAX_VALUE, UINT32_MAX_VALUE } from "../core/const";
 import { NumberBase } from "../core/formatter";
 import { Integer } from "../core/Integer";
 
-const numberRegexString = "-?([0-9]+|0b[0-1]+|0x[0-9,a-f]+)(l|s|b|ul|us|ub|u)?";
+const numberRegexString = "-?([0-9]+|0b[0-1]+|0x[0-9a-f]+)(l|s|b|ul|us|ub|u)?";
 const numberRegexFullString = "^"+numberRegexString+"$"
 
 export interface ParsedNumber {

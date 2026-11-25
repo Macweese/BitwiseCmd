@@ -106,6 +106,8 @@ describe("parser", () => {
     it('returns null on bad inputs', () => {
         expect(numberParser.caseParse('abc')).toBe(false);
         expect(numberParser.caseParse('')).toBe(false);
+        expect(numberParser.caseParse('0xff,ff')).toBe(false);
+        expect(() => numberParser.parse('0xff,ff')).toThrowError("0xff,ff is not a number");
         expect(numberParser.caseParse('-1u')).toBe(true);
         expect(() => numberParser.parse('abc')).toThrowError("abc is not a number");
         expect(() => (numberParser.parse(''))).toThrowError('input is null or empty');
