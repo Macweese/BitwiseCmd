@@ -1,7 +1,7 @@
 import { INT32_MAX_VALUE, INT32_MIN_VALUE, UINT32_MAX_VALUE } from "./const";
 import { asIntN } from "./utils";
 import formatter from "./formatter";
-import calc from "./calc";
+import { bitsOf } from "./calc";
 
 export type JsNumber = number | bigint;
 export type IntegerInput = JsNumber | string;
@@ -57,25 +57,14 @@ export class Integer {
         return this.value === other.value && this.signed === other.signed && this.maxBitSize === other.maxBitSize;
     }
 
+    // The unsigned value has the same bits. A negative value has the bits of its two's complement.
     toUnsigned() {
-        return this.signed 
-            ? new Integer(BigInt("0b" + this.toString(2)), this.maxBitSize, false)
-            : new Integer(this.value, this.maxBitSize, this.signed);
-         
+        return new Integer(this.signed ? bitsOf(this) : this.value, this.maxBitSize, false);
     }
 
+    // The signed value has the same bits
     toSigned() {
-        
-        if(this.signed)
-            return new Integer(this.value, this.maxBitSize, this.signed); 
-        
-        const orig = this.toString(2).padStart(this.maxBitSize, '0');
-
-        const inverted = orig[0] === '1' ? calc.engine.applyTwosComplement(orig) : orig;
-        const n = BigInt("0b"+inverted);
-        const negative = orig[0] === '1';
-        
-        return new Integer(negative ? -n : n, this.maxBitSize, true)
+        return new Integer(this.signed ? this.value : BigInt.asIntN(this.maxBitSize, bitsOf(this)), this.maxBitSize, true);
     }
 
     resize(newSize: number) {
@@ -89,14 +78,11 @@ export class Integer {
         return new Integer(this.value, newSize, this.signed);
     }
 
+    // A signed value keeps its bits in the width of its own type. For example, -1 as a byte
+    // becomes 255, also if the other type is wider.
     convertTo(other: Integer) {
-        
-        let newValue = this.value;
-
-        if(this.signed && !other.signed)
-            newValue = this.toUnsigned().value;
-
-        return new Integer(newValue, other.maxBitSize, other.signed);
+        const value = this.signed && !other.signed ? bitsOf(this) : this.value;
+        return new Integer(value, other.maxBitSize, other.signed);
     }
 
     valueOf() {

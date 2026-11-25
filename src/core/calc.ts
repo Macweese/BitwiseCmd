@@ -276,8 +276,9 @@ function typedValue(n: Integer) : bigint {
     return n.signed ? BigInt.asIntN(n.maxBitSize, n.value) : BigInt.asUintN(n.maxBitSize, n.value);
 }
 
-// The bits of a number as a value that is not negative
-function bitsOf(n: Integer) : bigint {
+// The bits of a number as a value that is not negative. Throws an error for a number that is
+// too large for its type.
+export function bitsOf(n: Integer) : bigint {
     return BigInt.asUintN(n.maxBitSize, typedValue(n));
 }
 

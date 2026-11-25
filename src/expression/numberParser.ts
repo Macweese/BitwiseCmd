@@ -57,12 +57,9 @@ function parseInteger(input : string, numberPart: string, suffix: string)  : Int
 
     validateRange(newValue, bitSize, signed);
 
+    // A negative unsigned number has the bits of the negative signed number
     if(!signed && isNegative)
-    {
-        const signed = new Integer(newValue, bitSize, true);
-        const bin = "0b" + signed.toString(2);
-        return  Integer.unsigned(BigInt(bin), bitSize);
-    }
+        return new Integer(newValue, bitSize, true).toUnsigned();
 
     return new Integer(newValue, bitSize, signed);
 }
