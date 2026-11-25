@@ -44,6 +44,9 @@ export default class AppState {
     maxCommandResults: number = MAX_COMMAND_RESULTS;
     // True when the limit removed a result. The page then tells the user.
     olderResultsRemoved: boolean = false;
+    // The key of the newest result. The counter does not start again after clear: if a new result
+    // got the key of a removed one, React could keep the component of the removed result for it.
+    lastResultKey: number = 0;
     persistedVersion: number;
     wasOldVersion: boolean;
     env: string;
@@ -80,7 +83,7 @@ export default class AppState {
     }
 
     addCommandResult(input: string, view: ViewFactory) {
-        const key = generateKey();
+        const key = ++this.lastResultKey;
         this.commandResults.unshift({ key, input, view });
 
         if (this.commandResults.length > this.maxCommandResults) {
@@ -200,10 +203,6 @@ export default class AppState {
         }
     }
 };
-
-function generateKey(): number {
-    return Math.ceil(Math.random() * 10000000) ^ Date.now(); // Because why the hell not...
-}
 
 function normalizeTheme(theme: string): string {
     if (theme === 'iron') return 'graphite';

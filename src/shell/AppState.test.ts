@@ -95,3 +95,17 @@ describe('the limit of the history', () => {
         expect(state.commandResults[499].input).toBe('1');
     });
 });
+
+describe('the keys of the results', () => {
+    it('are different for each result, also after clear', () => {
+        const state = new AppState(appStateStore.getPersistedData(), 'test');
+        for (let i = 0; i < 300; i++) state.addCommandResult(String(i), view);
+        const before = state.commandResults.map(r => r.key);
+
+        state.clearCommandResults();
+        for (let i = 0; i < 300; i++) state.addCommandResult(String(i), view);
+        const after = state.commandResults.map(r => r.key);
+
+        expect(new Set([...before, ...after]).size).toBe(600);
+    });
+});
