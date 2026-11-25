@@ -6,6 +6,9 @@ import { numberParser } from './numberParser';
 import { PrattParser } from './PrattParser';
 import { negativeUnsignedWarning } from './warnings';
 
+// With 256 64-bit numbers, a list took about 120 ms in Chrome
+export const MAX_LIST_LENGTH = 256;
+
 export { default as Operand } from './Operand';
 export { default as Operator } from './Operator';
 export { default as ListOfNumbers } from './ListOfNumbers';
@@ -68,10 +71,14 @@ class ListOfNumbersExpressionFactory implements IExpressionParserFactory
     };
 
     create (input : string) : Expression {
-        
-        const numbers = input.split(' ')
-            .filter(p => p.length > 0)
-            .map(m => parseScalarValue(m));
+
+        const parts = input.split(' ').filter(p => p.length > 0);
+
+        // The result shows one row for each number, and each row takes time to render
+        if (parts.length > MAX_LIST_LENGTH)
+            throw new Error(`A list can have at most ${MAX_LIST_LENGTH} numbers.`);
+
+        const numbers = parts.map(m => parseScalarValue(m));
 
         return new ListOfNumbers(input, numbers);
     }

@@ -358,3 +358,37 @@ describe("comparison with nodejs engine", () => {
         expect(evaluate(actualInput)).toBe(expected);
     }
 });
+
+describe("limits of an input", () => {
+    const numbers = (n: number) => Array.from({ length: n }, (_, i) => String(i + 1));
+
+    it("permits 128 operators and rejects 129", () => {
+        expect(() => parse(numbers(129).join(" + "))).not.toThrow();
+        expect(() => parser.parse(numbers(130).join(" + "))).toThrowError("An expression can have at most 128 operators.");
+    });
+
+    it("counts the unary operators also", () => {
+        expect(() => parse("~".repeat(128) + "1")).not.toThrow();
+        expect(() => parser.parse("~".repeat(129) + "1")).toThrowError("An expression can have at most 128 operators.");
+        expect(() => parser.parse("- ".repeat(64) + "~".repeat(65) + "1")).toThrowError("An expression can have at most 128 operators.");
+    });
+
+    it("does not count the minus of a negative number", () => {
+        expect(() => parse(numbers(129).map(n => "-" + n).join(" + "))).not.toThrow();
+    });
+
+    it("permits 128 levels of parentheses and rejects 129", () => {
+        expect(evaluate("(".repeat(128) + "5 & 3" + ")".repeat(128))).toBe("1");
+        expect(() => parser.parse("(".repeat(129) + "5 & 3" + ")".repeat(129))).toThrowError("Parentheses can be nested to at most 128 levels.");
+    });
+
+    it("counts only the parentheses that are open at the same time", () => {
+        const pairs = Array.from({ length: 100 }, () => "(".repeat(100) + "1" + ")".repeat(100)).join(" | ");
+        expect(evaluate(pairs)).toBe("1");
+    });
+
+    it("permits a list of 256 numbers and rejects 257", () => {
+        expect(parser.parse(numbers(256).join(" "))).toBeInstanceOf(ListOfNumbers);
+        expect(() => parser.parse(numbers(257).join(" "))).toThrowError("A list can have at most 256 numbers.");
+    });
+});

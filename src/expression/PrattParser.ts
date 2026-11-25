@@ -21,11 +21,19 @@ const OPERATORS = ['>>>', '>>', '<<', '|', '^', '&', '+', '-', '*', '/', '%'];
 
 const LITERAL = /^(?:0x[0-9a-f]+|0b[01]+|[0-9]+)(?:ul|us|ub|u|l|s|b)?/i;
 
+// The result shows one or two rows for each operator, and each row takes time to render.
+// With 128 operators on 64-bit numbers, a result took about 160 ms in Chrome. The limits
+// also keep the recursion of the parser and of the tree far from the limit of the stack.
+export const MAX_OPERATORS = 128;
+export const MAX_NESTING = 128;
+
 // Builds the expression tree of an infix expression (precedence climbing).
 // Evaluation is left to the tree, so that it can be redone when an operand changes.
 export class PrattParser {
     private readonly input: string;
     private pos: number = 0;
+    private operators: number = 0;
+    private nesting: number = 0;
 
     constructor(input: string) {
         this.input = input;
@@ -64,6 +72,7 @@ export class PrattParser {
                 break;
 
             this.pos += operator.length;
+            this.countOperator();
             const right = this.parseExpression(PRECEDENCE[operator] + 1);
             left = ExpressionNode.binary(operator, left, right);
         }
@@ -85,15 +94,20 @@ export class PrattParser {
             }
 
             this.pos++;
+            this.countOperator();
             return ExpressionNode.unary('-', this.parsePrimary());
         }
 
         if (char === '~') {
             this.pos++;
+            this.countOperator();
             return ExpressionNode.unary('~', this.parsePrimary());
         }
 
         if (char === '(') {
+            if (++this.nesting > MAX_NESTING)
+                throw new Error(`Parentheses can be nested to at most ${MAX_NESTING} levels.`);
+
             this.pos++;
             const inner = this.parseExpression(0);
 
@@ -102,6 +116,7 @@ export class PrattParser {
                 throw new Error(this.formatParseError("Expected closing parenthesis", this.pos));
 
             this.pos++;
+            this.nesting--;
             return inner;
         }
 
@@ -111,6 +126,11 @@ export class PrattParser {
 
         this.pos += literal.length;
         return this.leaf(literal);
+    }
+
+    private countOperator() {
+        if (++this.operators > MAX_OPERATORS)
+            throw new Error(`An expression can have at most ${MAX_OPERATORS} operators.`);
     }
 
     private leaf(literal: string): ExpressionNode {
