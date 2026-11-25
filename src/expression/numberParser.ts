@@ -40,7 +40,7 @@ class NumberParser {
         
         return {
             value: value,
-            base: getBase(normalized),
+            base: getBase(m[1]),
             input: input
         }
     };
@@ -83,10 +83,12 @@ function getSizeBySuffix(suffix: string, value : bigint, signed: boolean, isNega
     }
 }
 
-function getBase(input: string): NumberBase {
+// The prefix of the digits gives the base. "0b" in a different position is not
+// a prefix: 0x0b is hexadecimal, and 10b is the decimal 10 with the byte suffix.
+function getBase(digits: string): NumberBase {
 
-    if(input.indexOf('0b') > -1) return 'bin';
-    if(input.indexOf('0x') > -1) return 'hex';
+    if(digits.startsWith('0b')) return 'bin';
+    if(digits.startsWith('0x')) return 'hex';
     return 'dec';
 }
 

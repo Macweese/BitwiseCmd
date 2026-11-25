@@ -92,6 +92,17 @@ describe("parser", () => {
         expect(number.input).toBe('0b0110');
     });
 
+    it('reads the base from the prefix of the number', () => {
+        expect(numberParser.parse('0x0b').base).toBe('hex');
+        expect(numberParser.parse('0x10b').base).toBe('hex');
+        expect(numberParser.parse('-0x0b').base).toBe('hex');
+        expect(numberParser.parse('0x0bul').base).toBe('hex');
+        expect(numberParser.parse('10b').base).toBe('dec');
+        expect(numberParser.parse('0b').base).toBe('dec');      // zero with the byte suffix
+        expect(numberParser.parse('0b10b').base).toBe('bin');
+        expect(numberParser.parse('-0b10').base).toBe('bin');
+    });
+
     it('returns null on bad inputs', () => {
         expect(numberParser.caseParse('abc')).toBe(false);
         expect(numberParser.caseParse('')).toBe(false);
