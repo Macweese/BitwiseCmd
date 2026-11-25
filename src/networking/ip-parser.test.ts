@@ -3,6 +3,13 @@ import { IpAddressWithSubnetMask, IpAddress, SubnetCommand, VpcCommand } from ".
 
 
 describe('parser tests', () => {
+    it('permits 256 IP addresses and rejects 257', () => {
+        const addresses = (n: number) => Array.from({ length: n }, (_, i) => `10.0.${i >> 8}.${i & 255}`).join(' ');
+
+        expect((ipAddressParser.parse(addresses(256)) as ParsedIpObject[]).length).toBe(256);
+        expect((ipAddressParser.parse(addresses(257)) as ParsingError).errorMessage).toBe('A list can have at most 256 IP addresses.');
+    });
+
     it.each(['5 & 3', '1 2 3', 'vpc', 'subnet 10', 'help'])('gives null for an input without a dot: %s', (input) => {
         expect(ipAddressParser.parse(input)).toBe(null);
     });

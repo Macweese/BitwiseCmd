@@ -11,6 +11,10 @@ export type ParsingResult = ParsedIpObject[] |
 const CMD_SUBNET = 'subnet';
 const CMD_VPC = 'vpc';
 
+// The result shows one or two rows for each address, and each row takes time to render.
+// With 256 addresses, a result took about 90 ms in Chrome.
+export const MAX_IP_ADDRESSES = 256;
+
 const ipAddressParser = {
     parse: function(input: string) : ParsingResult {
 
@@ -27,6 +31,9 @@ const ipAddressParser = {
 
         if(correctInputs.length === 0)
             return null;
+
+        if(matches.length > MAX_IP_ADDRESSES)
+            return new ParsingError(`A list can have at most ${MAX_IP_ADDRESSES} IP addresses.`);
 
         if(incorrectInputs.length > 0) {
                 return new ParsingError(`Value(s) ${incorrectInputs.map(v => v.input).join(',')} was not recognized as valid ip address or ip address with a subnet mask`);
