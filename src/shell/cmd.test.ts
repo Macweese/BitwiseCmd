@@ -80,3 +80,35 @@ describe("commands from a link", () => {
         expect(errors).toEqual([]);
     });
 });
+
+describe("the limit of the input length", () => {
+    function shellWithHandler() {
+        const sut = new CmdShell();
+        const handled: string[] = [];
+        const errors: { input: string, message: string }[] = [];
+        sut.command({ canHandle: () => true, handle: (c: { input: string }) => { handled.push(c.input); } });
+        sut.onError((input, err) => errors.push({ input, message: err.message }));
+        return { sut, handled, errors };
+    }
+
+    it("permits 20,000 characters", () => {
+        const { sut, handled, errors } = shellWithHandler();
+
+        sut.execute("1".repeat(20000));
+
+        expect(handled).toHaveLength(1);
+        expect(errors).toEqual([]);
+    });
+
+    it("rejects a longer input and shows only its start", () => {
+        const { sut, handled, errors } = shellWithHandler();
+
+        sut.execute("1".repeat(1000000));
+
+        expect(handled).toEqual([]);
+        expect(errors).toEqual([{
+            input: "1".repeat(100) + "…",
+            message: "The input has 1,000,000 characters. An input can have at most 20,000 characters.",
+        }]);
+    });
+});

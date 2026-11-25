@@ -6,6 +6,10 @@ export type CommandInput = {
     options: CommandOptions
 }
 
+// A list of 256 64-bit numbers in binary, the longest list that the expression module permits,
+// has about 17,000 characters
+export const MAX_INPUT_LENGTH = 20000;
+
 export type CommandOptions = {
     doNotTrack: boolean;
     // The command comes from the link that opened the page, not from the user
@@ -47,6 +51,15 @@ export class CmdShell {
         const resolvedOps = ops ?? Object.assign({}, DEFAULT_COMMAND_OPTIONS);
 
         const input = rawInput.trim().toLowerCase();
+
+        // The other limits are for each type of input. This one is for the work that each
+        // character causes, for example to parse a literal with a million digits.
+        if(input.length > MAX_INPUT_LENGTH) {
+            const shown = input.substring(0, 100) + '…';
+            this.handleError(shown, new Error(`The input has ${input.length.toLocaleString('en-US')} characters. An input can have at most ${MAX_INPUT_LENGTH.toLocaleString('en-US')} characters.`));
+            return;
+        }
+
         const handler = this.findHandler(input);
 
         // Somebody else can make a link. Thus a link runs only the commands that cannot change
