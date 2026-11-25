@@ -11,6 +11,8 @@ import { faArrowRotateLeft as iconUndo } from '@fortawesome/free-solid-svg-icons
 import { faCircleQuestion as iconTip } from '@fortawesome/free-regular-svg-icons';
 import loglevel from 'loglevel';
 import IconWithToolTip from '../../shell/components/IconWithTooltip';
+import { WarningTriangleIcon } from '../../core/components/icons';
+import { OperandWarning } from '../warnings';
 
 type BitwiseResultViewProps = {
     expression: Expression;
@@ -83,6 +85,7 @@ export default class BitwiseResultView extends React.Component<BitwiseResultView
                     allowFlipBits={item.allowFlipBits}
                     allowSignChange={allowSignChange}
                     expressionItem={item.expressionElement}
+                    warnings={item.warnings}
                     emphasizeBytes={this.props.emphasizeBytes}
                     maxNumberOfBits={finalMaxBits}
                     annotateTypes={this.props.annotateTypes}
@@ -108,6 +111,7 @@ type ExpressionElementRowProps = {
     allowFlipBits: boolean,
     allowSignChange: boolean,
     expressionItem: ExpressionElement,
+    warnings: OperandWarning[],
     onValueChanged: any,
     annotateTypes: boolean,
     expression: Expression,
@@ -152,6 +156,7 @@ class ExpressionElementTableRow extends React.Component<ExpressionElementRowProp
             <td className="info accent1" data-test-name='ignore'>{this.props.annotateTypes ? this.getInfo() : null}</td>
             <td className='tooltips' data-test-name='ignore'>
                 {this.getTooltips(scalar.value)}
+                {this.getWarnings()}
             </td>
             <td className='undo' data-test-name='ignore'>
                 {this.getUndoButton()}
@@ -179,6 +184,25 @@ class ExpressionElementTableRow extends React.Component<ExpressionElementRowProp
         }
 
         return null;
+    }
+
+    // A triangle for an operation on this row that a program can do differently
+    getWarnings(): React.ReactNode {
+        const { warnings } = this.props;
+
+        if (warnings.length === 0)
+            return null;
+
+        return (
+            <IconWithToolTip icon={<WarningTriangleIcon label="Warning" />} className='warning'>
+                {warnings.map((warning, i) => (
+                    <React.Fragment key={i}>
+                        <div className='accent1 tooltip-header'>{warning.title}</div>
+                        <p>{warning.text}</p>
+                    </React.Fragment>
+                ))}
+            </IconWithToolTip>
+        );
     }
 
     getUndoButton(): React.ReactNode {

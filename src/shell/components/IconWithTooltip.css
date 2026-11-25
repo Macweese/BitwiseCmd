@@ -13,8 +13,27 @@
     opacity: 0.6;
 }
 
+/* The user must see a warning without a search for it */
+.tooltip-holder.warning .tooltip-icon {
+    opacity: 1;
+}
+
+/* The triangle has a margin inside its box, and thus it looks smaller than the other icons.
+   Draw it larger in the same space. The negative margin keeps the height of the row. */
+.tooltip-holder.warning .glyph {
+    width: 1.13em;
+    height: 1.13em;
+    margin: -0.065em;
+}
+
+.tooltip-holder .tooltip p + .tooltip-header {
+    margin-top: 10px;
+}
+
 .tooltip-holder .tooltip {
     display: none;
+    /* A tooltip is in the cell of the icons, which does not let text wrap */
+    white-space: normal;
     font-size: 0.9em;
     position: fixed;
     width: 300px;
@@ -32,6 +51,8 @@
 .tooltip-holder .tooltip .tooltip-header {
     font-weight: bold;
     margin-bottom: 5px;
+    /* The accent colour class does not let text wrap. A header must wrap in the width of the tooltip. */
+    white-space: normal;
 }
 
 .tooltip-holder:hover .tooltip {

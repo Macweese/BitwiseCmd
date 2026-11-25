@@ -1,6 +1,7 @@
 import { Operand, ListOfNumbers, BitwiseOperation, Operator } from '../expression';
 import { ExpressionElement, Expression } from '../expression-interfaces';
 import { ExpressionNode } from '../ExpressionTree';
+import { OperandWarning } from '../warnings';
 import calc from '../../core/calc';
 import formatter from '../../core/formatter';
 
@@ -18,6 +19,7 @@ type ExpressionRowModel = {
     label: string;
     maxBitSize: number;
     isFinalResult: boolean;
+    warnings: OperandWarning[];
 }
 
 export default class BitwiseResultViewModel {
@@ -70,7 +72,8 @@ export default class BitwiseResultViewModel {
             if (node.type === 'unary') {
                 const childValue = emitNode(node.leftChild!);
                 const result = node.evaluate();
-                m.addOperatorRow(new Operator(childValue, node.operator!), node.leftChild!.type === 'operand');
+                // This row shows the operand of the row above again. The row above shows the warnings.
+                m.addOperatorRow(new Operator(childValue, node.operator!), node.leftChild!.type === 'operand', []);
                 m.addExpressionResultRow(result);
                 return result;
             }
@@ -119,10 +122,11 @@ export default class BitwiseResultViewModel {
             label: '',
             maxBitSize: expr.value.maxBitSize,
             isFinalResult: false,
+            warnings: expr.warnings,
         });
     };
 
-    addOperatorRow(expr: Operator, allowFlipBits: boolean = true) {
+    addOperatorRow(expr: Operator, allowFlipBits: boolean = true, warnings?: OperandWarning[]) {
 
         const resultNumber = expr.getUnderlyingOperand();
         const bits = this.calcMaxNumberOfBits(resultNumber);
@@ -137,6 +141,7 @@ export default class BitwiseResultViewModel {
             allowFlipBits: this.allowFlipBits && allowFlipBits,
             maxBitSize: resultNumber.value.maxBitSize,
             isFinalResult: false,
+            warnings: warnings ?? resultNumber.warnings,
         });
     };
 
@@ -152,6 +157,8 @@ export default class BitwiseResultViewModel {
             label: '',
             maxBitSize: resultExpr.value.maxBitSize,
             isFinalResult: false,
+            // The shift count does not have its own row
+            warnings: [...child.warnings, ...resultExpr.warnings],
         });
     };
 
@@ -168,6 +175,7 @@ export default class BitwiseResultViewModel {
             label: '',
             maxBitSize: expr.value.maxBitSize,
             isFinalResult: false,
+            warnings: expr.warnings,
         });
     };
 

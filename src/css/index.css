@@ -179,6 +179,11 @@ a.hashLink { font-size: 1.1em;}
 .expression .prefix { font-weight: normal; display: none; font-size: 0.9em }
 .expression .other { font-size: 0.9em; }
 .expression .tooltips { min-width: 20px; } /* room for the icon, so that rows don't jump when one appears */
+/* The icons of a row stay on one line, also when the table is as wide as the window */
+.expression .tooltips { white-space: nowrap; }
+/* Each icon has one slot. Thus the icons of all rows are in a line. */
+.expression .tooltips .tooltip-icon { display: inline-block; width: 20px; text-align: center; }
+.expression .tooltips .tooltip-holder + .tooltip-holder { margin-left: 2px; }
 .expression .operator { text-align: right; padding-right: 5px; }
 /* Keep the columns from jumping between rows of different widths; the widths are tuned to the monospace font */
 .expression .row-with-bits .operator { min-width: 133px; }

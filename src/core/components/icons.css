@@ -1,0 +1,6 @@
+/* A glyph has the box of a letter, as the icons of the icon font have */
+.glyph {
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.125em;
+}

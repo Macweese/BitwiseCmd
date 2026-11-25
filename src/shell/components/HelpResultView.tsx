@@ -122,6 +122,11 @@ function HelpResultView() {
                         This is why <code><CommandLink text='127b + 1b' /></code> is 128 and <code><CommandLink text='~0ub' /></code> is -1.
                         Mask the result to keep it within a byte: <span className="no-break"><code><CommandLink text='~0x0fub & 0xff' /></code></span>.
                     </p>
+                    <p>
+                        A warning triangle next to a row marks what a program may do differently: an overflow, an automatic conversion,
+                        a number that is 64 bits wide because of its value, or a shift count out of range. Hover over it to read how other languages treat the case.
+                        Try <code><CommandLink text='2147483647 + 1' /></code> or <code><CommandLink text='1 << 33' /></code>.
+                    </p>
                 </div>
                 <div className="section">
                     <strong className="section-title soft">Tip</strong>

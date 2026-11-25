@@ -34,6 +34,7 @@
     --top-links-color:          #4169e1;
     --top-links-hover-color:    #0000cd;
     --top-links-li-hover-bg:    #e8f1ff;
+    --warning-color:            #c25400;
     --zero-color:               #cd853f;
 }
 .app-root.emacs {

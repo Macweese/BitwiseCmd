@@ -48,3 +48,30 @@ it('pads every row to the same number of bits', () => {
     const widths = screen.getAllByRole('row').map(row => (within(row).getAllByRole('cell')[2].textContent || '').length);
     expect(widths).toEqual([32, 32, 32]);
 });
+
+describe('warnings', () => {
+    it('show a triangle with the explanation on the row they are about', () => {
+        renderResult('127b + 1b', false);
+
+        const rows = screen.getAllByRole('row');
+        expect(within(rows[2]).getByRole('img', { name: "Warning" })).toBeInTheDocument();
+        expect(within(rows[0]).queryByRole('img', { name: "Warning" })).not.toBeInTheDocument();
+        expect(within(rows[2]).getByText("Does not fit the type of its operands")).toBeInTheDocument();
+        expect(within(rows[2]).getByText(/stored back into an 8-bit signed integer it would be -128/)).toBeInTheDocument();
+        expect(within(rows[0]).queryByText(/Does not fit/)).not.toBeInTheDocument();
+    });
+
+    it('list every warning of a row', () => {
+        renderResult('1b << 40', false);
+
+        const shift = screen.getAllByRole('row')[1];
+        expect(within(shift).getByText("Shift count out of range")).toBeInTheDocument();
+        expect(within(shift).getByText("Does not fit the type of its operand")).toBeInTheDocument();
+    });
+
+    it('are absent where there is nothing to warn about', () => {
+        renderResult('1 + 2', false);
+
+        expect(screen.queryByText(/Overflow|Converted|Shift count|Does not fit|64-bit number/)).not.toBeInTheDocument();
+    });
+});

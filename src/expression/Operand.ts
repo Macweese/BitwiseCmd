@@ -2,6 +2,7 @@ import { ExpressionElement } from './expression-interfaces';
 import { NumberBase } from '../core/formatter';
 import { INT64_MAX_VALUE, INT64_MIN_VALUE, UINT64_MAX_VALUE } from '../core/const';
 import { Integer, JsNumber, isInteger, asInteger } from '../core/Integer';
+import { OperandWarning } from './warnings';
 
 var globalId : number = 1;
 
@@ -13,6 +14,7 @@ export default class Operand implements ExpressionElement {
     base: NumberBase;
     isOperator: boolean;
     label: string;
+    warnings: OperandWarning[];
 
     constructor(value : Integer | JsNumber, base?: NumberBase) {
 
@@ -27,6 +29,7 @@ export default class Operand implements ExpressionElement {
         this.base = base || "dec";
         this.isOperator = false; 
         this.label = '';       
+        this.warnings = [];
     }
   
     setValue(value : Integer) : Operand {
@@ -36,6 +39,11 @@ export default class Operand implements ExpressionElement {
 
     setLabel(label : string) : Operand {
         this.label = label;
+        return this;
+    }
+
+    addWarnings(...warnings : OperandWarning[]) : Operand {
+        this.warnings.push(...warnings);
         return this;
     }
 

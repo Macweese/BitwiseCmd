@@ -88,6 +88,9 @@
     background-color: color-mix(in srgb, var(--panel-bg-color) 65%, transparent);
 }
 
+/* Orange on a dark background. A light theme sets a darker orange. */
+.app-root .tooltip-holder.warning .tooltip-icon { color: var(--warning-color, rgb(255, 131, 0)); }
+
 .app-root .help code,
 .app-root .help code a {
     color: var(--help-code-color);

@@ -51,6 +51,26 @@ describe('BitwiseResultViewModel', () => {
         expect(rows('~0ub')).toEqual(['0', '~0', '=-1']);
     });
 
+    it('puts a warning on the row it is about', () => {
+        const kinds = (input: string) =>
+            BitwiseResultViewModel.createModel(parser.parse(input)!, false, false).items.map(i => i.warnings.map(w => w.kind));
+
+        expect(kinds('1 + 2')).toEqual([[], [], []]);
+        expect(kinds('127b + 1b')).toEqual([[], [], ['promotion']]);
+        expect(kinds('1b + 2')).toEqual([['conversion'], [], []]);
+        expect(kinds('2 + 1b')).toEqual([[], ['conversion'], []]);
+        expect(kinds('-(2147483648)')).toEqual([['literal'], [], []]);
+        expect(kinds('-(-2147483648)')).toEqual([[], [], ['overflow']]);
+        expect(kinds('1 << 33')).toEqual([[], ['shift']]);
+
+        // The operator row of ~ shows the operand of the row above again. A shift count has no row.
+        expect(kinds('~(2147483648)')).toEqual([['literal'], [], []]);
+        expect(kinds('1 << 4294967296')).toEqual([[], ['literal', 'shift']]);
+
+        // The next operation converts an intermediate result: rows 1, +2, =3, +3, =6
+        expect(kinds('(1 + 2) + 3l')).toEqual([[], [], ['conversion'], [], []]);
+    });
+
     it('marks the final result', () => {
         const model = BitwiseResultViewModel.createModel(parser.parse('1 + 2 * 3')!, false, false);
         expect(model.items.map(i => i.isFinalResult)).toEqual([false, false, false, false, false, true]);

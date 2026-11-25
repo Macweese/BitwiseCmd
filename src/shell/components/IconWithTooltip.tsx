@@ -1,10 +1,12 @@
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useRef, useState } from "react";
+import React, { isValidElement, useRef, useState } from "react";
 import "./IconWithTooltip.css";
 
 export type IconWithToolTipProps = {
-    icon: IconProp
+    // An icon of the icon font, or one of our glyphs
+    icon: IconProp | React.ReactElement,
+    className?: string
 }
 
 function IconWithToolTip (props: React.PropsWithChildren<IconWithToolTipProps>)  {
@@ -78,9 +80,9 @@ function IconWithToolTip (props: React.PropsWithChildren<IconWithToolTipProps>) 
         setTooltipStyle({ visibility: 'hidden' });
     };
 
-    return <div className='tooltip-holder' onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+    return <div className={props.className ? 'tooltip-holder ' + props.className : 'tooltip-holder'} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
         <span className="tooltip-icon" ref={iconRef}>
-            <FontAwesomeIcon icon={props.icon} />
+            {isValidElement(props.icon) ? props.icon : <FontAwesomeIcon icon={props.icon} />}
         </span>
 
         <div

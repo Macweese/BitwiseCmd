@@ -2,6 +2,7 @@ import calc from '../core/calc';
 import { Integer } from '../core/Integer';
 import Operand from './Operand';
 import { ExpressionElement } from './expression-interfaces';
+import { binaryWarnings, conversionWarning } from './warnings';
 
 export default class Operator implements ExpressionElement {
     operand: ExpressionElement;
@@ -61,6 +62,7 @@ function applyNotOperator(operand: Operand) : Operand {
 function applyOperator(op1 : Operand, operator: string, op2 : Operand) : Operand {
     
     const isShift = /<|>/.test(operator);
+    const narrowType = commonNarrowType(op1.value, isShift ? null : op2.value);
 
     if(isShift)
     {
@@ -84,7 +86,19 @@ function applyOperator(op1 : Operand, operator: string, op2 : Operand) : Operand
     }
 
     const result = calc.operation(op1.value, operator, op2.value);
-    return new Operand(result, op2.base);
+
+    return new Operand(result, op2.base)
+        .addWarnings(...binaryWarnings(op1.value, operator, op2.value, result, narrowType));
+}
+
+// The type that the user typed for the operands, if it is narrower than int and the
+// same for all operands. A reader can expect the result to have this type.
+function commonNarrowType(n1: Integer, n2: Integer | null) : Integer | null {
+
+    if(n1.maxBitSize >= 32) return null;
+    if(n2 !== null && (n2.maxBitSize !== n1.maxBitSize || n2.signed !== n1.signed)) return null;
+
+    return n1;
 }
 
 function equalizeSize(op1: Operand, op2: Operand) {
@@ -103,7 +117,14 @@ function equalizeSize(op1: Operand, op2: Operand) {
     }
     
     if(n1.maxBitSize > n2.maxBitSize) 
-        op2.setValue(n2.convertTo(n1)).setLabel("converted");
+        convert(op2, n1);
     else 
-        op1.setValue(n1.convertTo(n2)).setLabel("converted");
+        convert(op1, n2);
+}
+
+function convert(operand: Operand, type: Integer) {
+    const before = operand.value;
+    const after = before.convertTo(type);
+
+    operand.setValue(after).setLabel("converted").addWarnings(conversionWarning(before, after));
 }

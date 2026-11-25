@@ -26,6 +26,10 @@ function WhatsNewResultView() {
                     <code><CommandLink text="127b + 1b" /></code> is 128 and signed and unsigned ones can be mixed: <code><CommandLink text="255ub + 1b" /></code>.
                 </li>
                 <li>A number that does not fit its type, such as <code>200b</code>, is reported as an error instead of being shown with the wrong bits.</li>
+                <li>
+                    A warning triangle marks what a program may do differently (an overflow, an automatic conversion, a shift count out of range)
+                    and says how other languages treat it: <code><CommandLink text="2147483647 + 1" /></code>.
+                </li>
                 <li>Errors in an expression point at the offending position.</li>
                 <li>Four new themes: <CommandLink text="github" />, <CommandLink text="helix" />, <CommandLink text="emacs" /> and <CommandLink text="sakura" />.</li>
                 <li>New commands: <CommandLink text="tip" /> for tips and trivia, <CommandLink text="max" /> and <CommandLink text="min" /> for the limits of the integer types, and <CommandLink text="incognito" /> to turn analytics tracking off.</li>

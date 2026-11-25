@@ -2,6 +2,7 @@ import Operand from './Operand';
 import Operator, { promote } from './Operator';
 import calc from '../core/calc';
 import { Integer } from '../core/Integer';
+import { unaryWarnings } from './warnings';
 
 export type ExpressionNodeType = 'operand' | 'operation' | 'unary';
 
@@ -49,9 +50,13 @@ export class ExpressionNode {
                 return this.operand!;
 
             case 'unary': {
-                const child = promote(this.leftChild!.evaluate());
+                const operand = this.leftChild!.evaluate();
+                const narrowType = operand.value.maxBitSize < 32 ? operand.value : null;
+                const child = promote(operand);
                 const value = this.operator === '~' ? calc.not(child.value) : calc.negate(child.value);
-                return new Operand(value, child.base);
+
+                return new Operand(value, child.base)
+                    .addWarnings(...unaryWarnings(this.operator!, child.value, value, narrowType));
             }
 
             default:
@@ -65,7 +70,8 @@ export class ExpressionNode {
         if (this.type === 'operand') {
             if (this.operand!.id !== operandId) return false;
 
-            this.operand!.setValue(newValue);
+            // The warnings were about the number that the user typed
+            this.operand!.setValue(newValue).warnings = [];
             this.cachedResult = null;
             return true;
         }
