@@ -57,7 +57,7 @@ describe('warnings', () => {
         expect(within(rows[2]).getByRole('img', { name: "Warning" })).toBeInTheDocument();
         expect(within(rows[0]).queryByRole('img', { name: "Warning" })).not.toBeInTheDocument();
         expect(within(rows[2]).getByText("Does not fit the type of its operands")).toBeInTheDocument();
-        expect(within(rows[2]).getByText(/stored back into an 8-bit signed integer it would be -128/)).toBeInTheDocument();
+        expect(within(rows[2]).getByText((_, e) => e?.tagName === 'P' && /stored back into an 8-bit signed integer it would be -128\./.test(e.textContent || ''))).toBeInTheDocument();
         expect(within(rows[0]).queryByText(/Does not fit/)).not.toBeInTheDocument();
     });
 
@@ -67,6 +67,13 @@ describe('warnings', () => {
         const shift = screen.getAllByRole('row')[1];
         expect(within(shift).getByText("Shift count out of range")).toBeInTheDocument();
         expect(within(shift).getByText("Does not fit the type of its operand")).toBeInTheDocument();
+    });
+
+    it('show each value of the explanation in its own element', () => {
+        renderResult('-1 + 1ul', false);
+
+        const values = within(screen.getAllByRole('row')[0]).getAllByText(/^-?\d+$/, { selector: 'strong' }).map(e => e.textContent);
+        expect(values).toEqual(['-1', '4294967295', '18446744073709551615']);
     });
 
     it('are absent where there is nothing to warn about', () => {

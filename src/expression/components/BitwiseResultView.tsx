@@ -198,11 +198,26 @@ class ExpressionElementTableRow extends React.Component<ExpressionElementRowProp
                 {warnings.map((warning, i) => (
                     <React.Fragment key={i}>
                         <div className='accent1 tooltip-header'>{warning.title}</div>
-                        <p>{warning.text}</p>
+                        <p>{this.emphasizeValues(warning)}</p>
                     </React.Fragment>
                 ))}
             </IconWithToolTip>
         );
+    }
+
+    // The text of a warning, with each value in its own element
+    emphasizeValues({ text, values }: OperandWarning): React.ReactNode[] {
+        const parts: React.ReactNode[] = [];
+        let position = 0;
+
+        values.forEach(([start, end]) => {
+            parts.push(text.substring(position, start));
+            parts.push(<strong key={start} className='tooltip-value'>{text.substring(start, end)}</strong>);
+            position = end;
+        });
+        parts.push(text.substring(position));
+
+        return parts;
     }
 
     getUndoButton(): React.ReactNode {

@@ -55,6 +55,16 @@
     white-space: normal;
 }
 
+/* A value in a tooltip. One click selects it, and then the user can copy it.
+   The user cannot select the other text of a tooltip. */
+.tooltip-holder .tooltip .tooltip-value {
+    padding: 0 3px;
+    border-radius: 3px;
+    background-color: color-mix(in srgb, currentColor 15%, transparent);
+    user-select: all;
+    cursor: text;
+}
+
 .tooltip-holder:hover .tooltip {
     display: block;
 }

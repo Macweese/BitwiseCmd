@@ -3,6 +3,7 @@ import BitwiseOperation from './BitwiseOperation';
 import ListOfNumbers from './ListOfNumbers';
 import calc from '../core/calc';
 import { Integer } from '../core/Integer';
+import { OperandWarning } from './warnings';
 
 // The kinds of the warnings on the operands, in the sequence of the input, and on the result
 function warnings(input: string) {
@@ -71,7 +72,7 @@ describe('warnings', () => {
         expect(warnings('1 + 2l').operands).toEqual([['conversion'], []]);
         expect(warnings('1us + 2ul').operands).toEqual([['conversion'], []]);
 
-        expect(operandWarning('1b + 2', 0)).toEqual({
+        expect(operandWarning('1b + 2', 0)).toMatchObject({
             kind: 'conversion',
             title: "Converted",
             text: "This number was an 8-bit signed integer. It was converted to a 32-bit signed integer to match the other operand; its value is the same. "
@@ -80,7 +81,7 @@ describe('warnings', () => {
     });
 
     it('says so when a conversion changed the value', () => {
-        expect(operandWarning('-1 + 1ul', 0)).toEqual({
+        expect(operandWarning('-1 + 1ul', 0)).toMatchObject({
             kind: 'conversion',
             title: "Converted, value changed",
             text: "As a 32-bit signed integer this number is -1. Converted to a 64-bit unsigned integer to match the other operand, it is 4294967295: "
@@ -102,7 +103,7 @@ describe('warnings', () => {
         expect(warnings('255ub + 1b').result).toEqual([]);
         expect(warnings('127b + 1s').result).toEqual([]);
 
-        expect(resultWarning('127b + 1b')).toEqual({
+        expect(resultWarning('127b + 1b')).toMatchObject({
             kind: 'promotion',
             title: "Does not fit the type of its operands",
             text: "This result does not fit an 8-bit signed integer, the type of its operands. C, C++, C# and Java compute it on 32-bit integers, as shown here; "
@@ -153,5 +154,42 @@ describe('warnings', () => {
 
         expr.tree.updateOperand(left.id, Integer.long('9223372036854775807'));
         expect(expr.evaluate().warnings.map(w => w.kind)).toEqual(['overflow']);
+    });
+});
+
+describe('values of a warning', () => {
+    // The parts of the text that the tooltip shows with emphasis
+    const values = (w: OperandWarning) => w.values.map(([start, end]) => w.text.substring(start, end));
+
+    it('are the exact result and the wrapped result of an overflow', () => {
+        expect(values(resultWarning('2147483647 + 1'))).toEqual(['2147483648', '-2147483648']);
+        expect(values(resultWarning('-(1u)'))).toEqual(['-1', '4294967295']);
+    });
+
+    it('are the values before and after a conversion, and the value in C', () => {
+        expect(values(operandWarning('-1 + 1ul', 0))).toEqual(['-1', '4294967295', '18446744073709551615']);
+        expect(values(operandWarning('-1b & 4294967295u', 0))).toEqual(['-1', '255', '4294967295']);
+        expect(values(operandWarning('1b + 2', 0))).toEqual([]);
+    });
+
+    it('is the result in the type of the operands for a promotion', () => {
+        expect(values(resultWarning('127b + 1b'))).toEqual(['-128']);
+    });
+
+    it('are the shift count and the count after the reduction', () => {
+        expect(values(resultWarning('1 << 33'))).toEqual(['33', '1']);
+        expect(values(resultWarning('1 << -1'))).toEqual(['-1', '31']);
+    });
+
+    it('is the value that Java reads from the same digits', () => {
+        expect(values(operandWarning('0xFFFFFFFF >> 1', 0))).toEqual(['-1']);
+        expect(values(operandWarning('-(2147483648)', 0))).toEqual([]);
+    });
+
+    it('have the position of the value, not of an equal number in the text', () => {
+        const warning = resultWarning('1 << 32');
+
+        expect(warning.text).toContain("The shift count 32 is not smaller than the width of the shifted number (32 bits). It is reduced modulo 32 to 0");
+        expect(warning.values).toEqual([[16, 18], [warning.text.indexOf('to 0') + 3, warning.text.indexOf('to 0') + 4]]);
     });
 });

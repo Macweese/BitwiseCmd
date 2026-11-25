@@ -17,6 +17,38 @@ export interface OperandWarning {
     kind: WarningKind;
     title: string;
     text: string;
+    // The positions in the text of the values that the tooltip shows with emphasis: [start, end)
+    values: [number, number][];
+}
+
+type Value = { value: string };
+type Message = Pick<OperandWarning, 'text' | 'values'>;
+
+// A number that the tooltip shows with emphasis, and that the user can select and copy
+const value = (v: bigint) : Value => ({ value: v.toString() });
+
+// Makes the text of a warning from a template, and records the position of each value in it.
+// A part of the template can be a message. Its values keep their emphasis.
+function message(strings: TemplateStringsArray, ...parts: (string | bigint | Value | Message)[]) : Message {
+    let text = strings[0];
+    const values: [number, number][] = [];
+
+    parts.forEach((part, i) => {
+        if(typeof part === 'object' && 'value' in part) {
+            values.push([text.length, text.length + part.value.length]);
+            text += part.value;
+        }
+        else if(typeof part === 'object') {
+            part.values.forEach(([start, end]) => values.push([text.length + start, text.length + end]));
+            text += part.text;
+        }
+        else
+            text += part;
+
+        text += strings[i + 1];
+    });
+
+    return { text, values };
 }
 
 type IntegerType = { maxBitSize: number, signed: boolean };
@@ -35,27 +67,27 @@ const wrap = (value: bigint, type: IntegerType) : bigint =>
 
 // A number without a suffix gets the smallest type that can contain its value, as in C.
 // Other languages reject such a number, or read the same digits as a 32-bit number.
-export function literalWarning(literal: string, value: Integer, base: NumberBase) : OperandWarning | null {
+export function literalWarning(literal: string, number: Integer, base: NumberBase) : OperandWarning | null {
 
-    const typedByValue = value.maxBitSize === 64 && value.signed && !/l$/i.test(literal);
+    const typedByValue = number.maxBitSize === 64 && number.signed && !/l$/i.test(literal);
     if(!typedByValue) return null;
 
-    const negative = value.value < 0;
-    const fitsUnsigned32 = value.abs().value <= BigInt(UINT32_MAX_VALUE);
-    let other = "Java does not accept it without the L suffix.";
+    const negative = number.value < 0;
+    const fitsUnsigned32 = number.abs().value <= BigInt(UINT32_MAX_VALUE);
+    let other = message`Java does not accept it without the L suffix.`;
 
     if(base === 'dec' && !negative && fitsUnsigned32)
-        other = "Java does not accept it without the L suffix, and C# reads it as an unsigned 32-bit integer.";
+        other = message`Java does not accept it without the L suffix, and C# reads it as an unsigned 32-bit integer.`;
 
     if(base !== 'dec' && fitsUnsigned32)
         other = negative
-            ? "Java, C and C++ read its digits as a 32-bit number and negate that, which gives a different value."
-            : `In Java the same digits are the 32-bit integer ${BigInt.asIntN(32, value.value)}; in C, C++ and C# they are an unsigned 32-bit integer.`;
+            ? message`Java, C and C++ read its digits as a 32-bit number and negate that, which gives a different value.`
+            : message`In Java the same digits are the 32-bit integer ${value(BigInt.asIntN(32, number.value))}; in C, C++ and C# they are an unsigned 32-bit integer.`;
 
     return {
         kind: 'literal',
         title: "64-bit number",
-        text: `This number does not fit a 32-bit signed integer, so it is a 64-bit one here. ${other}`
+        ...message`This number does not fit a 32-bit signed integer, so it is a 64-bit one here. ${other}`
     };
 }
 
@@ -66,19 +98,21 @@ export function conversionWarning(before: Integer, after: Integer) : OperandWarn
             kind: 'conversion',
             title: "Converted",
             text: `This number was ${typeName(before)}. It was converted to ${typeName(after)} to match the other operand; its value is the same. `
-                + "Most C-family languages do this silently; Rust and Go want the conversion written out."
+                + "Most C-family languages do this silently; Rust and Go want the conversion written out.",
+            values: []
         };
 
     // Only a negative number changes its value. The unsigned target type cannot contain it.
     const signExtended = BigInt.asUintN(after.maxBitSize, before.value);
 
+    const other = after.value === signExtended
+        ? message`, as in C and C++.`
+        : message`: its ${before.maxBitSize.toString()} bits are kept and the rest is filled with zeros. C and C++ extend the sign instead, which gives ${value(signExtended)}.`;
+
     return {
         kind: 'conversion',
         title: "Converted, value changed",
-        text: `As ${typeName(before)} this number is ${before.value}. Converted to ${typeName(after)} to match the other operand, it is ${after.value}`
-            + (after.value === signExtended
-                ? ", as in C and C++."
-                : `: its ${before.maxBitSize} bits are kept and the rest is filled with zeros. C and C++ extend the sign instead, which gives ${signExtended}.`)
+        ...message`As ${typeName(before)} this number is ${value(before.value)}. Converted to ${typeName(after)} to match the other operand, it is ${value(after.value)}${other}`
     };
 }
 
@@ -97,12 +131,13 @@ export function binaryWarnings(left: Integer, operator: string, right: Integer, 
         if(b < 0 || b >= width) {
             const reduced = ((b % width) + width) % width;
 
+            const fault = b < 0 ? "negative" : `not smaller than the width of the shifted number (${width} bits)`;
+            const go = b < 0 ? "Go panics" : "Go shifts every bit out";
+
             warnings.push({
                 kind: 'shift',
                 title: "Shift count out of range",
-                text: `The shift count ${b} is ${b < 0 ? "negative" : `not smaller than the width of the shifted number (${width} bits)`}. `
-                    + `It is reduced modulo ${width} to ${reduced}, as in Java and C#. `
-                    + `In C and C++ this is undefined behaviour, ${b < 0 ? "Go panics" : "Go shifts every bit out"}, and Rust panics in debug builds.`
+                ...message`The shift count ${value(b)} is ${fault}. It is reduced modulo ${width} to ${value(reduced)}, as in Java and C#. In C and C++ this is undefined behaviour, ${go}, and Rust panics in debug builds.`
             });
         }
     }
@@ -147,7 +182,7 @@ function overflowWarning(exact: bigint, result: Integer, operation: 'arithmetic'
     return {
         kind: 'overflow',
         title: "Overflow",
-        text: `The exact result, ${exact}, does not fit ${typeName(result)}. It wrapped around to ${result.value}, ${languages}`
+        ...message`The exact result, ${value(exact)}, does not fit ${typeName(result)}. It wrapped around to ${value(result.value)}, ${languages}`
     };
 }
 
@@ -155,7 +190,6 @@ function promotionWarning(result: Integer, narrowType: IntegerType, operands: st
     return {
         kind: 'promotion',
         title: "Does not fit the type of its " + operands,
-        text: `This result does not fit ${typeName(narrowType)}, the type of its ${operands}. C, C++, C# and Java compute it on 32-bit integers, as shown here; `
-            + `stored back into ${typeName(narrowType)} it would be ${wrap(result.value, narrowType)}. Rust and Go compute in ${narrowType.maxBitSize} bits.`
+        ...message`This result does not fit ${typeName(narrowType)}, the type of its ${operands}. C, C++, C# and Java compute it on 32-bit integers, as shown here; stored back into ${typeName(narrowType)} it would be ${value(wrap(result.value, narrowType))}. Rust and Go compute in ${narrowType.maxBitSize.toString()} bits.`
     };
 }
