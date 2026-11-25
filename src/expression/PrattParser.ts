@@ -1,7 +1,7 @@
 import Operand from './Operand';
 import { numberParser } from './numberParser';
 import { ExpressionNode } from './ExpressionTree';
-import { literalWarning } from './warnings';
+import { literalWarning, negativeUnsignedWarning } from './warnings';
 
 // Binding power of the binary operators, higher binds tighter. Same order as C,
 // C++ and Java; every operator is left-associative.
@@ -116,7 +116,7 @@ export class PrattParser {
     private leaf(literal: string): ExpressionNode {
         const number = numberParser.parse(literal);
         const operand = new Operand(number.value, number.base);
-        const warning = literalWarning(literal, number.value, number.base);
+        const warning = literalWarning(literal, number.value, number.base) ?? negativeUnsignedWarning(literal, number.value);
 
         return ExpressionNode.leaf(warning === null ? operand : operand.addWarnings(warning));
     }

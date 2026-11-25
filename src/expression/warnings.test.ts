@@ -157,6 +157,40 @@ describe('warnings', () => {
     });
 });
 
+describe('negative unsigned numbers', () => {
+    const listWarnings = (input: string) => (parser.parse(input) as ListOfNumbers).children.map(n => n.warnings.map(w => w.kind));
+
+    it.each(['-127ub', '-1u', '-1ul', '-255ub', '-32768us'])('reports %s alone, as a list of one number', (input) => {
+        expect(listWarnings(input)).toEqual([['literal']]);
+    });
+
+    it('reports only the negative unsigned numbers of a list', () => {
+        expect(listWarnings('5 -1u 2147483648 -3')).toEqual([[], ['literal'], [], []]);
+    });
+
+    it('reports a negative unsigned operand of an expression', () => {
+        expect(warnings('-127ub << -31b').operands[0]).toEqual(['literal']);
+        expect(warnings('-1u & 0xffu').operands).toEqual([['literal'], []]);
+    });
+
+    it('does not report a negation of an unsigned number in parentheses, which has its own warnings', () => {
+        expect(warnings('-(1u)').operands).toEqual([[]]);
+    });
+
+    it.each(['-0ub', '127ub', '-127b', '-1'])('has nothing to say about %s', (input) => {
+        expect(listWarnings(input)).toEqual([[]]);
+    });
+
+    it('gives the value that the user typed, the value of the bits and the languages', () => {
+        const warning = (parser.parse('-127ub') as ListOfNumbers).children[0].warnings[0];
+
+        expect(warning.title).toBe("Negative unsigned number");
+        expect(warning.text).toBe("An unsigned type cannot contain -127. The number has the bits of -127, and as an 8-bit unsigned integer these bits are 129. "
+            + "C and C++ give the same value when they convert -127 to this type. C#, Go and Rust reject a negative value for an unsigned type, and Java has no unsigned types.");
+        expect(warning.values.map(([start, end]) => warning.text.substring(start, end))).toEqual(['-127', '-127', '129', '-127']);
+    });
+});
+
 describe('values of a warning', () => {
     // The parts of the text that the tooltip shows with emphasis
     const values = (w: OperandWarning) => w.values.map(([start, end]) => w.text.substring(start, end));

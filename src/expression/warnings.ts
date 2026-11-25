@@ -7,7 +7,7 @@ import { UINT32_MAX_VALUE } from '../core/const';
 // are different there. The statements about C, C++, Java, Rust and Go agree with tests
 // with gcc, javac, rustc and go. The statements about C# agree with its specification.
 export type WarningKind =
-    'literal'       // a number without a suffix that is too large for 32 bits
+    'literal'       // a number without a suffix that is too large for 32 bits, or a negative unsigned number
     | 'conversion'  // an operand converted to the type of the other one
     | 'overflow'    // an arithmetic result that wrapped around
     | 'promotion'   // a result that fits an int but not the narrow type of its operands
@@ -88,6 +88,22 @@ export function literalWarning(literal: string, number: Integer, base: NumberBas
         kind: 'literal',
         title: "64-bit number",
         ...message`This number does not fit a 32-bit signed integer, so it is a 64-bit one here. ${other}`
+    };
+}
+
+// An unsigned number with a minus sign, such as -127ub. The type cannot contain the negative value,
+// thus the number has the bits of that value: -127ub is 129. The user can expect -127.
+export function negativeUnsignedWarning(literal: string, number: Integer) : OperandWarning | null {
+
+    if(number.signed || !literal.trimStart().startsWith('-') || number.value === BigInt(0))
+        return null;
+
+    const typed = number.value - (BigInt(1) << BigInt(number.maxBitSize));
+
+    return {
+        kind: 'literal',
+        title: "Negative unsigned number",
+        ...message`An unsigned type cannot contain ${value(typed)}. The number has the bits of ${value(typed)}, and as ${typeName(number)} these bits are ${value(number.value)}. C and C++ give the same value when they convert ${value(typed)} to this type. C#, Go and Rust reject a negative value for an unsigned type, and Java has no unsigned types.`
     };
 }
 

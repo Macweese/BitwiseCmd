@@ -4,6 +4,7 @@ import BitwiseOperation from './BitwiseOperation';
 import { Expression } from './expression-interfaces';
 import { numberParser } from './numberParser';
 import { PrattParser } from './PrattParser';
+import { negativeUnsignedWarning } from './warnings';
 
 export { default as Operand } from './Operand';
 export { default as Operator } from './Operator';
@@ -93,7 +94,10 @@ function parseScalarValue(input : string) : Operand {
     const n = numberParser.parse(input);
     var sv = new Operand(n.value, n.base);
     if(sv.value.maxBitSize !== n.value.maxBitSize) throw new Error("Gotcha!");
-    return sv;
+
+    // A number in a list gets no other warning: the list does no operation
+    const warning = negativeUnsignedWarning(input, n.value);
+    return warning === null ? sv : sv.addWarnings(warning);
 }
 
 var parser = new ExpressionParser();
