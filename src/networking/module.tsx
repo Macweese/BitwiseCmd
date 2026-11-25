@@ -16,6 +16,7 @@ const networkingAppModule = {
         
         // Add Ip Address commands
         cmd.command({
+            runsFromLink: true,
             canHandle: (input:string) => {
                 const parsed = ipAddressParser.parse(input);
                 return parsed !== null && parsed !== undefined;

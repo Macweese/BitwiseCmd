@@ -24,7 +24,7 @@ log.debug("started");
 
 function executeStartupCommands() {
     log.debug("Executing startup commands", appData.startupCommands);
-    appData.startupCommands.forEach(c => cmd.execute(c, {doNotTrack: true}));
+    appData.startupCommands.forEach(c => cmd.execute(c, {doNotTrack: true, fromLink: appData.fromLink}));
 }
 
 function  initializeModules() {
@@ -34,6 +34,7 @@ function  initializeModules() {
 
     // Last command handler reports that input is unknown
     cmd.command({
+        runsFromLink: true,
         canHandle: () => true,
         handle: (c: CommandInput) => appData.appState.addCommandResult(c.input, () => <UnknownInputResultView input={c.input}/>)
     });

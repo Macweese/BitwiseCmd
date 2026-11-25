@@ -8,6 +8,14 @@ export type CommandInput = {
 
 export type CommandOptions = {
     doNotTrack: boolean;
+    // The command comes from the link that opened the page, not from the user
+    fromLink?: boolean;
+}
+
+export type HandlerOptions = {
+    // A link can run the command. Only a command that cannot change the settings,
+    // the saved data or the analytics state can have this option.
+    runsFromLink?: boolean;
 }
 
 type HandleFunction = (input: CommandInput) => void;
@@ -17,7 +25,7 @@ const DEFAULT_COMMAND_OPTIONS : CommandOptions = {
     doNotTrack: false
 };
 
-export interface ICommandHandler {
+export interface ICommandHandler extends HandlerOptions {
     canHandle (input:string) : boolean;
     handle: HandleFunction;
 }
@@ -41,6 +49,13 @@ export class CmdShell {
         const input = rawInput.trim().toLowerCase();
         const handler = this.findHandler(input);
 
+        // Somebody else can make a link. Thus a link runs only the commands that cannot change
+        // the settings of the user, for example #incognito:off or #dark.
+        if(handler !== null && resolvedOps.fromLink === true && handler.runsFromLink !== true) {
+            this.handleError(input, new Error(`A link cannot run the command "${input}", because it can change your settings. To run it, type it.`));
+            return;
+        }
+
         if(handler !== null) {
             // if(this.debugMode) {
             //     this.invokeHandler(input, handler, ops);
@@ -63,8 +78,8 @@ export class CmdShell {
         this.errorHandler = h;
     }
    
-    command (cmd : string | object, handler? : any) {
-        const h = this.createHandler(cmd, handler);
+    command (cmd : string | object, handler? : any, options? : HandlerOptions) {
+        const h = this.createHandler(cmd, handler, options);
         if(h === null){
             console.warn('unexpected set of arguments: ', JSON.stringify(arguments));
             return;
@@ -83,13 +98,13 @@ export class CmdShell {
         this.handlers.push(h);
     };
 
-    createHandler (cmd : string | object, handler : HandleFunction) : ICommandHandler | null {
+    createHandler (cmd : string | object, handler : HandleFunction, options? : HandlerOptions) : ICommandHandler | null {
         if(is.plainObject(cmd)) {
             return cmd as ICommandHandler;
         }
 
         if(is.string(cmd)) {
-            return { canHandle: function (input) { return input === cmd; }, handle: handler };
+            return { canHandle: function (input) { return input === cmd; }, handle: handler, ...options };
         }
 
         return null;

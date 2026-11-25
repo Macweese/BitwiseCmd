@@ -46,3 +46,37 @@ describe("CmdShell", () => {
         expect(handler.handle).toHaveBeenCalled();
     });
 })
+describe("commands from a link", () => {
+    const handlers = () => {
+        const calls: string[] = [];
+        const errors: string[] = [];
+        const sut = new CmdShell();
+        sut.command("safe", () => calls.push("safe"), { runsFromLink: true });
+        sut.command("unsafe", () => calls.push("unsafe"));
+        sut.command({ runsFromLink: true, canHandle: (i: string) => i === "safe object", handle: () => calls.push("safe object") });
+        sut.command({ canHandle: (i: string) => i === "unsafe object", handle: () => calls.push("unsafe object") });
+        sut.onError((input, err) => errors.push(err.message));
+        return { sut, calls, errors };
+    };
+
+    it("run only when their handler permits it", () => {
+        const { sut, calls, errors } = handlers();
+
+        ["safe", "unsafe", "safe object", "unsafe object"].forEach(c => sut.execute(c, { doNotTrack: true, fromLink: true }));
+
+        expect(calls).toEqual(["safe", "safe object"]);
+        expect(errors).toEqual([
+            'A link cannot run the command "unsafe", because it can change your settings. To run it, type it.',
+            'A link cannot run the command "unsafe object", because it can change your settings. To run it, type it.',
+        ]);
+    });
+
+    it("all run when the user types them", () => {
+        const { sut, calls, errors } = handlers();
+
+        ["safe", "unsafe", "safe object", "unsafe object"].forEach(c => sut.execute(c, { doNotTrack: false }));
+
+        expect(calls).toEqual(["safe", "unsafe", "safe object", "unsafe object"]);
+        expect(errors).toEqual([]);
+    });
+});

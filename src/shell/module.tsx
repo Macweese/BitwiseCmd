@@ -15,12 +15,16 @@ import TipResultView from "./components/TipResultView";
 
 const shellModule = {
     setup: function(appState: AppState, cmd: CmdShell) {
-        
+
+        // The commands that a link can run. They cannot change the settings, the saved data or the
+        // analytics state. -incognito, -notrack and incognito:on can only turn analytics off.
+        const fromLink = { runsFromLink: true };
+
         cmd.debugMode = appState.debugMode;
         appState.onChange(() => cmd.debugMode = appState.debugMode);
         
-        cmd.command("help", (c: CommandInput) => appState.addCommandResult(c.input, () => <HelpResultView />));
-        cmd.command("clear", () => appState.clearCommandResults());
+        cmd.command("help", (c: CommandInput) => appState.addCommandResult(c.input, () => <HelpResultView />), fromLink);
+        cmd.command("clear", () => appState.clearCommandResults(), fromLink);
         cmd.command("dark", () => appState.setUiTheme('dark'));
         cmd.command("light", () => appState.setUiTheme('light'));
         cmd.command("midnight", () => appState.setUiTheme('midnight'));
@@ -30,17 +34,17 @@ const shellModule = {
         cmd.command("helix", () => appState.setUiTheme('helix'));
         cmd.command("emacs", () => appState.setUiTheme('emacs'));
         cmd.command("sakura", () => appState.setUiTheme('sakura'));
-        cmd.command("settings", () => appState.toggleShowSettings());
+        cmd.command("settings", () => appState.toggleShowSettings(), fromLink);
         cmd.command("bladerunner", () => appState.setUiTheme('bladerunner'));
         cmd.command("bladerunner-easter", (c: CommandInput) => { 
             document.querySelector('.app-root')!.scrollTo(0, 0);
             cmd.execute("bladerunner");
             appState.addCommandResult(c.input, () => <TextResultView text="You've discovered the hidden Blade Runner theme. Next time, to activate this theme, use the command 'bladerunner'." />);            
         });
-        cmd.command("about", (c: CommandInput) => appState.addCommandResult(c.input, () => <AboutResultView />));
-        cmd.command("whatsnew", (c: CommandInput) => appState.addCommandResult(c.input, () => <WhatsnewResultView />));
-        cmd.command("guid", (c: CommandInput) => appState.addCommandResult(c.input, () => <TextResultView text={uuid()} />));
-        cmd.command("tip", (c: CommandInput) => appState.addCommandResult(c.input, () => <TipResultView />));
+        cmd.command("about", (c: CommandInput) => appState.addCommandResult(c.input, () => <AboutResultView />), fromLink);
+        cmd.command("whatsnew", (c: CommandInput) => appState.addCommandResult(c.input, () => <WhatsnewResultView />), fromLink);
+        cmd.command("guid", (c: CommandInput) => appState.addCommandResult(c.input, () => <TextResultView text={uuid()} />), fromLink);
+        cmd.command("tip", (c: CommandInput) => appState.addCommandResult(c.input, () => <TipResultView />), fromLink);
         cmd.command("-debug", (c: CommandInput) => {
             appState.toggleDebugMode();
             const text = `Debug Mode: ${appState.debugMode}`;
@@ -57,10 +61,10 @@ const shellModule = {
             appState.addCommandResult(c.input, () => <TextResultView text={text} />);
         };
         cmd.command("incognito", (c: CommandInput) => setIncognito(c));
-        cmd.command("incognito:on", (c: CommandInput) => setIncognito(c, true));
+        cmd.command("incognito:on", (c: CommandInput) => setIncognito(c, true), fromLink);
         cmd.command("incognito:off", (c: CommandInput) => setIncognito(c, false));
-        cmd.command("-incognito", (c: CommandInput) => setIncognito(c, true));
-        cmd.command("-notrack", (c: CommandInput) => setIncognito(c, true)); // the flag's name before version 12
+        cmd.command("-incognito", (c: CommandInput) => setIncognito(c, true), fromLink);
+        cmd.command("-notrack", (c: CommandInput) => setIncognito(c, true), fromLink); // the flag's name before version 12
 
         cmd.command('annotate', () => appState.toggleAnnotateTypes());
         cmd.command('annotate:on', () => appState.toggleAnnotateTypes(true));
@@ -76,9 +80,9 @@ const shellModule = {
         cmd.command('-em:off', () => appState.toggleEmphasizeBytes(false));
 
         const showValues = (c: CommandInput, values: typeof MAX_VALUES) => appState.addCommandResult(c.input, () => <TextResultView text={values} />);
-        cmd.command("max", (c: CommandInput) => showValues(c, MAX_VALUES));
-        cmd.command("min", (c: CommandInput) => showValues(c, MIN_VALUES));
-        cmd.command("-max", (c: CommandInput) => showValues(c, MAX_VALUES)); // name before version 12
+        cmd.command("max", (c: CommandInput) => showValues(c, MAX_VALUES), fromLink);
+        cmd.command("min", (c: CommandInput) => showValues(c, MIN_VALUES), fromLink);
+        cmd.command("-max", (c: CommandInput) => showValues(c, MAX_VALUES), fromLink); // name before version 12
 
         cmd.command("donate", (c:CommandInput) => {
 

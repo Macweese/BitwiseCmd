@@ -9,6 +9,7 @@ const expressionAppModule = {
         
           // Bitwise Expressions
           cmd.command({
+            runsFromLink: true,
             canHandle: (input:string) => parser.canParse(input),
             handle: function(c: CommandInput) {
                 var expr = parser.parse(c.input);

@@ -6,7 +6,9 @@ import appStateStore from './appStateStore';
 
 export type StartupAppData = {
     appState: AppState,
-    startupCommands: string[]
+    startupCommands: string[],
+    // The startup commands come from the link that opened the page
+    fromLink: boolean
 }
 
 const STARTUP_COMMAND_KEY = 'StartupCommand';
@@ -18,11 +20,12 @@ function bootstrapAppData() : StartupAppData {
     setupLogger(env);
 
     const appState = createAppState(env);
-    const startupCommands = getStartupCommands(appState);
+    const { commands, fromLink } = getStartupCommands(appState);
 
     return {
         appState,
-        startupCommands
+        startupCommands: commands,
+        fromLink
     }
 }
 
@@ -35,8 +38,9 @@ function createAppState(env:string) {
     return appState;
 }
 
-function getStartupCommands(appState : AppState) : string[] {
+export function getStartupCommands(appState : AppState) : { commands: string[], fromLink: boolean } {
     var hashArgs = hash.getArgs(window.location.hash);
+    var fromLink = false;
 
     var startupCommands = loadStoredCommands();
 
@@ -49,13 +53,15 @@ function getStartupCommands(appState : AppState) : string[] {
 
     if(hashArgs.length > 0) {
 
-        if(hashArgs.indexOf('empty') === -1)
+        if(hashArgs.indexOf('empty') === -1) {
             startupCommands = hashArgs;
+            fromLink = true;
+        }
     }
 
     log.debug('Startup commands loaded', startupCommands);
 
-    return startupCommands;
+    return { commands: startupCommands, fromLink };
 }
 
 function loadStoredCommands() : string[] {
