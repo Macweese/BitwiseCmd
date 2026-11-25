@@ -92,6 +92,9 @@ export default class BitwiseResultViewModel {
             return result;
         }
 
+        // The evaluation converts the operands in place. Do it before the rows
+        // are made. Then each row has the size of the value that it shows.
+        expr.tree.root.evaluate();
         emitNode(expr.tree.root);
 
         // The last row emitted for an operation is the value of the whole expression

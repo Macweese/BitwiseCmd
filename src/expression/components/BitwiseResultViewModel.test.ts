@@ -31,6 +31,17 @@ describe('BitwiseResultViewModel', () => {
         expect(model.items.map(i => i.allowFlipBits)).toEqual([true, true, false, true, false, false]);
     });
 
+    it('sizes every row for the operand as the operation used it', () => {
+        const sizes = (input: string) => {
+            const model = BitwiseResultViewModel.createModel(parser.parse(input)!, false, false);
+            return { rows: model.items.map(i => i.maxBitSize), bits: model.maxNumberOfBits };
+        };
+
+        // -1 as a byte takes 8 bits, as the int it is converted to it takes 32
+        expect(sizes('-1b + 1')).toEqual({ rows: [32, 32, 32], bits: 32 });
+        expect(sizes('-1b + 1l')).toEqual({ rows: [64, 64, 64], bits: 64 });
+    });
+
     it('marks the final result', () => {
         const model = BitwiseResultViewModel.createModel(parser.parse('1 + 2 * 3')!, false, false);
         expect(model.items.map(i => i.isFinalResult)).toEqual([false, false, false, false, false, true]);
