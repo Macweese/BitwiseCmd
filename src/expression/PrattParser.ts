@@ -35,9 +35,23 @@ export class PrattParser {
 
         this.skipWhitespace();
         if (this.pos < this.input.length)
-            throw new Error(this.formatParseError("Unexpected character", this.pos));
+            throw new Error(this.formatParseError(this.describeTrailingInput(), this.pos));
 
         return root;
+    }
+
+    // The error for the text that follows a complete expression. No operator starts there.
+    private describeTrailingInput(): string {
+        const char = this.input[this.pos];
+
+        // A number, a parenthesis or a unary operator starts an operand: the operator before it is missing
+        if (char === '(' || char === '~' || this.matchLiteral(this.pos) !== null)
+            return "Expected operator";
+
+        if (char === ')')
+            return "Unexpected closing parenthesis";
+
+        return "Unexpected character";
     }
 
     private parseExpression(minPrecedence: number): ExpressionNode {

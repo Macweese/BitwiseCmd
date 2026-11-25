@@ -169,7 +169,7 @@ describe("literals", () => {
 
 describe("parse errors", () => {
     it("rejects adjacent numbers instead of merging them", () => {
-        expect(() => parse("1 2 + 3")).toThrow("Unexpected character at position 3");
+        expect(() => parse("1 2 + 3")).toThrow("Expected operator at position 3");
     });
 
     it("reports the position in the input as typed", () => {
@@ -177,8 +177,30 @@ describe("parse errors", () => {
         expect(() => parse("1 +")).toThrow("Expected number at position 4");
         expect(() => parse("1 ++ 2")).toThrow("Expected number at position 4");
         expect(() => parse("1 > 2")).toThrow("Unexpected character at position 3");
-        expect(() => parse("2(3)")).toThrow("Unexpected character at position 2");
+        expect(() => parse("2(3)")).toThrow("Expected operator at position 2");
         expect(() => parse("()")).toThrow("Expected number at position 2");
+    });
+
+    it("says that an operator is missing when an operand follows a complete expression", () => {
+        expect(() => parse("53 * 5 -- 8 3 * 2")).toThrow("Expected operator at position 13");
+        expect(() => parse("1 + 2 0x3")).toThrow("Expected operator at position 7");
+        expect(() => parse("1 (2 + 3)")).toThrow("Expected operator at position 3");
+        expect(() => parse("1 ~2")).toThrow("Expected operator at position 3");
+    });
+
+    it("says that a number is missing where an operand must be", () => {
+        expect(() => parse("53 * 5 -- 8 ** 2")).toThrow("Expected number at position 14");
+        expect(() => parse("1 + )")).toThrow("Expected number at position 5");
+        expect(() => parse("~")).toThrow("Expected number at position 2");
+    });
+
+    it("names a closing parenthesis that has no opening parenthesis", () => {
+        expect(() => parse("1 + 2)")).toThrow("Unexpected closing parenthesis at position 6");
+    });
+
+    it("keeps the general message for a character that starts nothing", () => {
+        expect(() => parse("1 + 2 > 3")).toThrow("Unexpected character at position 7");
+        expect(() => parse("1 < 2")).toThrow("Unexpected character at position 3");
     });
 
     it("division and modulo by zero", () => {
