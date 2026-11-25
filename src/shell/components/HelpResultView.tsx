@@ -114,6 +114,10 @@ function HelpResultView() {
                         <li><code>64-bit integer</code> - a.k.a Long. Numbers entered without suffixes and exceed the 32-bit range or entered with <code>l</code> and <code>ul</code> suffixes for signed and unsigned versions respectively <span className="no-break">(e.g. <code><CommandLink text='10l 10ul' /></code>)</span>.</li>
                     </ul>
                     <p>
+                        A number has to fit the type its suffix gives it: <code>200b</code> is an error, <code><CommandLink text='200ub' /></code> is fine.
+                        In a hexadecimal number <code>b</code> is a digit, so <code><CommandLink text='0x7fb' /></code> is not a byte. Write a signed byte in decimal or binary.
+                    </p>
+                    <p>
                         An operation on bytes and shorts is carried out on 32-bit integers, as in C, C++, C# and Java: 8- and 16-bit operands are promoted to a signed 32-bit integer first.
                         This is why <code><CommandLink text='127b + 1b' /></code> is 128 and <code><CommandLink text='~0ub' /></code> is -1.
                         Mask the result to keep it within a byte: <span className="no-break"><code><CommandLink text='~0x0fub & 0xff' /></code></span>.

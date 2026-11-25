@@ -25,6 +25,7 @@ function WhatsNewResultView() {
                     Bytes and shorts are promoted to 32-bit integers before an operation, as in C and Java, so{' '}
                     <code><CommandLink text="127b + 1b" /></code> is 128 and signed and unsigned ones can be mixed: <code><CommandLink text="255ub + 1b" /></code>.
                 </li>
+                <li>A number that does not fit its type, such as <code>200b</code>, is reported as an error instead of being shown with the wrong bits.</li>
                 <li>Errors in an expression point at the offending position.</li>
                 <li>Four new themes: <CommandLink text="github" />, <CommandLink text="helix" />, <CommandLink text="emacs" /> and <CommandLink text="sakura" />.</li>
                 <li>New commands: <CommandLink text="tip" /> for tips and trivia, <CommandLink text="max" /> and <CommandLink text="min" /> for the limits of the integer types, and <CommandLink text="incognito" /> to turn analytics tracking off.</li>
