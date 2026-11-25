@@ -39,7 +39,12 @@ const appStateStore = {
     },
 
     persistData(appState: AppState) {
-        localStorage.setItem(storeKey, JSON.stringify(appState.getPersistData()));
+        const json = JSON.stringify(appState.getPersistData());
+
+        // Most changes, for example a new result, do not change the saved data. A write takes
+        // more time than a read, also if the value is the same.
+        if (localStorage.getItem(storeKey) !== json)
+            localStorage.setItem(storeKey, json);
     }
 };
 

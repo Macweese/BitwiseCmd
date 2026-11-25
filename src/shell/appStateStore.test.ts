@@ -3,6 +3,8 @@ import analyticsTracking from './analyticsTracking';
 import AppState from './AppState';
 
 beforeEach(() => localStorage.clear());
+// react-scripts resets the mocks before each test, but it does not restore the spied functions
+afterEach(() => jest.restoreAllMocks());
 
 describe('appStateStore', () => {
     it('returns the defaults when nothing is stored', () => {
@@ -36,6 +38,40 @@ describe('appStateStore', () => {
         appStateStore.persistData(state);
 
         expect(appStateStore.getPersistedData().settingsEmphasizeBytes).toBe(true);
+    });
+});
+
+describe('saving the state', () => {
+    function watchedState() {
+        const state = new AppState(appStateStore.getPersistedData(), 'test');
+        appStateStore.watch(state);
+        return state;
+    }
+
+    it('writes only when the saved data changes', () => {
+        const state = watchedState();
+        const setItem = jest.spyOn(Storage.prototype, 'setItem');
+
+        state.addCommandResult('1', () => null as unknown as JSX.Element);
+        expect(setItem).toHaveBeenCalledTimes(1);
+
+        state.addCommandResult('2', () => null as unknown as JSX.Element);
+        state.toggleShowSettings();
+        expect(setItem).toHaveBeenCalledTimes(1);
+
+        state.setUiTheme('light');
+        expect(setItem).toHaveBeenCalledTimes(2);
+        expect(JSON.parse(localStorage.getItem('AppState')!).uiTheme).toBe('light');
+    });
+
+    it('writes the data again if something else changed the stored value', () => {
+        const state = watchedState();
+        state.setUiTheme('light');
+
+        localStorage.removeItem('AppState');
+        state.addCommandResult('1', () => null as unknown as JSX.Element);
+
+        expect(JSON.parse(localStorage.getItem('AppState')!).uiTheme).toBe('light');
     });
 });
 
