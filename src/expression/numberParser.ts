@@ -3,7 +3,8 @@ import { NumberBase } from "../core/formatter";
 import { Integer } from "../core/Integer";
 
 const numberRegexString = "-?([0-9]+|0b[0-1]+|0x[0-9a-f]+)(l|s|b|ul|us|ub|u)?";
-const numberRegexFullString = "^"+numberRegexString+"$"
+// The pattern has no flag g. Thus it keeps no state between two uses.
+const numberRegexFull = new RegExp("^" + numberRegexString + "$");
 
 export interface ParsedNumber {
     value: Integer;
@@ -21,8 +22,7 @@ class NumberParser {
     }
 
     caseParse(input : string) {
-        const regex = new RegExp(numberRegexFullString);
-        return regex.test(input.toLowerCase());
+        return numberRegexFull.test(input.toLowerCase());
     }
 
     parse (input : string) : ParsedNumber {
@@ -31,7 +31,7 @@ class NumberParser {
 
         // Prefixes and suffixes are accepted in either case (0XFFu, 10UL)
         const normalized = input.toLowerCase();
-        const m = new RegExp(numberRegexFullString).exec(normalized);
+        const m = numberRegexFull.exec(normalized);
 
         if(m === null || m.length === 0)
             throw new Error(input + " is not a number");
