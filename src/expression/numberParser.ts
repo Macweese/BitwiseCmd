@@ -55,6 +55,8 @@ function parseInteger(input : string, numberPart: string, suffix: string)  : Int
     const bitSize = getSizeBySuffix(suffix, num, signed, isNegative);
     const newValue = isNegative  ? -num : num;
 
+    validateRange(newValue, bitSize, signed);
+
     if(!signed && isNegative)
     {
         const signed = new Integer(newValue, bitSize, true);
@@ -63,6 +65,30 @@ function parseInteger(input : string, numberPart: string, suffix: string)  : Int
     }
 
     return new Integer(newValue, bitSize, signed);
+}
+
+// A number with the suffix b or s must fit its type. Without this check, 200b was a
+// signed byte with the value 200. A 32-bit number that is too large becomes a 64-bit
+// number. The check of a 64-bit number occurs when its operand is made.
+function validateRange(value: bigint, bitSize: number, signed: boolean) {
+
+    if(bitSize >= 32) return;
+
+    if(signed) {
+        const max = (BigInt(1) << BigInt(bitSize - 1)) - BigInt(1);
+        const min = -max - BigInt(1);
+
+        if(value < min || value > max)
+            throw new Error(`Signed ${bitSize}-bit numbers are supported in range from ${min} to ${max}. Given number was ${value}.`);
+
+        return;
+    }
+
+    // A negative unsigned number wraps, as -1u does. Thus the limit applies to its magnitude only.
+    const max = (BigInt(1) << BigInt(bitSize)) - BigInt(1);
+
+    if(value > max || value < -max)
+        throw new Error(`Unsigned ${bitSize}-bit numbers larger than ${max} are not supported. Given number was ${value}.`);
 }
 
 function getSizeBySuffix(suffix: string, value : bigint, signed: boolean, isNegative: boolean) {

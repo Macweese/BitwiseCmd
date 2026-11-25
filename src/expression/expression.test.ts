@@ -26,6 +26,13 @@ describe("expression parser", () => {
         expect(parser.parse("1 0xff,ff")).toBeNull();
     });
 
+    it("rejects a number that does not fit its type, in a list and in an expression", () => {
+        expect(() => parser.parse("1b 200b")).toThrowError("Given number was 200.");
+        expect(() => parser.parse("1 + 200b")).toThrowError("Given number was 200.");
+        expect(() => parser.parse("~(-129b)")).toThrowError("Given number was -129.");
+        expect(() => parser.parse("65536us >> 1")).toThrowError("Given number was 65536.");
+    });
+
     it("parses expressions with every operator", () => {
         expect(parser.parse("~1")).toBeInstanceOf(BitwiseOperation);
         expect(parser.parse("1^2")).toBeInstanceOf(BitwiseOperation);

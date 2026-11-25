@@ -175,6 +175,34 @@ describe("parser", () => {
         //expect(v2?.num()).toEqual(v?.num());
     });
 
+    it('accepts the limits of the 8- and 16-bit types', () => {
+        const value = (input: string) => numberParser.parse(input).value.num();
+
+        expect(value('127b')).toBe(127);
+        expect(value('-128b')).toBe(-128);
+        expect(value('0b1111111b')).toBe(127);
+        expect(value('255ub')).toBe(255);
+        expect(value('-255ub')).toBe(1);
+        expect(value('32767s')).toBe(32767);
+        expect(value('-32768s')).toBe(-32768);
+        expect(value('0x7fffs')).toBe(32767);
+        expect(value('65535us')).toBe(65535);
+        expect(value('-65535us')).toBe(1);
+    });
+
+    it('rejects a number that does not fit its 8- or 16-bit type', () => {
+        expect(() => numberParser.parse('200b')).toThrowError("Signed 8-bit numbers are supported in range from -128 to 127. Given number was 200.");
+        expect(() => numberParser.parse('-32769s')).toThrowError("Signed 16-bit numbers are supported in range from -32768 to 32767. Given number was -32769.");
+        expect(() => numberParser.parse('256ub')).toThrowError("Unsigned 8-bit numbers larger than 255 are not supported. Given number was 256.");
+        expect(() => numberParser.parse('-65536us')).toThrowError("Unsigned 16-bit numbers larger than 65535 are not supported. Given number was -65536.");
+
+        for (const input of ['128b', '-129b', '-255b', '0b10000000b', '32768s', '65535s', '0xffffs'])
+            expect(() => numberParser.parse(input)).toThrowError(/^Signed (8|16)-bit numbers are supported in range/);
+
+        for (const input of ['-256ub', '0x100ub', '65536us', '0x10000us'])
+            expect(() => numberParser.parse(input)).toThrowError(/^Unsigned (8|16)-bit numbers larger than/);
+    });
+
     it('allows negative unsigned for the sake of cimplicity', () => {
         
         const ubyte = numberParser.parse("-1ub").value;
