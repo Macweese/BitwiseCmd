@@ -69,6 +69,13 @@ describe('calc.addSpace', () => {
         expect(actual.maxBitSize).toBe(16);
         expect(actual.num()).toBe(-1);
     })
+
+    it('keeps an unsigned number unsigned', () => {
+        const actual = calc.addSpace(Integer.unsigned(200, 8), 1);
+        expect(actual.maxBitSize).toBe(16);
+        expect(actual.num()).toBe(200);
+        expect(actual.signed).toBe(false);
+    })
 });
 
 describe('calc.numberOfBitsDisplayed', () => {

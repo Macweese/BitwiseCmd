@@ -24,7 +24,7 @@ const calc = {
             throw new Error("Required space cannot be negative.");
 
         const totalSpaceRequired = number.maxBitSize + requiredSpace;
-        return new Integer(number.value, nextPowOfTwo(totalSpaceRequired));
+        return new Integer(number.value, nextPowOfTwo(totalSpaceRequired), number.signed);
     },
 
     operation (op1: Integer, operator: string, op2 : Integer) : Integer {
