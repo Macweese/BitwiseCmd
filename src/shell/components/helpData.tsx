@@ -16,13 +16,13 @@ export const HELPFUL_TIPS: readonly TipEntry[] = [
     {
         content: (
             <>
-                Advanced computational techniques like{' '}
+                Techniques like{' '}
                 <a target='_blank' href='https://en.wikipedia.org/wiki/Single_instruction,_multiple_data' rel="noreferrer">SIMD</a>{' '}
                 and{' '}
                 <a target='_blank' href='https://en.wikipedia.org/wiki/SWAR' rel="noreferrer">SWAR</a>{' '}
-                heavily exploit the binary layout for performance optimizations, and data compression through{' '}
-                <a target='_blank' href='https://www.cs.cornell.edu/courses/cs3410/2024fa/notes/bitpack.html' rel="noreferrer">bit-packing</a>
-                .<br/>
+                use the binary layout of data to process several values with one instruction, and{' '}
+                <a target='_blank' href='https://www.cs.cornell.edu/courses/cs3410/2024fa/notes/bitpack.html' rel="noreferrer">bit-packing</a>{' '}
+                puts several small values into one word to save memory.<br/>
                 Learn more:{' '}
                 <span className="no-break" >
                     <a target='_blank' href='https://en.wikipedia.org/wiki/Bit_field' rel="noreferrer">Bit-field</a>
@@ -49,9 +49,9 @@ export const HELPFUL_TIPS: readonly TipEntry[] = [
                         <span className="pre">
                             {/* eslint-disable react/jsx-no-comment-textnodes */}
                             // 01010101...01<br/>
-                            evenBits = <CommandLink text="0x55555555" /><br/><br/>
+                            evenBits = <CommandLink text="0x55555555u" /><br/><br/>
                             // 10101010...10<br/>
-                            oddBits = <CommandLink text="0xAAAAAAAA" /><br/><br/>
+                            oddBits = <CommandLink text="0xAAAAAAAAu" /><br/><br/>
                             // Checkerboard pattern (8×8 example)<br/>
                             checkerboard = <CommandLink text="0x55AA55AA55AA55AA" />
                             {/* eslint-enable react/jsx-no-comment-textnodes */}
@@ -100,7 +100,7 @@ export const HELPFUL_TIPS: readonly TipEntry[] = [
                 <p>
                     <span className="no-break"><code>~n & (n + 1)</code></span>
                 </p>
-                This is useful when working with graphics, or creating masks.<br/><br/>
+                In a bitmap of used slots, this is the first free slot.<br/><br/>
                 Try it:<br/>
                 <p>
                     <span className="pre">
@@ -135,6 +135,10 @@ export const HELPFUL_TIPS: readonly TipEntry[] = [
                     <span className="no-break"><code><CommandLink text="(9197 ^ (9197 >> 31)) - (9197 >> 31)" /></code></span><br/>
                     <span className="no-break"><code><CommandLink text="(-9197 ^ (-9197 >> 31)) - (-9197 >> 31)" /></code></span>
                 </p>
+                As with <code>abs()</code> in C and Java, the smallest number stays negative, because its positive value does not fit the type:
+                <p>
+                    <span className="no-break"><code><CommandLink text="(-2147483648 ^ (-2147483648 >> 31)) - (-2147483648 >> 31)" /></code></span>
+                </p>
             </>
         ),
     },
@@ -142,13 +146,13 @@ export const HELPFUL_TIPS: readonly TipEntry[] = [
     {
         content: (
             <>
-                Convert a character between uppercase and lowercase using bits:
+                Convert an ASCII letter between uppercase and lowercase using bits:
                 <p>
                     <code>
                         <span className="pre">
-                            c ^ ' ' // char 'c' toggles case<br/>
-                            c | ' ' // char 'c' becomes lowercase<br/>
-                            c & '_' // char 'c' becomes uppercase<br/>
+                            c ^ ' ' // toggles the case of the letter c<br/>
+                            c | ' ' // the letter c becomes lowercase<br/>
+                            c & '_' // the letter c becomes uppercase<br/>
                         </span>
                     </code>
                 </p>
@@ -206,9 +210,11 @@ export const HELPFUL_TIPS: readonly TipEntry[] = [
     {
         content: (
             <>
-                You can click on bits to flip them in number inputs{" "}
-                <span className="no-break">(e.g. <code><CommandLink text="2 4" /></code>)</span>{" "}
-                or IP addresses{" "}
+                You can click on bits to flip them in numbers{" "}
+                <span className="no-break">(e.g. <code><CommandLink text="2 4" /></code>)</span>,{" "}
+                in the operands of an expression, which calculates the result again{" "}
+                <span className="no-break">(e.g. <code><CommandLink text="12 & 10" /></code>)</span>,{" "}
+                or in IP addresses{" "}
                 <span className="no-break">(e.g. <code><CommandLink text="192.168.0.0/8" /></code>)</span>.
             </>
         ),
@@ -248,7 +254,7 @@ export const HELPFUL_TIPS: readonly TipEntry[] = [
     {
         content: (
             <>
-                You can enter multiple expressions at once:
+                You can enter several numbers at once:
                 {' '}<code><CommandLink text="5 28 0b101010 0xF" noBreak={true} /></code>
             </>
         ),
@@ -296,6 +302,7 @@ export const HELPFUL_TIPS: readonly TipEntry[] = [
                         </span>
                     </code>
                 </p>
+                The result is rounded down: <code><CommandLink text="(7 & 8) + ((7 ^ 8) >> 1)" noBreak={true} /></code> is 7.
             </>
         ),
     },
@@ -310,6 +317,7 @@ export const HELPFUL_TIPS: readonly TipEntry[] = [
                             n |=  (1 &lt;&lt; k)  // set<br/>
                             n ^=  (1 &lt;&lt; k)  // toggle<br/>
                             n &=  ~(1 &lt;&lt; k) // clear<br/>
+                            (n &gt;&gt; k) & 1    // read<br/>
                         </span>
                     </code>
                 </p>
@@ -320,23 +328,18 @@ export const HELPFUL_TIPS: readonly TipEntry[] = [
     {
         content: (
             <>
-                If you want to right-propagate (set all bits after) the rightmost set bit, you can do:
+                To set all the bits below the lowest set bit, you can do:
                 <p>
-                    <code>
-                        <span className="no-break">
-                            n |= n - 1 // sets all lower bits<br/>
-                        </span>
-                        <br/>
-                    </code>
-                    Check it out:
-                    <code>
-                        <span className="no-break">
-                            <p>
-                                <CommandLink text={"72"}></CommandLink><br/>
-                                <CommandLink text={"72 | (72 - 1)"}></CommandLink>
-                            </p>
-                        </span>
-                    </code>
+                    <span className="no-break"><code>n |= n - 1</code></span>
+                </p>
+                Check it out:
+                <p>
+                    <span className="pre">
+                        <code>
+                            <CommandLink text="72" /><br/>
+                            <CommandLink text="72 | (72 - 1)" />
+                        </code>
+                    </span>
                 </p>
             </>
         ),
@@ -393,6 +396,7 @@ export const HELPFUL_TIPS: readonly TipEntry[] = [
                     </span>
                     <br/>
                 </pre>
+                Try it: <code><CommandLink text="-7 % 2" noBreak={true} /></code> and <code><CommandLink text="-7 & 1" noBreak={true} /></code>.<br/>
                 Though the first alternative can also be used intentionally, to check for only positive odd numbers!
             </>
         ),
@@ -422,6 +426,7 @@ export const HELPFUL_TIPS: readonly TipEntry[] = [
                 {' '}<code><CommandLink text="-~5" noBreak={true} /></code>,
                 {' '}<code><CommandLink text="~-5" noBreak={true} /></code>
                 {' '}or <code><CommandLink text="-~-5" noBreak={true} /></code>.
+                {' '}In two's complement, <code>-x</code> is <code>~x + 1</code>: <code><CommandLink text="~5 + 1" noBreak={true} /></code>.
             </>
         ),
     },
@@ -443,10 +448,12 @@ export const HELPFUL_TIPS: readonly TipEntry[] = [
                     <code>b = a ^ b</code><br/>
                     <code>a = a ^ b</code><br/>
                 </pre>
-                Cool huh?
+                Cool huh? But careful: if <code>a</code> and <code>b</code> are the same variable, for example two references to one array element, the result is 0.
+                {' '}Compilers also make the normal swap at least as fast.
             </>
         ),
     },
+
 ] as const;
 
 export type CommandEntry = {
