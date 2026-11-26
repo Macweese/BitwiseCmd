@@ -27,13 +27,25 @@ function WhatsNewResultView() {
                 </li>
                 <li>A number that does not fit its type, such as <code>200b</code>, is reported as an error instead of being shown with the wrong bits.</li>
                 <li>
+                    The prefix of a number sets its base: <code><CommandLink text="0x0b" /></code> is the hexadecimal 11,
+                    and <code><CommandLink text="10b" /></code> is the decimal 10 as a byte.
+                </li>
+                <li>
                     A warning triangle marks what a program may do differently (an overflow, an automatic conversion, a shift count out of range)
                     and says how other languages treat it: <code><CommandLink text="2147483647 + 1" /></code>.
+                    A negative unsigned number gets one too: <code><CommandLink text="-127ub" /></code> has the bits of -127, which are 129 as an unsigned byte.
                 </li>
                 <li>Errors in an expression point at the offending position.</li>
                 <li>Four new themes: <CommandLink text="github" />, <CommandLink text="helix" />, <CommandLink text="emacs" /> and <CommandLink text="sakura" />.</li>
                 <li>New commands: <CommandLink text="tip" /> for tips and trivia, <CommandLink text="max" /> and <CommandLink text="min" /> for the limits of the integer types, and <CommandLink text="incognito" /> to turn analytics tracking on or off.</li>
                 <li>The cookie notice is a floating panel, the input box is centered, and results show the sign and the operator in their own columns.</li>
+                <li>Long sessions stay fast: a new result no longer renders the other results again. The page keeps the last 500 results.</li>
+                <li>The page downloads less JavaScript: the icons are part of the page, without the Font Awesome packages.</li>
+                <li>
+                    An expression can have at most 128 operators and 128 levels of parentheses, and a list at most 256 numbers or IP addresses.
+                    A longer input gives an error, where before it could stop the page for seconds.
+                </li>
+                <li>A link to a result runs only commands that cannot change your settings. To use a command such as <code>dark</code> from a link, type it.</li>
             </ul>
         </div>
         <div className='item'>
