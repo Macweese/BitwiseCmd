@@ -32,7 +32,7 @@ function WhatsNewResultView() {
                 </li>
                 <li>Errors in an expression point at the offending position.</li>
                 <li>Four new themes: <CommandLink text="github" />, <CommandLink text="helix" />, <CommandLink text="emacs" /> and <CommandLink text="sakura" />.</li>
-                <li>New commands: <CommandLink text="tip" /> for tips and trivia, <CommandLink text="max" /> and <CommandLink text="min" /> for the limits of the integer types, and <CommandLink text="incognito" /> to turn analytics tracking off.</li>
+                <li>New commands: <CommandLink text="tip" /> for tips and trivia, <CommandLink text="max" /> and <CommandLink text="min" /> for the limits of the integer types, and <CommandLink text="incognito" /> to turn analytics tracking on or off.</li>
                 <li>The cookie notice is a floating panel, the input box is centered, and results show the sign and the operator in their own columns.</li>
             </ul>
         </div>
@@ -64,20 +64,20 @@ function WhatsNewResultView() {
         <div className='item'>
             <p>
                 <span className="soft date">May 10th, 2023</span> <br />
-                <p>
-                    Behold! After a long time of inactivity, BitwiseCmd is getting an update. Here is what changed:
-                </p>
-                <ul>
-                    <li>The browser's JavaScript engine is no longer used for executing bitwise operations.
-                        BitwiseCmd now has its own shiny, custom-built bitwise calculator that supports bitwise operations on integers of different sizes (8, 16, 32, and 64 bits), in both signed and unsigned variants. <CommandLink text='Check it out!' command='-1b 255ub -1 4294967295u -1l 18446744073709551615u' />&nbsp;
-                        This calculator follows the behavior of bitwise operations as implemented in C, including edge cases.
-                        For example, shifting an integer by a number of bits equal to its width is undefined behavior in C (see this <a href="https://codeyarns.com/tech/2004-12-20-c-shift-operator-mayhem.html#gsc.tab=0">link</a>).
-                    </li>
-                    <li>A slightly improved UI</li>
-                </ul>
-                <p>I'm sure there will be some bugs following such a big update. I will do my best to fix them as they are found.</p>
-                <p>Many thanks to everyone who submitted issues on GitHub. Your feedback is greatly appreciated.</p>
             </p>
+            <p>
+                Behold! After a long time of inactivity, BitwiseCmd is getting an update. Here is what changed:
+            </p>
+            <ul>
+                <li>The browser's JavaScript engine is no longer used for executing bitwise operations.
+                    BitwiseCmd now has its own shiny, custom-built bitwise calculator that supports bitwise operations on integers of different sizes (8, 16, 32, and 64 bits), in both signed and unsigned variants. <CommandLink text='Check it out!' command='-1b 255ub -1 4294967295u -1l 18446744073709551615u' />&nbsp;
+                    This calculator follows the behavior of bitwise operations as implemented in C, including edge cases.
+                    For example, shifting an integer by a number of bits equal to its width is undefined behavior in C (see this <a href="https://codeyarns.com/tech/2004-12-20-c-shift-operator-mayhem.html#gsc.tab=0">link</a>).
+                </li>
+                <li>A slightly improved UI</li>
+            </ul>
+            <p>I'm sure there will be some bugs following such a big update. I will do my best to fix them as they are found.</p>
+            <p>Many thanks to everyone who submitted issues on GitHub. Your feedback is greatly appreciated.</p>
         </div>
         <div className='item'>
             <span className="soft date">May 5th, 2023</span> <br />
@@ -86,12 +86,11 @@ function WhatsNewResultView() {
             </p>
         </div>
         <div className="item">
-            <p><span className="soft date">Jul 24th, 2021</span> <br />
-                <ul>
-                    <li>Added support for the <code>vpc</code> command to see how the VPC network address bits are divided between the VPC, subnets, and hosts. Try it out: <CommandLink text="vpc 192.168.24.1/24" /></li>
-                    <li>Added the ability to remove individual results</li>
-                </ul>
-            </p>
+            <p><span className="soft date">Jul 24th, 2021</span> <br /></p>
+            <ul>
+                <li>Added support for the <code>vpc</code> command to see how the VPC network address bits are divided between the VPC, subnets, and hosts. Try it out: <CommandLink text="vpc 192.168.24.1/24" /></li>
+                <li>Added the ability to remove individual results</li>
+            </ul>
         </div>
         <div className="item">
             <span className="soft date">Jun 16th, 2021</span>
