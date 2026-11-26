@@ -454,6 +454,140 @@ export const HELPFUL_TIPS: readonly TipEntry[] = [
         ),
     },
 
+    {
+        content: (
+            <>
+                <code><CommandLink text="0x1b" noBreak={true} /></code> is the int 27, not a byte: in a hexadecimal number, <code>b</code> is a digit.
+                {' '}For a byte, write <code><CommandLink text="27b" noBreak={true} /></code> or <code><CommandLink text="0b11011b" noBreak={true} /></code>.
+            </>
+        ),
+    },
+
+    {
+        content: (
+            <>
+                In C, C++, C# and Java, bytes and shorts are promoted to int before an operation.
+                {' '}Thus <code><CommandLink text="127b + 1b" noBreak={true} /></code> is 128, not -128,
+                {' '}and <code><CommandLink text="1b << 8" noBreak={true} /></code> is 256.
+                {' '}The warning triangle on the result shows where the type changed.
+            </>
+        ),
+    },
+
+    {
+        content: (
+            <>
+                Java and x86 processors use only the low 5 bits of the shift count of an int,
+                {' '}so <code><CommandLink text="1 << 33" noBreak={true} /></code> is 2.
+                {' '}In C and C++ the same shift is undefined behavior.
+                {' '}A 64-bit number uses 6 bits of the count: <code><CommandLink text="1l << 33" noBreak={true} /></code>.
+            </>
+        ),
+    },
+
+    {
+        content: (
+            <>
+                A right shift is not always a division by 2:
+                {' '}<code><CommandLink text="-7 >> 1" noBreak={true} /></code> is -4,
+                {' '}but <code><CommandLink text="-7 / 2" noBreak={true} /></code> is -3.
+                {' '}The shift rounds toward minus infinity, the division rounds toward zero.
+            </>
+        ),
+    },
+
+    {
+        content: (
+            <>
+                For a number that is not negative, <code>n % 8</code> is the same as <code>n & 7</code>:
+                {' '}<code><CommandLink text="9 % 8" noBreak={true} /></code>, <code><CommandLink text="9 & 7" noBreak={true} /></code>.
+                {' '}For a negative number it is not:
+                {' '}<code><CommandLink text="-9 % 8" noBreak={true} /></code> is -1,
+                {' '}<code><CommandLink text="-9 & 7" noBreak={true} /></code> is 7.
+                {' '}The mask works for any power of two.
+            </>
+        ),
+    },
+
+    {
+        content: (
+            <>
+                <code>x ^ x</code> is 0, and <code>x ^ 0</code> is <code>x</code>.
+                {' '}Thus, if each value of a list occurs two times except one, the XOR of all values is that one value:
+                <p>
+                    <span className="no-break"><code><CommandLink text="5 ^ 9 ^ 7 ^ 9 ^ 5" /></code></span>
+                </p>
+            </>
+        ),
+    },
+
+    {
+        content: (
+            <>
+                To read one byte of a number, shift it to the right and mask it:
+                <p>
+                    <span className="pre">
+                        <code>
+                            <CommandLink text="0xcafe & 0xff" />{'          // low byte'}<br/>
+                            <CommandLink text="(0xcafe >> 8) & 0xff" />{'   // second byte'}
+                        </code>
+                    </span>
+                </p>
+            </>
+        ),
+    },
+
+    {
+        content: (
+            <>
+                To round a 32-bit number up to the next power of two, copy its highest set bit into all lower bits, then add 1:
+                <p>
+                    <code>
+                        <span className="pre">
+                            {'	'}n--<br/>
+                            {'	'}n |= n &gt;&gt; 1<br/>
+                            {'	'}n |= n &gt;&gt; 2<br/>
+                            {'	'}n |= n &gt;&gt; 4<br/>
+                            {'	'}n |= n &gt;&gt; 8<br/>
+                            {'	'}n |= n &gt;&gt; 16<br/>
+                            {'	'}n++
+                        </span>
+                    </code>
+                </p>
+                The first <code>n--</code> keeps a number that is already a power of two as it is.
+            </>
+        ),
+    },
+
+    {
+        content: (
+            <>
+                <code><CommandLink text="-2147483648" noBreak={true} /></code> is a 32-bit int here, as in Java,
+                {' '}but <code><CommandLink text="-(2147483648)" noBreak={true} /></code> is 64-bit:
+                {' '}2147483648 does not fit an int, so it is a 64-bit number before the minus.
+                {' '}C has no negative literals, so in C even <code>-2147483648</code> is 64-bit.
+                {' '}That is why C headers write <code>INT_MIN</code> as <code>(-2147483647 - 1)</code>.
+            </>
+        ),
+    },
+
+    {
+        content: (
+            <>
+                The command <code><CommandLink text="annotate" noBreak={true} /></code> shows the type of each number next to its row.
+                {' '}Try it with <code><CommandLink text="1b 1s 1 1l" noBreak={true} /></code>.
+            </>
+        ),
+    },
+
+    {
+        content: (
+            <>
+                The link icon of a result copies a link to it. When somebody opens the link, the page shows the same result.
+                {' '}A link does not change the settings of the person who opens it.
+            </>
+        ),
+    },
 ] as const;
 
 export type CommandEntry = {
